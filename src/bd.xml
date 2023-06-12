@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<BOARD_DRAWER_DOCUMENT>
+<ITEMS>
+   <PLATE name="plate1" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+   <CONNECTOR name="connector1" type="cnt" level="1" width="4">
+     <POINT x = "10" y="10" /> 
+     <POINT x = "30" y="10" /> 
+     <POINT x = "30" y="30" /> 
+     <POINT x = "10" y="10" /> 
+   </CONNECTOR> 
+   <CONTAINER name="dip1" type="generic" x="120" y="120" level="0">
+     <PACKAGE name="pack1" x="120" y="120" width="70" height="90" level="0" />
+     <PLATE name="plate1" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />     
+     <PLATE name="plate2" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+     <PLATE name="plate3" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+     <PLATE name="plate4" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+     <PLATE name="plate5" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+     <PLATE name="plate6" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+     <PLATE name="plate7" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+     <PLATE name="plate8" type="rnd_plt" x="120" y="120" d_ex="25" d_in="10" level="1" />
+   </CONTAINER>
+</ITEMS>
+</BOARD_DRAWER_DOCUMENT>
