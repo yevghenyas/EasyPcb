@@ -56,7 +56,7 @@ MainWindow::MainWindow()
    connect(saveAsAct, SIGNAL(triggered()), m_widget, SLOT(saveAs()));
 
    const QIcon gbrIcon = QIcon::fromTheme("document-open", QIcon(":/images/gbr.png"));
-   gbrAct = new QAction(gbrIcon,tr("Gerber"), this);
+   gbrAct = new QAction(gbrIcon,tr("Gerber file"), this);
    gbrAct->setStatusTip(tr("Export to gerber file"));
    connect(gbrAct, &QAction::triggered, m_widget, &MyWidget::exportGerber);
    fileBar->addAction(gbrAct);
@@ -144,7 +144,6 @@ MainWindow::MainWindow()
    toolsBar->addAction(unloadTemplateAct);
 
 
-
    const QIcon autoIcon = QIcon::fromTheme("document-open", QIcon(":/images/auto.png"));
    autodrawAction = new QAction(autoIcon,tr("Construct PCB"),this);
    autodrawAction->setStatusTip(tr("Replace electrical connector with physical"));
@@ -159,6 +158,8 @@ MainWindow::MainWindow()
    fileMenu->addAction(openAct);
    fileMenu->addAction(saveAct);
    fileMenu->addAction(saveAsAct);
+   auto exportMenu = fileMenu->addMenu(tr("Export"));
+   exportMenu->addAction(gbrAct);
    fileMenu->addAction(printAct);
    fileMenu->addAction(exitAct);
 
