@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<COMPONENTS>
+    <PASSIVE>
+        <DIP>
+            <RESISTORS>
+                <RESISTOR name="r_dip3" type="r_dip3" x="0" y="0" width="3" level="2"/>
+                <RESISTOR name="r_dip6" type="r_dip6" x="0" y="0" width="6" level="2"/>
+                <RESISTOR name="r_dip7" type="r_dip7" x="0" y="0" width="7" level="2"/>
+                <RESISTOR name="r_dip8" type="r_dip8" x="0" y="0" width="8" level="2"/>
+                <RESISTOR name="r_dip9" type="r_dip9" x="0" y="0" width="9" level="2"/>
+                <RESISTOR name="r_dip10" type="r_dip10" x="0" y="0" width="10" level="2"/>
+                <RESISTOR name="r_dip11" type="r_dip11" x="0" y="0" width="11" level="2"/>
+                <RESISTOR name="r_dip15" type="r_dip15" x="0" y="0" width="15" level="2"/>
+                <RESISTOR name="r_dip_large" type="r_dip_large" x="0" y="0" width="16" level="2"/>
+            </RESISTORS>
+            <CAPACITORS>
+                <CAPACITOR name="c5" type="c5" x="0" y="0" width="5.0" level="2"/>
+                <CAPACITOR name="c6" type="c6" x="0" y="0" width="6.3" level="2"/>
+                <CAPACITOR name="c8" type="c8" x="0" y="0" width="8.0" level="2"/>
+                <CAPACITOR name="c10" type="c10" x="0" y="0" width="10.0" level="2"/>
+                <CAPACITOR name="c12" type="c12" x="0" y="0" width="12.5" level="2"/>
+                <CAPACITOR name="clarge" type="clarge" x="0" y="0" width="16.0" level="2"/>
+            </CAPACITORS>
+            <EL_CAPACITORS>
+                <EL_CAPACITOR name="c_el5" type="c_el5" x="0" y="0" width="5.0" level="2"/>
+                <EL_CAPACITOR name="c_el6" type="c_el6" x="0" y="0" width="6.3" level="2"/>
+                <EL_CAPACITOR name="c_el8" type="c_el8" x="0" y="0" width="8.0" level="2"/>
+                <EL_CAPACITOR name="c_el10" type="c_el10" x="0" y="0" width="10.0" level="2"/>
+                <EL_CAPACITOR name="c_el12" type="c_el12" x="0" y="0" width="12.5" level="2"/>
+                <EL_CAPACITOR name="c_el_large" type="c_el_large" x="0" y="0" width="16.0" level="2"/>
+                <CONNECTOR name="" type="cnt" width="2.000000" level="2" style="0" cnt_type="0">
+                    <POINT x="102.349998" y="19.900000"/>
+                    <POINT x="116.699997" y="12.250000"/>
+                </CONNECTOR>
+            </EL_CAPACITORS>
+            <INDUCTORS>
+                <CONTAINER name="UU9LF" type="generic" x="15.000000" y="13.200000" level="128" parent="y">
+                    <PLATE_RND name="16" type="plt_rnd" x="-3.660000" y="-4.040000" d_ex="2.500000" d_in="0.800000" level="2"/>
+                    <PLATE_RND name="17" type="plt_rnd" x="3.340000" y="-4.040000" d_ex="2.500000" d_in="0.800000" level="2"/>
+                    <PLATE_RND name="18" type="plt_rnd" x="-3.560000" y="3.980000" d_ex="2.500000" d_in="0.800000" level="2"/>
+                    <PLATE_RND name="19" type="plt_rnd" x="3.440000" y="3.980000" d_ex="2.500000" d_in="0.800000" level="2"/>
+                    <PACKAGE_RECT name="20" type="rect_pkg" x="0.000000" y="0.000000" width="11.000000" height="16.500000" level="128" o="0" f="0"/>
+                </CONTAINER>
+                <CONTAINER name="RCR1616-Sumida" type="generic" x="87.820000" y="34.400002" level="2" parent="y">
+                    <PACKAGE_RND name="322" type="rnd_pkg" x="0.000000" y="0.000000" d_ex="16.000000" level="128" o="1" angle_start="0" angle_span="0" chord="0"/>
+                    <PLATE_RND name="323" type="plt_rnd" x="-0.070000" y="-4.400000" d_ex="3.000000" d_in="1.000000" level="2"/>
+                    <PLATE_RND name="324" type="plt_rnd" x="0.030000" y="4.550000" d_ex="3.000000" d_in="1.000000" level="2"/>
+                </CONTAINER>
+            </INDUCTORS>
+            <DIODES>
+                <CONTAINER name="Diode7mm" type="generic" x="15.000000" y="13.200000" level="2" parent="y">
+                    <PACKAGE_RECT name="105" type="rect_pkg" x="0.000000" y="0.000000" width="7.000000" height="2.300000" level="128" o="0" f="0"/>
+                    <PLATE_RND name="106" type="plt_rnd" x="-4.550000" y="-0.050000" d_ex="1.800000" d_in="0.800000" level="2"/>
+                    <PLATE_RND name="107" type="plt_rnd" x="4.450000" y="-0.050000" d_ex="1.800000" d_in="0.800000" level="2"/>
+                    <PACKAGE_RECT name="108" type="rect_pkg" x="-2.750000" y="0.100000" width="1.100000" height="2.000000" level="128" o="0" f="1"/>
+                </CONTAINER>
+                <CONTAINER name="Diode6mm" type="generic" x="30.650000" y="12.849999" level="64" parent="y">
+                    <PACKAGE_RECT name="111" type="rect_pkg" x="-0.100000" y="0.000000" width="6.000000" height="2.300000" level="1" o="1" f="0"/>
+                    <PLATE_RND name="112" type="plt_rnd" x="-0.100000" y="-4.100000" d_ex="1.800000" d_in="0.800000" level="64"/>
+                    <PLATE_RND name="113" type="plt_rnd" x="-0.100000" y="3.900000" d_ex="1.800000" d_in="0.800000" level="64"/>
+                    <PACKAGE_RECT name="114" type="rect_pkg" x="-0.120000" y="-2.430000" width="0.850000" height="2.150000" level="1" o="1" f="1"/>
+                </CONTAINER>
+                <CONTAINER name="Diode8mm" type="generic" x="15.000000" y="13.200000" level="2" parent="y">
+                    <PACKAGE_RECT name="123" type="rect_pkg" x="0.000000" y="0.000000" width="8.000000" height="2.300000" level="128" o="0" f="0"/>
+                    <PLATE_RND name="124" type="plt_rnd" x="-5.100000" y="0.000000" d_ex="1.800000" d_in="0.800000" level="2"/>
+                    <PLATE_RND name="125" type="plt_rnd" x="4.900000" y="0.000000" d_ex="1.800000" d_in="0.800000" level="2"/>
+                    <PACKAGE_RECT name="126" type="rect_pkg" x="-3.350000" y="0.020000" width="1.100000" height="2.150000" level="128" o="0" f="1"/>
+                </CONTAINER>
+            </DIODES>
+            <TERMISTORS>
+                <CONTAINER name="NTCLE100E3103JB0" type="generic" x="77.525040" y="13.575000" level="2" parent="y">
+                    <PLATE_RND name="75" type="plt_rnd" x="-0.080000" y="-1.430000" d_ex="2.000000" d_in="0.700000" level="2"/>
+                    <PLATE_RND name="76" type="plt_rnd" x="-0.030000" y="1.430000" d_ex="2.000000" d_in="0.700000" level="2"/>
+                    <PACKAGE_RND name="77" type="rnd_pkg" x="0.080000" y="-0.130000" d_ex="2.000000" level="128" o="1" angle_start="0" angle_span="0" chord="0"/>
+                </CONTAINER>
+            </TERMISTORS>
+        </DIP>
+        <SMD>
+            <SMD_PASSIVE name="0805" type="0805" x="0" y="0" level="2" zoom="2"/>
+            <SMD_PASSIVE name="1206" type="1206" x="0" y="0" level="2" zoom="2"/>
+            <SMD_PASSIVE name="1210" type="1210" x="0" y="0" level="2" zoom="2"/>
+            <SMD_PASSIVE name="2510" type="2510" x="0" y="0" level="2" zoom="2"/>
+            <SMD_PASSIVE name="2512" type="2512" x="0" y="0" level="2" zoom="2"/>
+        </SMD>
+        <TRANSFORMERS>
+            <CONTAINER name="EF20" type="generic" x="15.000000" y="13.200000" level="2" parent="y">
+                <PACKAGE_RECT name="135" type="rect_pkg" x="0.000000" y="0.000000" width="22.000000" height="22.350000" level="128" o="0" f="0"/>
+                <PACKAGE_RECT name="136" type="rect_pkg" x="0.030000" y="0.150000" width="20.150000" height="20.150000" level="128" o="0" f="0"/>
+                <PLATE_RND name="137" type="plt_rnd" x="-7.850000" y="-7.630000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="138" type="plt_rnd" x="7.400000" y="-7.630000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="139" type="plt_rnd" x="-7.800000" y="-3.830000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="140" type="plt_rnd" x="7.400000" y="-3.680000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="141" type="plt_rnd" x="-7.800000" y="-0.080000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="142" type="plt_rnd" x="7.350000" y="0.030000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="143" type="plt_rnd" x="-7.850000" y="3.720000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="144" type="plt_rnd" x="7.300000" y="3.820000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="145" type="plt_rnd" x="7.300000" y="7.470000" d_ex="2.500000" d_in="1.000000" level="2"/>
+                <PLATE_RND name="146" type="plt_rnd" x="-7.850000" y="7.380000" d_ex="2.500000" d_in="1.000000" level="2"/>
+            </CONTAINER>
+        </TRANSFORMERS>
+        <RADIATORS>
+            <CONTAINER name="R1_Custom" type="generic" x="67.570007" y="6.670000" level="2" parent="y">
+                <PACKAGE_RECT name="227" type="rect_pkg" x="-0.020000" y="5.010000" width="21.000000" height="2.500000" level="1" o="0" f="1"/>
+                <PACKAGE_RECT name="228" type="rect_pkg" x="8.520000" y="0.020000" width="4.000000" height="12.500000" level="1" o="0" f="1"/>
+                <PACKAGE_RECT name="229" type="rect_pkg" x="-8.470000" y="-0.020000" width="4.000000" height="12.500000" level="1" o="0" f="1"/>
+            </CONTAINER>
+        </RADIATORS>
+    </PASSIVE>
+    <ACTIVE>
+        <DIP>
+            <DIP_CHIP name="DIP8" type="DIP8" n="8" orientation="V_T" level="2"/>
+            <DIP_CHIP name="DIP14" type="DIP14" n="14" orientation="V_T" level="2"/>
+            <DIP_CHIP name="DIP16" type="DIP16" n="16" orientation="V_T" level="2"/>
+            <DIP_CHIP name="DIP18" type="DIP18" n="18" orientation="V_T" level="2"/>
+            <DIP_CHIP name="DIP20" type="DIP20" n="20" orientation="V_T" level="2"/>
+            <DIP_CHIP name="DIP22" type="DIP22" n="22" orientation="V_T" level="2" zoom_d="2"/>
+            <DIP_CHIP name="DIP24" type="DIP24" n="24" orientation="V_T" level="2" zoom_d="2"/>
+            <DIP_CHIP name="DIP28" type="DIP28" n="28" orientation="V_T" level="2" zoom_d="2"/>
+            <CONTAINER name="DIP28-150" type="generic" x="62.737499" y="22.262501" level="2" parent="y">
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="-16.110001" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="-13.590000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="-11.040000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="-8.460000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="-6.010000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.810000" y="-3.440000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.790000" y="-0.860000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.860000" y="1.690000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.790000" y="4.190000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.790000" y="6.690000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="9.190000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="11.810000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.810000" y="14.340000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-3.840000" y="16.840000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.740000" y="-16.110001" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.840000" y="-13.560000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.810000" y="-11.010000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.790000" y="-8.460000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.840000" y="-6.010000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.790000" y="-3.440000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.810000" y="-0.890000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.810000" y="1.640000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.860000" y="4.190000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.860000" y="6.690000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.760000" y="9.260000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.810000" y="11.810000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.790000" y="14.360000" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="3.810000" y="16.860001" d_ex="2.000000" d_in="0.800000" level="2"/>
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="0.060000" y="0.470000" width="5.350000" height="35.630001" level="128" o="0" f="0"/>
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="-0.020000" y="-16.709999" width="2.680000" height="1.300000" level="128" o="0" f="0"/>
+                <PLATE_RECT name="-1" type="rect" x="-3.840000" y="-16.860001" width="2.000000" height="0.600000" level="2" o="1"/>
+                <PLATE_RECT name="-1" type="rect" x="-3.860000" y="-15.310000" width="2.000000" height="0.600000" level="2" o="1"/>
+            </CONTAINER>
+            <DIP_CHIP name="DIP32" type="DIP32" n="32" orientation="V_T" level="2" zoom_d="2"/>
+            <DIP_CHIP name="DIP36" type="DIP36" n="36" orientation="V_T" level="2" zoom_d="2"/>
+            <DIP_CHIP name="DIP40" type="DIP40" n="40" orientation="V_T" level="2" zoom_d="2"/>
+            <DIP_CHIP name="DIP42" type="DIP42" n="42" orientation="V_T" level="2" zoom_d="4"/>
+            <DIP_CHIP name="DIP48" type="DIP48" n="48" orientation="V_T" level="2" zoom_d="4"/>
+            <DIP_CHIP name="DIP52" type="DIP52" n="52" orientation="V_T" level="2" zoom_d="4"/>
+            <DIP_CHIP name="DIP64" type="DIP64" n="64" orientation="V_T" level="2" zoom_d="4"/>
+            <CONTAINER name="MicroDIP" type="generic" x="0.000000" y="0.000000" level="2" parent="y">
+                <PACKAGE_RECT name="16" type="rect_pkg" x="0.000000" y="0.000000" width="5.000000" height="4.400000" level="1" o="0" f="0"/>
+                <PLATE_RECT name="17" type="rect" x="-2.060000" y="-3.190000" width="0.800000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="18" type="rect" x="1.740000" y="-3.160000" width="0.800000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="19" type="rect" x="-1.990000" y="2.990000" width="0.800000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="20" type="rect" x="1.820000" y="3.010000" width="0.800000" height="1.500000" level="2" o="1"/>
+            </CONTAINER>
+            <CONTAINER name="DIP4" type="generic" x="15.000000" y="13.200000" level="2" parent="y">
+                <PACKAGE_RECT name="16" type="rect_pkg" x="0.000000" y="0.000000" width="5.750000" height="5.200000" level="128" o="0" f="0"/>
+                <PACKAGE_RECT name="17" type="rect_pkg" x="0.070000" y="1.700000" width="1.400000" height="1.700000" level="128" o="0" f="0"/>
+                <PLATE_RND name="19" type="plt_rnd" x="3.770000" y="1.300000" d_ex="2.000000" d_in="0.700000" level="2"/>
+                <PLATE_RND name="20" type="plt_rnd" x="3.670000" y="-1.300000" d_ex="2.000000" d_in="0.700000" level="2"/>
+                <PLATE_RND name="21" type="plt_rnd" x="-3.980000" y="-1.350000" d_ex="2.000000" d_in="0.700000" level="2"/>
+                <PLATE_RND name="22" type="plt_rnd" x="-3.980000" y="1.250000" d_ex="2.000000" d_in="0.700000" level="2"/>
+            </CONTAINER>
+        </DIP>
+        <SO>
+            <SO_CHIP name="SO8" type="SO8" n="8" orientation="V_T" level="2"/>
+            <SO_CHIP name="SO14" type="SO14" n="14" orientation="V_T" level="2"/>
+            <SO_CHIP name="SO16" type="SO16" n="16" orientation="V_T" level="2"/>
+            <SO_CHIP name="SO18" type="SO18" n="18" orientation="V_T" level="2"/>
+            <SO_CHIP name="SO20" type="SO20" n="20" orientation="V_T" level="2"/>
+            <SO_CHIP name="SO24" type="SO24" n="24" orientation="V_T" level="2"/>
+            <SO_CHIP name="SO28" type="SO28" n="28" orientation="V_T" level="2"/>
+        </SO>
+        <MSSOP-TSSOP>
+            <MSSOP_CHIP name="MSSOP8" type="MSSOP8" n="8" orientation="V_T" level="2"/>
+            <MSSOP_CHIP name="MSSOP10" type="MSSOP10" n="10" orientation="V_T" level="2"/>
+            <MSSOP_CHIP name="MSSOP16" type="MSSOP16" n="16" orientation="V_T" level="2"/>
+            <MSSOP_CHIP name="MSSOP20" type="MSSOP20" n="20" orientation="V_T" level="2"/>
+            <MSSOP_CHIP name="MSSOP24" type="MSSOP24" n="24" orientation="V_T" level="2"/>
+        </MSSOP-TSSOP>
+        <TO>
+            <CONTAINER name="TO-220" type="generic" x="15.000000" y="13.200000" level="2" parent="y">
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="0.000000" y="0.800000" width="4.000000" height="10.000000" level="128" o="3" f="0"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-2.500000" y="0.000000" d_ex="2.100000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="2.500000" y="0.000000" d_ex="2.100000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="0.000000" y="0.000000" d_ex="2.100000" d_in="0.900000" level="2"/>
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="0.000000" y="2.050000" width="1.500000" height="10.000000" level="128" o="3" f="0"/>
+            </CONTAINER>
+            <CONTAINER name="TO-92" type="generic" x="0.000000" y="0.000000" level="2" parent="y">
+                <PACKAGE_RND name="-1" type="rnd_pkg" x="-0.640000" y="-0.030000" d_ex="5.400000" level="128" o="0" angle_start="-125" angle_span="250" chord="1"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-0.590000" y="-2.500000" d_ex="2.100000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-0.590000" y="0.000000" d_ex="2.100000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-0.590000" y="2.500000" d_ex="2.100000" d_in="0.800000" level="2"/>
+            </CONTAINER>
+            <CONTAINER name="RTO-92" type="generic" x="0.000000" y="0.000000" level="2" parent="y">
+                <PACKAGE_RND name="-1" type="rnd_pkg" x="-0.640000" y="-0.030000" d_ex="5.400000" level="128" o="0" angle_start="-125" angle_span="250" chord="1"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-0.590000" y="-1.410000" d_ex="2.100000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="0.640000" y="0.060000" d_ex="2.100000" d_in="0.800000" level="2"/>
+                <PLATE_RND name="-1" type="plt_rnd" x="-0.590000" y="1.410000" d_ex="2.100000" d_in="0.800000" level="2"/>
+            </CONTAINER>
+        </TO>
+        <SOT>
+            <CONTAINER name="SOT-23" type="generic" x="15.000000" y="13.200000" level="2" parent="y">
+                <PLATE_RECT name="-1" type="rect" x="0.020000" y="-1.130000" width="1.000000" height="1.250000" level="2" o="1"/>
+                <PLATE_RECT name="-1" type="rect" x="-0.990000" y="1.100000" width="1.000000" height="1.250000" level="2" o="1"/>
+                <PLATE_RECT name="-1" type="rect" x="0.990000" y="1.130000" width="1.000000" height="1.250000" level="2" o="1"/>
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="0.130000" y="0.190000" width="3.720000" height="4.350000" level="1" o="0" f="0"/>
+            </CONTAINER>
+            <CONTAINER name="SOT-223" type="generic" x="0.000000" y="0.000000" level="2" parent="y">
+                <PLATE_RECT name="-1" type="rect" x="-2.310000" y="3.010000" width="1.200000" height="1.350000" level="2" o="1"/>
+                <PLATE_RECT name="-1" type="rect" x="0.010000" y="3.060000" width="1.200000" height="1.350000" level="2" o="1"/>
+                <PLATE_RECT name="-1" type="rect" x="2.310000" y="3.040000" width="1.200000" height="1.350000" level="2" o="1"/>
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="0.160000" y="0.230000" width="6.700000" height="3.700000" level="1" o="0" f="0"/>
+                <PLATE_RECT name="-1" type="rect" x="0.020000" y="-3.060000" width="3.500000" height="1.350000" level="2" o="1"/>
+            </CONTAINER>
+            <CONTAINER name="SOT-323" type="generic" x="0.000000" y="0.000000" level="2" parent="y">
+                <PLATE_RECT name="-1" type="rect" x="-0.650000" y="1.030000" width="0.600000" height="0.700000" level="2" o="1"/>
+                <PLATE_RECT name="-1" type="rect" x="0.650000" y="1.020000" width="0.600000" height="0.700000" level="2" o="1"/>
+                <PLATE_RECT name="-1" type="rect" x="-0.050000" y="-1.030000" width="0.600000" height="0.700000" level="2" o="1"/>
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="0.050000" y="0.070000" width="2.200000" height="1.200000" level="1" o="0" f="0"/>
+            </CONTAINER>
+            <CONTAINER name="SOT23-5" type="generic" x="10.026250" y="5.495000" level="2" parent="y">
+                <PACKAGE_RECT name="16" type="rect_pkg" x="0.000000" y="0.000000" width="1.600000" height="2.900000" level="1" o="0" f="0"/>
+                <PLATE_RECT name="17" type="rect" x="1.380000" y="-1.020000" width="1.000000" height="0.500000" level="2" o="1"/>
+                <PLATE_RECT name="18" type="rect" x="1.420000" y="0.910000" width="1.000000" height="0.500000" level="2" o="1"/>
+                <PLATE_RECT name="19" type="rect" x="1.390000" y="-0.030000" width="1.000000" height="0.500000" level="2" o="1"/>
+                <PLATE_RECT name="20" type="rect" x="-1.600000" y="-0.990000" width="1.000000" height="0.500000" level="2" o="1"/>
+                <PLATE_RECT name="21" type="rect" x="-1.580000" y="0.940000" width="1.000000" height="0.500000" level="2" o="1"/>
+            </CONTAINER>
+        </SOT>
+        <TFQP>
+            <CONTAINER name="TQFP44" type="generic" x="0.000000" y="0.000000" level="1" parent="y">
+                <PLATE_RECT name="100" type="rect" x="-3.300000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="101" type="rect" x="-4.100000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="102" type="rect" x="-5.800000" y="-4.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="103" type="rect" x="-5.800000" y="-3.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="104" type="rect" x="-5.800000" y="-2.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="105" type="rect" x="-5.800000" y="-1.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="106" type="rect" x="-5.800000" y="-0.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="107" type="rect" x="-5.800000" y="-0.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="108" type="rect" x="-5.800000" y="0.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="109" type="rect" x="-5.800000" y="1.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="110" type="rect" x="-5.800000" y="2.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="111" type="rect" x="-5.800000" y="3.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="112" type="rect" x="-5.800000" y="3.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="113" type="rect" x="5.600000" y="-4.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="114" type="rect" x="5.600000" y="-3.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="115" type="rect" x="5.600000" y="-2.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="116" type="rect" x="5.600000" y="-1.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="117" type="rect" x="5.600000" y="-0.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="118" type="rect" x="5.600000" y="-0.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="119" type="rect" x="5.600000" y="0.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="120" type="rect" x="5.600000" y="1.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="121" type="rect" x="5.600000" y="2.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="122" type="rect" x="5.600000" y="3.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PACKAGE_RECT name="16" type="rect_pkg" x="0.000000" y="0.000000" width="9.500000" height="9.500000" level="1" o="0" f="0"/>
+                <TEXT name="17" type="txt_fld" x="-4.060000" y="-5.680000" level="1" txt_cont="." fnt_sz="10" o="0"/>
+                <TEXT name="39" type="txt_fld" x="5.560000" y="6.350000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="50" type="txt_fld" x="8.410000" y="-0.150000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="62" type="txt_fld" x="-4.050000" y="-2.150000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="67" type="txt_fld" x="-4.300000" y="-7.870000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <PLATE_RECT name="79" type="rect" x="5.600000" y="3.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="80" type="rect" x="3.900000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="81" type="rect" x="3.100000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="82" type="rect" x="2.300000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="83" type="rect" x="1.500000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="84" type="rect" x="0.700000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="85" type="rect" x="-0.100000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="86" type="rect" x="-0.900000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="87" type="rect" x="-1.700000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="88" type="rect" x="-2.500000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="89" type="rect" x="-3.300000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="90" type="rect" x="-4.100000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="91" type="rect" x="3.900000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="92" type="rect" x="3.100000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="93" type="rect" x="2.300000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="94" type="rect" x="1.500000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="95" type="rect" x="0.700000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="96" type="rect" x="-0.100000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="97" type="rect" x="-0.900000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="98" type="rect" x="-1.700000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="99" type="rect" x="-2.500000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+            </CONTAINER>
+        </TFQP>
+        <OTHER>
+            <CONTAINER name="DIP-SO-4" type="generic" x="0.000000" y="0.000000" level="2" parent="y">
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="0.560000" y="0.090000" width="5.250000" height="7.950000" level="1" o="1" f="0"/>
+                <PACKAGE_RECT name="-1" type="rect_pkg" x="-2.980000" y="0.000000" width="5.030000" height="0.730000" level="1" o="1" f="0"/>
+                <PLATE_RECT name="-1" type="rect" x="2.980000" y="-3.810000" width="1.400000" height="2.500000" level="2" o="3"/>
+                <PLATE_RECT name="-1" type="rect" x="-2.120000" y="-3.760000" width="1.400000" height="2.500000" level="2" o="3"/>
+                <PLATE_RECT name="-1" type="rect" x="2.980000" y="3.810000" width="1.400000" height="2.500000" level="2" o="3"/>
+                <PLATE_RECT name="-1" type="rect" x="-2.070000" y="3.810000" width="1.400000" height="2.500000" level="2" o="3"/>
+                <TEXT name="-1" type="txt_fld" x="-2.120000" y="1.540000" level="2" txt_cont="+" fnt_sz="12" o="0"/>
+                <TEXT name="-1" type="txt_fld" x="2.960000" y="1.310000" level="2" txt_cont="-" fnt_sz="12" o="0"/>
+            </CONTAINER>
+        </OTHER>
+        <SOD>
+            <CONTAINER name="SOD-323" type="generic" x="0.000000" y="0.000000" level="2" parent="y">
+                <PLATE_RECT name="16" type="rect" x="-0.040000" y="-1.900000" width="1.200000" height="0.800000" level="2" o="1"/>
+                <PLATE_RECT name="17" type="rect" x="-0.010000" y="1.230000" width="0.000000" height="0.800000" level="2" o="1"/>
+                <PLATE_RECT name="18" type="rect" x="0.000000" y="0.000000" width="1.200000" height="0.800000" level="2" o="1"/>
+                <PACKAGE_RECT name="19" type="rect_pkg" x="0.080000" y="-0.840000" width="1.200000" height="1.600000" level="1" o="0" f="0"/>
+            </CONTAINER>
+            <CONTAINER name="SOD-523" type="generic" x="15.000000" y="13.200000" level="1" parent="y">
+                <PLATE_RECT name="16" type="rect" x="-0.110000" y="-0.800000" width="0.750000" height="0.600000" level="2" o="1"/>
+                <PLATE_RECT name="17" type="rect" x="-0.080000" y="0.620000" width="0.750000" height="0.600000" level="2" o="1"/>
+                <PACKAGE_RECT name="18" type="rect_pkg" x="0.000000" y="0.000000" width="0.750000" height="1.150000" level="1" o="0" f="0"/>
+            </CONTAINER>
+        </SOD>
+    </ACTIVE>
+    <CUSTOM>
+        <CHIPS>
+            <CONTAINER name="pic18f46k22(TQFP)" type="generic" x="0.000000" y="0.000000" level="1" parent="y">
+                <PLATE_RECT name="100" type="rect" x="5.600000" y="3.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="101" type="rect" x="3.900000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="102" type="rect" x="3.100000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="103" type="rect" x="2.300000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="104" type="rect" x="1.500000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="105" type="rect" x="0.700000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="106" type="rect" x="-0.100000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="107" type="rect" x="-0.900000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="108" type="rect" x="-1.700000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="109" type="rect" x="-2.500000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="110" type="rect" x="-3.300000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="111" type="rect" x="-4.100000" y="-5.800000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="112" type="rect" x="3.900000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="113" type="rect" x="3.100000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="114" type="rect" x="2.300000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="115" type="rect" x="1.500000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="116" type="rect" x="0.700000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="117" type="rect" x="-0.100000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="118" type="rect" x="-0.900000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="119" type="rect" x="-1.700000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="120" type="rect" x="-2.500000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="121" type="rect" x="-3.300000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PLATE_RECT name="122" type="rect" x="-4.100000" y="5.600000" width="0.550000" height="1.500000" level="2" o="1"/>
+                <PACKAGE_RECT name="16" type="rect_pkg" x="0.000000" y="0.000000" width="9.500000" height="9.500000" level="1" o="0" f="0"/>
+                <TEXT name="17" type="txt_fld" x="-4.060000" y="-5.680000" level="1" txt_cont="." fnt_sz="10" o="0"/>
+                <TEXT name="214" type="txt_fld" x="2.670000" y="-3.360000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="215" type="txt_fld" x="3.490000" y="-3.570000" level="1" txt_cont="rc0" fnt_sz="4" o="0"/>
+                <TEXT name="216" type="txt_fld" x="3.480000" y="-2.730000" level="1" txt_cont="ra6" fnt_sz="4" o="0"/>
+                <TEXT name="217" type="txt_fld" x="2.780000" y="-2.320000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="218" type="txt_fld" x="3.430000" y="-1.900000" level="1" txt_cont="ra7" fnt_sz="4" o="0"/>
+                <TEXT name="219" type="txt_fld" x="3.130000" y="-1.600000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="220" type="txt_fld" x="3.400000" y="-1.050000" level="1" txt_cont="Vss" fnt_sz="4" o="0"/>
+                <TEXT name="221" type="txt_fld" x="3.010000" y="-0.450000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="222" type="txt_fld" x="3.380000" y="-0.350000" level="1" txt_cont="Vdd" fnt_sz="4" o="0"/>
+                <TEXT name="223" type="txt_fld" x="2.880000" y="0.150000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="224" type="txt_fld" x="3.380000" y="0.470000" level="1" txt_cont="re2" fnt_sz="4" o="0"/>
+                <TEXT name="225" type="txt_fld" x="2.980000" y="0.680000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="226" type="txt_fld" x="3.400000" y="1.320000" level="1" txt_cont="re1" fnt_sz="4" o="0"/>
+                <TEXT name="227" type="txt_fld" x="2.810000" y="1.630000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="228" type="txt_fld" x="3.350000" y="2.850000" level="1" txt_cont="ra5" fnt_sz="4" o="0"/>
+                <TEXT name="229" type="txt_fld" x="2.960000" y="2.450000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="230" type="txt_fld" x="3.430000" y="3.700000" level="1" txt_cont="ra4" fnt_sz="4" o="0"/>
+                <TEXT name="231" type="txt_fld" x="2.830000" y="3.200000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="232" type="txt_fld" x="3.330000" y="2.130000" level="1" txt_cont="re0" fnt_sz="4" o="0"/>
+                <TEXT name="233" type="txt_fld" x="1.330000" y="2.030000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="234" type="txt_fld" x="3.660000" y="7.250000" level="1" txt_cont="ra3" fnt_sz="4" o="3"/>
+                <TEXT name="235" type="txt_fld" x="5.560000" y="6.350000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="236" type="txt_fld" x="2.780000" y="7.230000" level="1" txt_cont="ra2" fnt_sz="4" o="3"/>
+                <TEXT name="238" type="txt_fld" x="2.010000" y="7.180000" level="1" txt_cont="ra1" fnt_sz="4" o="3"/>
+                <TEXT name="240" type="txt_fld" x="1.330000" y="7.230000" level="1" txt_cont="ra0" fnt_sz="4" o="3"/>
+                <TEXT name="241" type="txt_fld" x="-2.270000" y="11.450000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="242" type="txt_fld" x="0.510000" y="8.350000" level="1" txt_cont="Vpp/re3" fnt_sz="4" o="3"/>
+                <TEXT name="243" type="txt_fld" x="-0.270000" y="8.550000" level="1" txt_cont="PGD/rb7" fnt_sz="4" o="3"/>
+                <TEXT name="245" type="txt_fld" x="-1.120000" y="8.550000" level="1" txt_cont="PGC/rb6" fnt_sz="4" o="3"/>
+                <TEXT name="247" type="txt_fld" x="-1.990000" y="7.270000" level="1" txt_cont="rb5" fnt_sz="4" o="3"/>
+                <TEXT name="249" type="txt_fld" x="-2.720000" y="7.200000" level="1" txt_cont="rb4" fnt_sz="4" o="3"/>
+                <TEXT name="251" type="txt_fld" x="-3.720000" y="3.680000" level="1" txt_cont="rb3" fnt_sz="4" o="0"/>
+                <TEXT name="252" type="txt_fld" x="8.410000" y="-0.150000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="253" type="txt_fld" x="-3.800000" y="2.950000" level="1" txt_cont="rb2" fnt_sz="4" o="0"/>
+                <TEXT name="255" type="txt_fld" x="-3.760000" y="2.130000" level="1" txt_cont="rb1" fnt_sz="4" o="0"/>
+                <TEXT name="257" type="txt_fld" x="-3.800000" y="1.310000" level="1" txt_cont="rb0" fnt_sz="4" o="0"/>
+                <TEXT name="259" type="txt_fld" x="-3.740000" y="0.600000" level="1" txt_cont="Vdd" fnt_sz="4" o="0"/>
+                <TEXT name="260" type="txt_fld" x="-2.470000" y="1.180000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="261" type="txt_fld" x="-3.770000" y="-0.220000" level="1" txt_cont="Vss" fnt_sz="4" o="0"/>
+                <TEXT name="263" type="txt_fld" x="-3.720000" y="-1.150000" level="1" txt_cont="rd7" fnt_sz="4" o="0"/>
+                <TEXT name="264" type="txt_fld" x="-3.690000" y="-0.600000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="265" type="txt_fld" x="-3.770000" y="-1.950000" level="1" txt_cont="rd6" fnt_sz="4" o="0"/>
+                <TEXT name="266" type="txt_fld" x="-3.840000" y="-2.070000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="267" type="txt_fld" x="-3.750000" y="-2.650000" level="1" txt_cont="rd5" fnt_sz="4" o="0"/>
+                <TEXT name="268" type="txt_fld" x="-4.050000" y="-2.150000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="269" type="txt_fld" x="-3.820000" y="-3.350000" level="1" txt_cont="rd4" fnt_sz="4" o="0"/>
+                <TEXT name="270" type="txt_fld" x="-3.320000" y="-3.220000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="271" type="txt_fld" x="-3.900000" y="-4.130000" level="1" txt_cont="rc7" fnt_sz="4" o="0"/>
+                <TEXT name="273" type="txt_fld" x="-4.400000" y="-7.670000" level="1" txt_cont="rc6" fnt_sz="4" o="3"/>
+                <TEXT name="274" type="txt_fld" x="-4.300000" y="-7.870000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="275" type="txt_fld" x="-3.600000" y="-7.700000" level="1" txt_cont="rc5" fnt_sz="4" o="3"/>
+                <TEXT name="276" type="txt_fld" x="-1.890000" y="-10.200000" level="2" txt_cont="" fnt_sz="4" o="0"/>
+                <TEXT name="277" type="txt_fld" x="-2.770000" y="-7.680000" level="1" txt_cont="rc4" fnt_sz="4" o="3"/>
+                <TEXT name="279" type="txt_fld" x="-1.900000" y="-7.640000" level="1" txt_cont="rd3" fnt_sz="4" o="3"/>
+                <TEXT name="281" type="txt_fld" x="-1.100000" y="-7.650000" level="1" txt_cont="rd2" fnt_sz="4" o="3"/>
+                <TEXT name="283" type="txt_fld" x="-0.300000" y="-7.650000" level="1" txt_cont="rd1&#10;rd1" fnt_sz="4" o="3"/>
+                <TEXT name="285" type="txt_fld" x="0.480000" y="-7.620000" level="1" txt_cont="rd0" fnt_sz="4" o="3"/>
+                <TEXT name="287" type="txt_fld" x="1.260000" y="-7.610000" level="1" txt_cont="rc3" fnt_sz="4" o="3"/>
+                <TEXT name="289" type="txt_fld" x="1.960000" y="-7.620000" level="1" txt_cont="rc2" fnt_sz="4" o="3"/>
+                <TEXT name="291" type="txt_fld" x="2.780000" y="-7.680000" level="1" txt_cont="rc1" fnt_sz="4" o="3"/>
+                <PLATE_RECT name="75" type="rect" x="-5.800000" y="-4.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="76" type="rect" x="-5.800000" y="-3.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="77" type="rect" x="-5.800000" y="-2.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="78" type="rect" x="-5.800000" y="-1.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="79" type="rect" x="-5.800000" y="-0.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="80" type="rect" x="-5.800000" y="-0.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="81" type="rect" x="-5.800000" y="0.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="82" type="rect" x="-5.800000" y="1.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="83" type="rect" x="-5.800000" y="2.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="84" type="rect" x="-5.800000" y="3.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="85" type="rect" x="-5.800000" y="3.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="90" type="rect" x="5.600000" y="-4.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="91" type="rect" x="5.600000" y="-3.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="92" type="rect" x="5.600000" y="-2.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="93" type="rect" x="5.600000" y="-1.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="94" type="rect" x="5.600000" y="-0.900000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="95" type="rect" x="5.600000" y="-0.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="96" type="rect" x="5.600000" y="0.700000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="97" type="rect" x="5.600000" y="1.500000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="98" type="rect" x="5.600000" y="2.300000" width="0.550000" height="1.500000" level="2" o="0"/>
+                <PLATE_RECT name="99" type="rect" x="5.600000" y="3.100000" width="0.550000" height="1.500000" level="2" o="0"/>
+            </CONTAINER>
+        </CHIPS>
+    </CUSTOM>
+</COMPONENTS>
