@@ -1,0 +1,2336 @@
+  /*
+ * Copyright 2017 <copyright holder> <email>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#include <qpainter.h>
+#include "pcboard.h"
+#include <QMouseEvent>
+#include <QMenu>
+#include <QMimeData>
+#include <QDrag>
+#include <stdio.h>
+#include <iostream>
+#include "ruler.h"
+#include "mywidget.h"
+#include <QtPrintSupport/QPrinter>
+#include "rectgraphicalitem.h"
+#include "drawwrapper.h"
+#include "itemsfactory.h"
+#include <QtPrintSupport/QPrintDialog>
+#include "addneweltolibdlg.h"
+#include "graphicalitempropsdlg.h"
+#include "pcboardpropsdlg.h"
+#include "setprintpropsdlg.h"
+#include "additemcommand.h"
+#include "deleteitemcommand.h"
+#include "movebetweenlayerscommand.h"
+#include "setpropscommand.h"
+#include "groupcommand.h"
+#include "ungroupcomand.h"
+#include "moveitemcommand.h"
+#include "movenodecommand.h"
+#include "addnodecommand.h"
+#include "deletenodecommand.h"
+#include "rotateitemcommand.h"
+#include "setboardprops.h"
+#include "textgraphicalitem.h"
+#include "smartptr.h"
+
+using namespace std;
+
+
+QPoint ActionEx::getPos()
+{
+   return m_pos;
+}
+
+void ActionEx::setPos(const QPoint& pos)
+{
+   m_pos.setX(pos.x());
+   m_pos.setY(pos.y());
+}
+
+ActionEx::~ActionEx()
+{
+
+}
+
+
+void TextEditField::keyPressEvent( QKeyEvent * event)
+{
+   if( event->key() == Qt::Key_Return )
+   {
+      // optional: if the QPlainTextEdit should do its normal action
+      // even when the return button is pressed, uncomment the following line
+      // QPlainTextEdit::keyPressEvent( event )
+      if(PcBoard *p = dynamic_cast<PcBoard*>(parent()))
+      {
+         p->setMode(MODE_CURSOR);
+      }
+      event->accept();
+   }
+   else
+      QPlainTextEdit::keyPressEvent( event );
+}
+
+
+
+
+
+PcBoard::PcBoard(MyWidget *parent,int w,int h) : QWidget(parent),m_currMode(0),
+                     m_bInDrawLines(false),m_scaleFactor(1),m_dInt(6),m_dExt(10),
+                     m_currentLevel(BOARD_LEVEL_ID::LEVEL_A),m_width(w),m_height(h),
+                     m_myWidget(parent),m_pTemplateImage(nullptr)
+{
+    QPalette pal = palette();
+    //yellow
+    pal.setColor(QPalette::Background,bckgColor);
+    setAutoFillBackground(true);
+    setPalette(pal);
+    setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(true);
+    createActions();
+    setMinimumSize(QSize(m_width,m_height));
+    m_RectAndRndCoord[0] = m_RectAndRndCoord[1] = QPoint(-1,-1);
+    m_RulerCoord[0] = m_RulerCoord[1] = QPoint(-1,-1);
+}
+
+PcBoard::~PcBoard()
+{
+    m_mapOfSelItems.clear();
+    m_mapOfDragData.clear();
+    clearCopyPasteMap();
+    for(VecLayerInrementer i = 0 ; i < m_layers.size() ; ++i)
+       m_layers[i].clear();
+}
+
+
+void PcBoard::paintEvent( QPaintEvent * e)
+{
+    QPainter p( this );
+    //erase contents to redraw completely
+    p.eraseRect(e->rect());
+    //draw background image if any from menu tools->loadImage
+    if(m_pTemplateImage)
+    {
+       p.drawImage(0,0,*m_pTemplateImage);
+    }
+    QColor c(Qt::black);
+    //when in print mode the background is white
+    if(m_currMode == MODE_PRINT)
+       p.fillRect(e->rect(),Qt::white);
+    m_constInfo.m_id = ID_NONE;
+    m_mouseTrace.disconnect();
+    for(VecLayerInrementer i = 0; i < m_layers.size(); ++i)
+    {
+       if(m_currMode == MODE_VC_CON || m_currMode == MODE_RULER_MV)
+       {
+          SmartPtr<GraphicalItem> ptr;
+          if(m_layers[i].checkPropertiesAndPaint(p,m_currMode,m_constInfo.m_pt,ptr))
+          {
+             m_constInfo.m_id = ptr->getID();
+             m_constInfo.m_isConnected = true;
+          }
+          m_mouseTrace.setConnectedItem(ptr);
+       }
+       else
+          m_layers[i].paintItems(p,m_currMode);
+
+    }
+    //Draw connector
+    if(m_currMode == MODE_VC_CON)
+       drawTemporaryConnector(p,virtConColor,fDefVirtConWidth);
+    else if(m_currMode == MODE_LINE)
+       drawTemporaryConnector(p,LevelsWrapper::getColorForLevel(m_currentLevel),m_wLine);
+
+    if(m_RectAndRndCoord[0].x() != -1 && m_RectAndRndCoord[1].x() != -1)
+    {
+       QColor c(LevelsWrapper::getColorForLevel(m_currentLevel));       
+       if(m_currMode == MODE_PACK_RECT)       
+       {
+          DrawWrapper::drawRectPackege(p,c,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
+                                       (m_RectAndRndCoord[0].x() + m_RectAndRndCoord[1].x())/2,
+                                       (m_RectAndRndCoord[0].y() + m_RectAndRndCoord[1].y())/2,
+                                        m_RectAndRndCoord[1].x() - m_RectAndRndCoord[0].x(),
+                                        m_RectAndRndCoord[1].y() - m_RectAndRndCoord[0].y());
+          
+       }
+       else if(m_currMode == MODE_PACK_ROUND)
+       {
+          
+          DrawWrapper::drawRoundPackage(p,c,(m_RectAndRndCoord[0].x() + m_RectAndRndCoord[1].x())/2,
+                                            (m_RectAndRndCoord[0].y() + m_RectAndRndCoord[1].y())/2,
+             m_RectAndRndCoord[1].x() - m_RectAndRndCoord[0].x(),
+             m_RectAndRndCoord[1].y() - m_RectAndRndCoord[0].y(),1);
+       }
+       
+       p.setPen(Qt::NoPen);       
+    }
+    if(m_RulerCoord[0].x() != -1 && m_RulerCoord[1].x() != -1)
+    {
+       DrawWrapper::drawRuler(p,m_RulerCoord[0].x(),m_RulerCoord[0].y(),m_RulerCoord[1].x(),m_RulerCoord[1].y(),m_scaleFactor);
+       p.setPen(Qt::NoPen);
+    }
+    if(m_currMode == MODE_RULER_MV)
+    {
+//       if(m_rulerFloat.size() > 0)
+        if(m_constInfo.isConnected())
+          DrawWrapper::drawRulerPoint(p,rulerColor,m_constInfo.m_pt.x(),
+                                                   m_constInfo.m_pt.y(),
+                                                    m_scaleFactor);
+    }
+//   cout<<"end painting"<<endl;
+}
+
+QSizePolicy PcBoard::sizePolicy() const
+{
+   cout<<"Reading policy"<<endl;
+   return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+}
+
+void PcBoard::unselect()
+{
+   for(auto item:m_mapOfSelItems)
+      item.second->setSelected(false);
+   m_mapOfSelItems.clear();            
+}
+
+void PcBoard::setSelectionVisible(bool bVisible)
+{
+   
+   if(bVisible)
+      cout<<"visible"<<endl;
+   else
+      cout<<"invisible"<<endl;
+   for(auto item:m_mapOfSelItems)
+      item.second->setVisible(bVisible);
+}
+
+
+bool PcBoard::setItemsSelected(QPoint *pos,bool bCtrl)
+{
+   for(auto item:m_mapOfSelItems)
+   {
+      if(item.second->isPointIn(pos->x()/m_scaleFactor,
+                                pos->y()/m_scaleFactor,LEVEL_ALL))
+      {
+         if(!bCtrl)
+         {
+            return true;
+         }
+         else
+         {
+            item.second->setSelected(false);
+            m_mapOfSelItems.erase(item.first);
+            return false;
+         }
+      }
+   }
+   ///***************
+   ///new
+   ///
+//   for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+   for(list<VecLayerInrementer>::iterator iter = m_selectionOrder.begin();
+       iter != m_selectionOrder.end(); ++iter)
+   {
+      QString name;
+      SmartPtr<GraphicalItem> pItem;
+      int index  =  *iter;
+      if(m_layers[*iter].isPointIn(pos->x()/m_scaleFactor,pos->y()/m_scaleFactor,name,pItem))
+      {
+         if(!bCtrl)
+         {
+            unselect();
+         }
+         pItem->setSelected(true);
+         m_mapOfSelItems[name] = pItem;
+         return false;         
+      }
+   }
+   unselect();   
+   return false;
+}
+
+QPixmap PcBoard::getPixmapForSelection(int difX,int difY,const QSize& size)
+{
+   cout <<"setting buffer:"<<this->width()<<" "<<this->height()<<endl;
+
+   QPixmap buffer(size.width(),
+                  size.height());
+   buffer.fill(Qt::transparent);
+   QPainter p(&buffer);
+   QColor c(LevelsWrapper::getColorForSelection());
+   for(auto item:m_mapOfSelItems)
+   {
+      item.second->paintItemIntoBuffer(difX/PIXELS_PER_MM,difY/PIXELS_PER_MM
+                                       ,p,c);
+   }
+//   return buffer.scaled(this->width(),this->height());
+
+   return buffer;
+}
+
+void PcBoard::processSelectionDrop(QPoint pos,QPoint oldPos)
+{
+   float dif_x = static_cast<float>((pos - oldPos).x())/m_scaleFactor/PIXELS_PER_MM;
+   float dif_y = static_cast<float>((pos - oldPos).y())/m_scaleFactor/PIXELS_PER_MM;
+   PointF dif(dif_x,dif_y);
+   char buf[64];
+//   sprintf(buf,"dif.x=%f,dif.y=%f",dif.x(),dif.y());
+   cout<<buf<<endl;
+   m_myWidget->getUndoStack()->push(new MoveItemCommand(m_mapOfSelItems,dif,this));
+/*
+   for(auto item:m_mapOfSelItems)
+   {
+//      sprintf(buf,"x=%f,y=%f",item.second->x(),item.second->y());
+      cout<<buf<<endl;
+      item.second->moveFor(LEVEL_ALL,dif);
+      item.second->setVisible(true);      
+      cout<<"visualize"<<endl;
+//      sprintf(buf,"x=%f,y=%f",item.second->x(),item.second->y());
+      cout<<buf<<endl;      
+   }
+*/
+   cout<<"drop selection"<<endl;
+}
+
+
+void PcBoard::mousePressEvent(QMouseEvent* e)
+{
+   switch(m_currMode)
+   {
+      case MODE_PLATE:
+      case MODE_PLATE_RECT:
+      case MODE_MULTIPLATE:
+      {
+         processSimpleGraphicalItems(e);
+      }
+      break;
+      case MODE_LINE:
+      case MODE_VC_CON:
+      {
+         int num = std::count_if(m_vcConstrInfo.begin(),
+                               m_vcConstrInfo.end(),
+                               [](VcConCunstrInfo& info)
+                                {
+                                   return info.isConnected();
+                                });
+
+         if(m_constInfo.isConnected())
+             ++num;
+
+         if(e->button() == Qt::LeftButton) // adding another point of connector
+         {
+            //virtual connectors shuold begin with connected point
+            if(m_currMode == MODE_VC_CON && (m_vcConstrInfo.size() == 0 && !m_constInfo.isConnected()))
+               return;
+
+            m_vcConstrInfo.push_back(m_constInfo);
+            //check if we have 2 connected items for virtual connector
+            //at the moment supported connectors with 2 connected items only
+            if(num == 2)
+            {
+               //connector is complete add it
+               auto p = ItemsFactory::createConnector(m_vcConstrInfo,
+                                                m_currMode == MODE_VC_CON ? fDefVirtConWidth : m_wLine,
+                                                m_currMode == MODE_VC_CON ? LEVEL_VC : m_currentLevel,
+                                                ID_NONE,m_scaleFactor,1);
+               addItemToSchematic(p);
+               m_vcConstrInfo.clear();
+            }
+            m_constInfo.clear();
+            m_bInDrawLines = true;
+         }
+         else // user signals that the connector is complete add it to schematic
+         {
+            //virtual connectors with 2 connected items are supported
+            if(m_currMode == MODE_VC_CON && num < 2)
+            {
+               m_vcConstrInfo.clear();
+               m_constInfo.clear();
+            }
+            else if(m_vcConstrInfo.size() > 1)
+            {
+               SmartPtr<GraphicalItem> p = ItemsFactory::createConnector(m_vcConstrInfo,
+                                                  m_currMode == MODE_VC_CON ? fDefVirtConWidth : m_wLine,
+                                                  m_currMode == MODE_VC_CON ? LEVEL_VC : m_currentLevel,
+                                                  ID_NONE,m_scaleFactor,1);
+               addItemToSchematic(p);
+               m_vcConstrInfo.clear();
+               m_constInfo.clear();
+               if(m_currMode != MODE_VC_CON)
+                  m_bInDrawLines = false;
+            }
+         }
+         repaint();
+      }
+      break;
+      case MODE_PACK_RECT:
+      case MODE_PACK_ROUND:
+      {
+         m_RectAndRndCoord[0] = e->pos();
+      }
+      break;
+      case MODE_RULER:
+      {
+         m_RulerCoord[0] = e->pos();
+      }
+      break;
+      case MODE_CURSOR:
+      {
+         //we do not need to handle this event
+         //this is context menu event
+         if(e->buttons() & Qt::RightButton)
+            return;
+
+         cout<<"mode cursor"<<endl;
+         QPoint pos = e->pos();
+         if(setItemsSelected(&pos, e->modifiers() & Qt::ControlModifier))
+         {
+            QPoint parentPos = mapToParent(e->pos());
+            QPoint dif = parentPos - pos;
+            cout<<"scroll area width:"<<m_myWidget->getScrollArea()->width()<<endl;
+            QPixmap pix = getPixmapForSelection(dif.x(),dif.y(),
+                                              m_myWidget->getScrollArea()->size());
+            QByteArray itemData;
+ //         QString s = m_plibElementPrwview->getPreviewItemType().c_str();
+            cout<<"Drag selection "<<endl;
+
+
+            QMimeData *mimeData = new QMimeData;
+            mimeData->setData("application/x-dnditemdata", itemData);
+            mimeData->setProperty("s_type","selection");
+            mimeData->setProperty("s_offset",e->pos());
+ //         setSelectionVisible(false);
+            repaint();
+
+            QDrag *drag = new QDrag(this);
+            drag->setMimeData(mimeData);
+            drag->setPixmap(pix);
+            cout<<"pos:"<<m_myWidget->getScrollArea()->pos().x()<<" "<<m_myWidget->getScrollArea()->pos().y()<<endl;
+            drag->setHotSpot(parentPos); // m_myWidget->getScrollArea()->pos());//event->pos() - child->pos());
+            drag->exec();
+         }
+         repaint();
+      }
+      break;
+      case MODE_NODE_PRE_MOVE:
+      {
+         if(e->button() == Qt::LeftButton)
+            m_currMode = MODE_NODE_MOVE;
+      }
+      break;
+      case MODE_TEXT:
+      {
+         handleProcessText(e->pos().x(),e->pos().y());
+      }
+      break;
+      default:
+       break;
+   }
+/*
+   if (m_currMode == MODE_PLATE ||
+       m_currMode == MODE_PLATE_RECT ||
+       m_currMode == MODE_MULTIPLATE )
+   {
+      processSimpleGraphicalItems(e);
+   }
+   else if (m_currMode == MODE_LINE || m_currMode == MODE_VC_CON)
+   {
+      int num = std::count_if(m_vcConstrInfo.begin(),
+                              m_vcConstrInfo.end(),
+                              [](VcConCunstrInfo& info)
+                               {
+                                  return info.isConnected();
+                               });
+
+      if(m_constInfo.isConnected())
+          ++num;
+
+      if(e->button() == Qt::LeftButton) // adding another point of connector
+      {
+         //virtual connectors shuold begin with connected point
+         if(m_currMode == MODE_VC_CON && (m_vcConstrInfo.size() == 0 && !m_constInfo.isConnected()))
+            return;
+
+         m_vcConstrInfo.push_back(m_constInfo);
+         //check if we have 2 connected items for virtual connector
+         //at the moment supported connectors with 2 connected items only
+         if(num == 2)
+         {
+            //connector is complete add it
+            auto p = ItemsFactory::createConnector(m_vcConstrInfo,
+                                               m_currMode == MODE_VC_CON ? fDefVirtConWidth : m_wLine,
+                                               m_currMode == MODE_VC_CON ? LEVEL_VC : m_currentLevel,
+                                               ID_NONE,m_scaleFactor,1);
+            addItemToSchematic(p);
+            m_vcConstrInfo.clear();
+         }
+         m_constInfo.clear();
+         m_bInDrawLines = true;
+      }
+      else // user signals that the connector is complete add it to schematic
+      {
+         //virtual connectors with 2 connected items are supported
+         if(m_currMode == MODE_VC_CON && num < 2)
+         {
+            m_vcConstrInfo.clear();
+            m_constInfo.clear();
+         }
+         else if(m_vcConstrInfo.size() > 1)
+         {
+            SmartPtr<GraphicalItem> p = ItemsFactory::createConnector(m_vcConstrInfo,
+                                                 m_currMode == MODE_VC_CON ? fDefVirtConWidth : m_wLine,
+                                                 m_currMode == MODE_VC_CON ? LEVEL_VC : m_currentLevel,
+                                                 ID_NONE,m_scaleFactor,1);
+            addItemToSchematic(p);
+            m_vcConstrInfo.clear();
+            m_constInfo.clear();
+            if(m_currMode != MODE_VC_CON)
+               m_bInDrawLines = false;
+         }
+      }
+      repaint();
+   }
+   else if(m_currMode == MODE_PACK_RECT || m_currMode == MODE_PACK_ROUND)
+   {
+      m_RectAndRndCoord[0] = e->pos();
+   }
+   else if(m_currMode == MODE_RULER)
+   {
+      m_RulerCoord[0] = e->pos();
+   }
+   else if(m_currMode == MODE_CURSOR)
+   {
+      //we do not need to handle this event
+      //this is context menu event
+      if(e->buttons() & Qt::RightButton)
+         return;
+
+      cout<<"mode cursor"<<endl;
+      QPoint pos = e->pos();
+      if(setItemsSelected(&pos, e->modifiers() & Qt::ControlModifier))
+      {
+         QPoint parentPos = mapToParent(e->pos());
+         QPoint dif = parentPos - pos;
+         cout<<"scroll area width:"<<m_myWidget->getScrollArea()->width()<<endl;
+         QPixmap pix = getPixmapForSelection(dif.x(),dif.y(),
+                                             m_myWidget->getScrollArea()->size());
+         QByteArray itemData;
+//         QString s = m_plibElementPrwview->getPreviewItemType().c_str();
+         cout<<"Drag selection "<<endl;
+       
+
+         QMimeData *mimeData = new QMimeData;
+         mimeData->setData("application/x-dnditemdata", itemData);
+         mimeData->setProperty("s_type","selection");
+         mimeData->setProperty("s_offset",e->pos());
+//         setSelectionVisible(false);
+         repaint();
+
+         QDrag *drag = new QDrag(this);
+         drag->setMimeData(mimeData);
+         drag->setPixmap(pix);
+         cout<<"pos:"<<m_myWidget->getScrollArea()->pos().x()<<" "<<m_myWidget->getScrollArea()->pos().y()<<endl;
+         drag->setHotSpot(parentPos); // m_myWidget->getScrollArea()->pos());//event->pos() - child->pos());
+         drag->exec();
+      }
+      repaint();
+   }
+   else if(m_currMode == MODE_NODE_PRE_MOVE)
+   {
+      if(e->button() == Qt::LeftButton)
+      {
+//         cout<<"setting premove"<<endl;
+//         QPoint pt(e->pos().x(),e->pos().y());
+//         int index = m_nodeChangeItem.m_pItem->prepareToChange(pt);
+         m_currMode = MODE_NODE_MOVE;
+      }
+   }
+   else if(m_currMode == MODE_TEXT)
+   {
+      handleProcessText(e->pos().x(),e->pos().y());
+   }
+*/
+}
+
+void PcBoard::mouseReleaseEvent(QMouseEvent *e )
+{
+   QWidget::mouseReleaseEvent(e);
+   if(m_currMode == MODE_NODE_MOVE)
+   {
+      PointF p(-1,-1);
+      m_myWidget->getUndoStack()->push(new MoveNodeCommand(m_nodeChangeItem,this));
+      m_nodeChangeItem.finishMovement(p);
+      m_currMode = MODE_CURSOR;
+   }   
+   else if(m_currMode == MODE_PACK_RECT || m_currMode == MODE_PACK_ROUND)
+   {
+      SmartPtr<GraphicalItem> p;
+      float x =  static_cast<float>((m_RectAndRndCoord[0].x() +  m_RectAndRndCoord[1].x()))/2/m_scaleFactor/PIXELS_PER_MM;
+      float y =  static_cast<float>((m_RectAndRndCoord[0].y() +  m_RectAndRndCoord[1].y()))/2/m_scaleFactor/PIXELS_PER_MM;
+      float w = static_cast<float>((m_RectAndRndCoord[1].x() -  m_RectAndRndCoord[0].x()))/m_scaleFactor/PIXELS_PER_MM;
+      float h = static_cast<float>((m_RectAndRndCoord[1].y() -  m_RectAndRndCoord[0].y()))/m_scaleFactor/PIXELS_PER_MM;
+      
+      if(m_currMode == MODE_PACK_RECT )
+      {
+         p = ItemsFactory::createRectPackage(x,y,w,h,m_currentLevel,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,ID_NONE,
+                                             m_scaleFactor,iNoZoom);
+      }
+      else
+      {
+         p = ItemsFactory::createRoundPackage(x,y,w,h,m_currentLevel,ITEMS_ORIENTATION::O_VERTICAL_TOP,ID_NONE,
+                                              m_scaleFactor,iNoZoom);
+      }
+      addItemToSchematic(p);
+      m_RectAndRndCoord[0] = m_RectAndRndCoord[1] = QPoint(-1,-1);
+      m_currMode = MODE_CURSOR;
+      repaint();
+   }
+   else if(m_currMode == MODE_RULER)
+   {
+      m_RulerCoord[0] = m_RulerCoord[1] = QPoint(-1,-1);
+      repaint();
+   }
+}
+
+
+void PcBoard::mouseMoveEvent(QMouseEvent *e)
+{
+//   cout<<"Moving mouse x="<<e->x()<<"y="<<e->y()<<endl;
+    PointF pt(static_cast<float>(e->pos().x())/PIXELS_PER_MM/m_scaleFactor,
+              static_cast<float>(e->pos().y())/PIXELS_PER_MM/m_scaleFactor);
+   m_mouseTrace.setCoord(pt);
+   if(e->buttons() & Qt::LeftButton)
+   {
+      if(m_currMode == MODE_PACK_RECT || m_currMode == MODE_PACK_ROUND)
+      {
+         m_RectAndRndCoord[1] = e->pos();
+      }
+      else if(m_currMode == MODE_RULER)
+      {
+          m_RulerCoord[1] = e->pos();
+      }
+//      cout<<"Moving mouse x="<<e->x()<<"y="<<e->y()<<endl;
+      repaint();
+   }
+   if(m_myWidget)
+      m_myWidget->setBoardCursorCoord(e->pos());
+   
+   if(m_currMode == MODE_CURSOR || m_currMode == MODE_NODE_PRE_MOVE)
+   {
+      //check if we are above the line and prepare node for the move
+      for(auto iter:m_mapOfSelItems)     
+      {
+         int index = 0;
+         QPoint pt((e->pos()).x(),(e->pos()).y());
+         if(iter.second->isAboveNode(pt,index))
+         {
+            setCursor(Qt::CrossCursor);
+            m_currMode = MODE_NODE_PRE_MOVE;
+            PointF ptf(static_cast<float>(pt.x())/PIXELS_PER_MM/m_scaleFactor,
+                       static_cast<float>(pt.y())/PIXELS_PER_MM/m_scaleFactor);
+            m_nodeChangeItem.setItem(iter.second.get(),index,ptf,ptf);
+            return;
+         }
+      }
+      m_currMode = MODE_CURSOR;
+      unsetCursor();
+      m_nodeChangeItem.clear();
+      return;      
+   }
+   else if(m_currMode == MODE_NODE_MOVE)
+   {
+      PointF ptf(static_cast<float>(e->pos().x())/m_scaleFactor/PIXELS_PER_MM,
+                 static_cast<float>(e->pos().y())/m_scaleFactor/PIXELS_PER_MM);
+      m_nodeChangeItem.moveNode(ptf);
+      repaint();
+   }
+   else if(m_currMode == MODE_VC_CON || m_currMode == MODE_LINE || m_currMode == MODE_RULER_MV)
+   {
+      m_constInfo.m_pt.setX(static_cast<float>(e->pos().x())/PIXELS_PER_MM/m_scaleFactor);
+      m_constInfo.m_pt.setY(static_cast<float>(e->pos().y())/PIXELS_PER_MM/m_scaleFactor);
+      if (shoulTriggerRapaint())
+         repaint();
+   }
+}
+
+
+void PcBoard::setMode(int mode)
+{
+   cout<<"setting mode"<<endl;
+   m_currMode = mode;
+   if ( mode != MODE_TEXT)
+   {
+      m_text.clear();
+      text_x_pos = text_y_pos = -1;
+      if(m_pText)
+      {
+         QString text = m_pText->toPlainText();
+         auto size = static_cast<float>(m_pText->fontInfo().pointSize());
+
+         auto x = (static_cast<float>(m_pText->x()) + (size * text.length())/2)/PIXELS_PER_MM/m_scaleFactor;
+         auto y = (static_cast<float>(m_pText->y()) + size)/PIXELS_PER_MM/m_scaleFactor;
+
+//         auto x = static_cast<float>(m_pText->x() + size/4)/PIXELS_PER_MM/m_scaleFactor;
+//         auto y = static_cast<float>(m_pText->y() + size + size/3)/PIXELS_PER_MM/m_scaleFactor;
+
+
+
+         auto p = ItemsFactory::createText(
+                     x,
+                     y,
+                     text,m_pText->fontInfo().pointSize(),
+                     ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
+                     m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+         if(p.get())
+            addItemToSchematic(p);
+         m_pText->clear();
+         m_pText->setVisible(false);
+      }
+   }
+   if ( mode != MODE_LINE && mode != MODE_VC_CON)
+   {
+      cleanLinesMode();
+   }
+   if (mode != MODE_PLATE && mode != MODE_PLATE_RECT)
+   {
+      unsetCursor();
+   }
+   //for vc connectors trigger repaint after each mouse move
+   if ( mode == MODE_VC_CON)
+       m_bInDrawLines = true;
+}
+
+void PcBoard::cleanLinesMode()
+{
+   m_bInDrawLines = false;
+   m_vcConstrInfo.clear();
+   m_constInfo.clear();
+}
+
+void PcBoard::zoomIn()
+{  
+    m_scaleFactor <<= 1;
+    //new
+    for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+    {
+       m_layers[i].zoomIn();
+    }
+    if(m_pTemplateImage)
+    {
+       QImage im =  m_pTemplateImage->scaled(m_pTemplateImage->width() * 2 ,m_pTemplateImage->height() * 2);
+       delete m_pTemplateImage;
+       m_pTemplateImage = new QImage(im);
+    }
+    
+#ifdef _SCROLL    
+    m_width  *= 2;
+    m_height *= 2;
+    resizeBoard();
+#endif
+    repaint();
+}
+
+void PcBoard::zoomOut()
+{
+    m_scaleFactor >>= 1;
+    //new
+    for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+    {
+       m_layers[i].zoomOut();
+    }
+    if(m_pTemplateImage)
+    {
+       QImage im =  m_pTemplateImage->scaled(m_pTemplateImage->width()/ 2 ,m_pTemplateImage->height() / 2);
+       delete m_pTemplateImage;
+       m_pTemplateImage = new QImage(im);
+    }
+#ifdef _SCROLL    
+    m_width  /= 2;
+    m_height /= 2;
+    resizeBoard();
+#endif
+    repaint();
+}
+
+
+void PcBoard::zoomItems(int )
+{
+}
+
+
+void PcBoard::processSimpleGraphicalItems(QMouseEvent* e)
+{
+   if(e->button() == Qt::LeftButton)
+   {
+      switch(m_currMode)
+      {
+         case MODE_PLATE:
+            processPlate(e->x(),e->y());
+            break;
+         case MODE_PLATE_RECT:
+            processPlateRect(e->x(),e->y());
+            break;
+         case MODE_MULTIPLATE:
+            processMultiPlate(e->x(),e->y());
+            break;
+            
+      }
+   }
+   else
+   {
+      m_currMode = MODE_CURSOR;
+      unsetCursor();
+      m_mapOfDragData.clear();         
+   }
+}
+
+
+
+void PcBoard::preProcessPlate(float dOut, float dInt)
+{
+   m_mapOfDragData[D_EX_DEF] = dOut;
+   m_mapOfDragData[D_IN_DEF] = dInt;   
+   int w1 = static_cast<int>(dOut * PIXELS_PER_MM * m_scaleFactor);
+   int w2 = static_cast<int>(dInt * PIXELS_PER_MM * m_scaleFactor);
+   QPixmap buffer(w1,w1);
+   buffer.fill(Qt::transparent);
+   QPainter painter(&buffer);
+   QColor c(LevelsWrapper::getColorForMove());
+   DrawWrapper::drawPlate(painter,c,w1/2,w1/2,w1,w2);
+   QCursor cursor(buffer);
+   setCursor(cursor);
+   m_currMode = MODE_PLATE;
+}
+
+void PcBoard::processPlate(int x,int y){
+   auto i1 = m_mapOfDragData.find(D_EX_DEF);
+   auto i2 = m_mapOfDragData.find(D_IN_DEF);
+   if(i1 != m_mapOfDragData.end() && i2 != m_mapOfDragData.end())
+   {
+      float w1 = i1->second;
+      float w2 = i2->second;
+      char buf[20];
+      sprintf(buf,"%d",m_scaleFactor);
+      cout<<"r_p "<<buf<<endl;         
+      auto p = ItemsFactory::createRoundPlate(static_cast<float>(x)/m_scaleFactor/PIXELS_PER_MM,
+                                                     static_cast<float>(y)/m_scaleFactor/PIXELS_PER_MM,
+                                                     w1,w2,
+                                                     m_currentLevel,ID_NONE,m_scaleFactor,
+                                                        iNoZoom);
+//      addGraphicalItemToLevel(m_currentLevel,p);
+      addItemToSchematic(p);
+      repaint();
+   }
+}
+
+void PcBoard::processMultiPlate(int x, int y)
+{
+   auto i1 = m_mapOfDragData.find(D_EX_DEF);
+   auto i2 = m_mapOfDragData.find(D_IN_DEF);
+   if(i1 != m_mapOfDragData.end() && i2 != m_mapOfDragData.end())
+   {
+      float w1 = i1->second;
+      float w2 = i2->second;
+      vector<BOARD_LEVEL_ID> levels;
+      levels.push_back(m_currentLevel);
+      if(m_currentLevel == LEVEL_A)
+         levels.push_back(LEVEL_F);
+      else if(m_currentLevel == LEVEL_F)
+         levels.push_back(LEVEL_A);
+      else
+         levels.push_back(LEVEL_F);;
+         
+      auto p = ItemsFactory::createRoundMultiPlate(static_cast<float>(x)/m_scaleFactor/PIXELS_PER_MM,
+                                                     static_cast<float>(y)/m_scaleFactor/PIXELS_PER_MM,
+                                                     w1,w2,
+                                                     levels,ID_NONE,m_scaleFactor,
+                                                     iNoZoom);
+/*
+      QString s = "";
+      addGraphicalItemToLevels(s,p);
+*/
+      addItemToSchematic(p);
+      repaint();
+   }   
+}
+
+
+void PcBoard::processLine(float w)
+{
+   m_wLine = w;
+   m_currMode = MODE_LINE;
+}
+
+
+void PcBoard::keyPressEvent(QKeyEvent *e)
+{
+   if(e->key() == Qt::Key_Left ||
+      e->key() == Qt::Key_Right ||
+      e->key() == Qt::Key_Up ||
+      e->key() == Qt::Key_Down ||
+      e->key() == Qt::Key_Delete ||
+      e->key() == Qt::Key_R ) 
+   {
+       set<QString> toDeleteSet;
+       for(auto& item:m_mapOfSelItems)
+      {
+         switch (e->key())
+         {
+            case Qt::Key_Left:
+               item.second->moveLeft(LEVEL_ALL);
+               break;
+            case Qt::Key_Right:    
+               item.second->moveRight(LEVEL_ALL);
+               break;                  
+            case Qt::Key_Up:
+               item.second->moveUp(LEVEL_ALL);
+               break;                  
+            case Qt::Key_Down:
+               item.second->moveDown(LEVEL_ALL);
+               break;
+            case Qt::Key_Delete:
+               toDeleteSet.insert(item.first);
+//               deleteItemFromSchematic(item->first);
+//               deleteGraphicalItem(item.second);
+               break;
+            case Qt::Key_R:
+               cout<<"rotate"<<endl;
+               m_myWidget->getUndoStack()->push(new RotateItemCommand(item.second,this));
+//                 item.second->rotate(LEVEL_ALL,-1,-1,90 * 16);
+               break;
+            default:
+               break;                                    
+         }
+         
+      }
+       if(!toDeleteSet.empty())
+       {
+          for(auto& item:toDeleteSet)
+             deleteItemFromSchematic(item);
+          m_mapOfSelItems.clear();
+       }
+      repaint();
+   }
+   else
+      QWidget::keyPressEvent(e);
+}
+
+void PcBoard::setBoardCurrentLevel(BOARD_LEVEL_ID level)
+{
+   m_currentLevel = level;
+}
+
+void PcBoard::contextMenuEvent(QContextMenuEvent *e)
+{
+    QWidget::contextMenuEvent(e);
+    if (m_currMode == MODE_NODE_PRE_MOVE)
+    {
+       QMenu menu(this);
+//       newNodeAct->setPos(e->pos());
+       menu.addAction(newNodeAct);
+//       delNodeAct->setPos(e->pos());
+       menu.addAction(delNodeAct);
+       menu.exec(e->globalPos());
+    }
+    else if(m_currMode == MODE_CURSOR)
+    {
+       QMenu menu(this);       
+       if(!m_mapOfSelItems.empty())
+       {
+          if(m_mapOfSelItems.size() > 1)
+          {
+            // more than 1 item can be grouped             
+            menu.addAction(groupAct);
+            menu.exec(e->globalPos());       
+          }
+          else
+          {
+            auto item = m_mapOfSelItems.begin();
+            GraphicalItem *pGr = item->second.get();
+            GenericGraphicalItemsContainer *p = nullptr;
+            QMenu menu(this);            
+            // only container can be ungrouped
+            if((p = dynamic_cast<GenericGraphicalItemsContainer*>(pGr)) != nullptr)
+            {
+               menu.addAction(ungroupAct );
+               menu.addAction(addToLib);               
+            }
+            menu.addAction(propAct);
+            menu.exec(e->globalPos());                                
+          }
+       }
+       else
+       {
+          menu.addAction(propAct);
+          menu.exec(e->globalPos());                                          
+       }
+    }
+}
+
+void PcBoard::createActions()
+{
+    newNodeAct = new ActionEx(tr(ADD_NODE_MENU_STR), this);
+    newNodeAct->setStatusTip(tr(ADD_NODE_MENU_STR));
+    connect(newNodeAct, SIGNAL(triggered()), this, SLOT(newNodeAction()));
+    
+    delNodeAct = new ActionEx(tr(DELETE_NODE_MENU_STR), this);
+    delNodeAct->setStatusTip(tr(DELETE_NODE_TIP_STR));
+    connect(delNodeAct, SIGNAL(triggered()), this, SLOT(delNodeAction()));
+    
+    groupAct = new QAction(tr(GROUP_MENU_STR), this);
+    groupAct->setStatusTip(tr(GROUP_TIP_STR));
+    connect(groupAct, SIGNAL(triggered()), this, SLOT(groupAction()));
+    
+    ungroupAct = new QAction(tr(UNGROUP_MENU_STR), this);
+    ungroupAct->setStatusTip(tr(UNGROUP_TIP_STR));
+    connect(ungroupAct, SIGNAL(triggered()), this, SLOT(ungroupAction()));
+    
+    
+    addToLib = new QAction(tr(ADDTOLIB_MENU_STR), this);
+    addToLib->setStatusTip(tr(ADDTOLIB_TIP_STR));
+    connect(addToLib, SIGNAL(triggered()), this, SLOT(addToLibAction()));
+    
+    propAct = new QAction(tr(PROP_DEF_STR), this);
+    propAct->setStatusTip(tr(PROP_DEF_TIP_STR));
+    connect(propAct, SIGNAL(triggered()), this, SLOT(editPropsAction()));
+    
+}
+
+void PcBoard::newNodeAction()
+{
+
+   //set the  node below the cursor
+//   pMoveItem->prepareToChange(newNodeAct->getPos());
+   //now add the node accroding to the current node below the cursor
+//   pMoveItem->addNode(0);
+//   newNodeAct->setPos(QPoint(-1,-1));
+//   m_nodeChangeItem.addNode();
+   m_myWidget->getUndoStack()->push(new AddNodeCommand(m_nodeChangeItem,this));
+   repaint();
+
+}
+
+void PcBoard::delNodeAction()
+{
+
+   //set the  node below the cursor
+//   pMoveItem->prepareToChange(delNodeAct->getPos());
+   //now delete the node below the cursor
+//   pMoveItem->removeNode(0);
+   m_myWidget->getUndoStack()->push(new DeleteNodeCommand(m_nodeChangeItem,this));
+//   m_nodeChangeItem.removeNode();
+//   newNodeAct->setPos(QPoint(-1,-1));
+   repaint();
+
+}
+
+//recreate container from existing items and existing empty container
+void PcBoard::regroupCommand(SmartPtr<GraphicalItem> &pCont, GraphicalItemsMap& map)
+{
+    vector<SmartPtr<GraphicalItem> > tmp;
+    for(auto& item:map)
+    {
+       deleteGraphicalItem(item.second);
+       tmp.push_back(item.second);
+    }
+    GenericGraphicalItemsContainer *p = static_cast<GenericGraphicalItemsContainer*>(pCont.get());
+    p->setChildren(std::move(tmp));
+    p->groupItems();
+    addGraphicalItemToLevels(pCont);
+}
+/*
+//recreate container from existing items and existing empty container
+void PcBoard::regroupCommand(QString& name,GenericGraphicalItemsContainer *pCont, GraphicalItemsMap& map)
+{
+   vector<GraphicalItem*> tmp;
+   for(auto& item:map)
+   {
+       deleteGraphicalItem(item.first);
+      tmp.push_back(item.second);
+   }
+   pCont->setChildren(std::move(tmp));
+   pCont->groupItems();
+   addGraphicalItemToLevels(name,pCont);
+}
+*/
+//groups items in container,adds the container to current level,
+//removes grouped items from levels
+bool PcBoard::groupCommand(GraphicalItemsMap& map,SmartPtr<GraphicalItem>& ptr)
+{
+    float minx,miny,maxx,maxy;
+    auto firstItem = map.begin();
+    if(firstItem == map.end())
+       return false;
+    //first thing we need to determine physical center of selection
+    minx = firstItem->second->x();
+    miny = firstItem->second->y();
+    maxx = firstItem->second->x();
+    maxy = firstItem->second->y();
+    //additionally we will find all layers
+    //to which the items belong
+    set<BOARD_LEVEL_ID> layers_ids;
+    vector<SmartPtr<GraphicalItem> > list_of_items;
+    list_of_items.reserve(map.size());
+    for(auto& item:map)
+    {
+       if(item.second->x() > maxx)
+          maxx = item.second->x();
+       if(item.second->x() < minx)
+          minx = item.second->x();
+       if(item.second->y() > maxy)
+          maxy = item.second->y();
+       if(item.second->y() < miny)
+          miny = item.second->y();
+       item.second->getLevels(layers_ids);
+       list_of_items.push_back(item.second);
+       cout<<"grouping "<<item.first.toStdString()<<" "<<item.second->getID()<<endl;
+    }
+    float centerx = minx + (maxx -minx)/2;
+    float centery = miny + (maxy -miny)/2;
+    GraphicalItem *parent = nullptr;
+    //we need to find an item that will be the parent
+    //this should be the item which contains the center point of selection
+    for(auto& item:map)
+    {
+       if(item.second->isPointIn(static_cast<int>(centerx * PIXELS_PER_MM),
+                                 static_cast<int>(centery * PIXELS_PER_MM),LEVEL_ALL))
+       {
+          parent = item.second.get();
+          break;
+       }
+       cout<<"grouping 1"<<item.first.toStdString()<<" "<<item.second->getID()<<endl;
+    }
+
+    //now we create container ,add all items and add it to layers
+    SmartPtr<GraphicalItem> pContainer = ItemsFactory::createContainer(centerx,
+                                                              centery,
+                                                              parent? parent->getLevel() : m_currentLevel,
+                                                              list_of_items,ID_NONE,
+                                                              m_scaleFactor,iNoZoom);
+    static_cast<GenericGraphicalItemsContainer*>(pContainer.get())->groupItems();
+    //this operation should be done before removing items
+
+    addGraphicalItemToLevels(pContainer);
+
+    //
+    //now we need to remove all items from levels
+    for(auto& item:map)
+    {
+       cout<<"delete from level "<<item.first.toStdString()<<" "<<item.second->getID()<<endl;
+       deleteGraphicalItem(item.second);
+    }
+    ptr = pContainer;
+    return true;
+}
+
+void PcBoard::groupAction()
+{
+    //move the content to the new map
+//    shared_ptr<GraphicalItemsMap> map = make_shared<GraphicalItemsMap>(std::move(m_mapOfSelItems));
+    m_myWidget->getUndoStack()->push(new GroupCommand(std::move(m_mapOfSelItems),this));
+    m_mapOfSelItems.clear();
+//    groupCommand(map);
+/*
+   float minx,miny,maxx,maxy;
+   auto firstItem = m_mapOfSelItems.begin();
+   if(firstItem == m_mapOfSelItems.end())
+      return;
+   //first thing we need to determine physical center of selection
+   minx = firstItem->second->x();
+   miny = firstItem->second->y();
+   maxx = firstItem->second->x();
+   maxy = firstItem->second->y();
+   //additionally we will find all layers
+   //to which the items belong
+   set<BOARD_LEVEL_ID> layers_ids;
+   vector<GraphicalItem*> list_of_items;
+   list_of_items.reserve(m_mapOfSelItems.size());
+   for(auto item:m_mapOfSelItems)
+   {
+      if(item.second->x() > maxx)
+         maxx = item.second->x();
+      if(item.second->x() < minx)
+         minx = item.second->x();
+      if(item.second->y() > maxy)
+         maxy = item.second->y();
+      if(item.second->y() < miny)
+         miny = item.second->y();
+      item.second->getLevels(layers_ids);
+      list_of_items.push_back(item.second);
+   }
+   float centerx = minx + (maxx -minx)/2;
+   float centery = miny + (maxy -miny)/2;
+   GraphicalItem *parent = nullptr;
+   //we need to find an item that will be the parent
+   //this should be the item which contains the center point of selection
+   for(auto item:m_mapOfSelItems)
+   {
+      if(item.second->isPointIn(static_cast<int>(centerx * PIXELS_PER_MM),
+                                static_cast<int>(centery * PIXELS_PER_MM)))
+      {
+         parent = item.second;
+         break;
+      }
+   }
+   
+   //now we create container ,add all items and add it to layers
+   GraphicalItem *pContainer = ItemsFactory::createContainer(centerx,
+                                                             centery,
+                                                             parent? m_currentLevel : parent->getLevel(),
+                                                             list_of_items,
+                                                             m_scaleFactor,1);
+   static_cast<GenericGraphicalItemsContainer*>(pContainer)->groupItems();
+   //this operation should be done before removing items
+
+   QString name_new;
+   addGraphicalItemToLevels(name_new,pContainer);
+
+//   addItemToSchematic(pContainer);
+   //
+   //now we need to remove all items from levels
+   for(auto item:m_mapOfSelItems)
+   {
+      deleteGraphicalItem(item.first);
+   }
+   m_mapOfSelItems.clear();
+*/
+}
+
+void PcBoard::ungroupCommand(SmartPtr<GraphicalItem>& pContainer)
+{
+    //the order of operations in this function is very important
+    //basic tests to see if we have container
+    if(!pContainer.get() || pContainer->getID() == ID_NONE)
+       return ;
+    GenericGraphicalItemsContainer *pC = dynamic_cast<GenericGraphicalItemsContainer*>(pContainer.get());
+    if(pC)
+    {
+       QString containerName = QString::number(pContainer->getID());
+       //set parent to NULL
+       pC->unGroupItems();
+       //acquire children
+       vector<SmartPtr<GraphicalItem> >* pChildren = pC->getChildren();
+       vector<SmartPtr<GraphicalItem> > children = *pChildren;
+       //add them to levels
+       for(VecLayerInrementer i = 0; i < pChildren->size(); ++i)
+       {
+          addGraphicalItemToLevels(children[i]);
+       }
+       //try to remove container from selected items
+       //after this operation the item cannot be used
+       m_mapOfSelItems.erase(containerName);
+       //clean the container class
+       pC->deleteAllChildren();
+       //delete it
+       deleteGraphicalItem(pContainer);
+    }
+}
+/*
+//ungroups container
+//keyAndValue - name and pointer to the container that should be ungrouped.
+shared_ptr<GraphicalItemsMap> PcBoard::ungroupCommand(shared_ptr<GraphicalItemsMap::value_type> keyAndValue,
+                                                        shared_ptr<GraphicalItemsMap> names)
+{
+    //the order of operations in this function is very important
+    //basic tests to see if we have container
+    if(!keyAndValue)
+    {
+       return nullptr;
+    }
+    shared_ptr<GraphicalItemsMap> map = make_shared<GraphicalItemsMap>();
+    //check if we have valid container in keyAndValue
+    GenericGraphicalItemsContainer *pC = dynamic_cast<GenericGraphicalItemsContainer*>(keyAndValue->second);
+    QString containerName = keyAndValue->first;
+    //both values should not be empty
+    if(pC && containerName.length() > 0)
+    {
+       //set parent to NULL
+       pC->unGroupItems();
+       //acquire children
+       vector<GraphicalItem*>* pChildren = pC->getChildren();
+       //naive test to check if the names are valid
+       //add them to levels
+       for(VecLayerInrementer i = 0; i < pChildren->size(); ++i)
+       {
+          char buf[32];
+          sprintf(buf,"%d",(*pChildren)[i]->getID());
+          QString name;
+          if(names &&
+                  static_cast<int>((*pChildren)[i]->getID()) != -1)
+          {
+             auto child = names->find(buf);
+             if(child != names->end())
+                name = child->first;
+          }
+          //The string will have the name generated in case it is empty
+          addGraphicalItemToLevels((*pChildren)[i]);
+             //add to map to return
+          (*map)[name] = (*pChildren)[i];
+       }
+       //try to remove container from selected items
+       //after this operation the item cannot be used
+       m_mapOfSelItems.erase(containerName);
+       //delete it
+       deleteGraphicalItem(containerName);
+       //clean the container class
+       pC->deleteAllChildren();
+    }
+    return map;
+}
+*/
+void PcBoard::ungroupAction()
+{
+   auto item = m_mapOfSelItems.begin();
+   if(item != m_mapOfSelItems.end())
+   {
+      m_myWidget->getUndoStack()->push(new UngroupComand(this,item->second));
+      //remove container from selected items
+      //after this operation the item cannot be used
+      m_mapOfSelItems.clear();
+   }
+/*
+   //the order of operations in this function is very important
+   //basic test to see if we have container
+   auto item = m_mapOfSelItems.begin();
+   auto pGr = item->second;
+   GenericGraphicalItemsContainer *p = nullptr;
+   if((p = dynamic_cast<GenericGraphicalItemsContainer*>(pGr)))
+   {
+      //set parent to NULL
+      p->unGroupItems();
+      set<BOARD_LEVEL_ID> set_lvls;
+      //acquire levels
+      p->getLevels(set_lvls);
+      //acquire children
+      vector<GraphicalItem*>* pChildren = p->getChildren();      
+      //add them to levels
+      for(auto item_ch:*pChildren)
+      {
+
+         QString name;
+         addGraphicalItemToLevels(name,item_ch);
+//         QString name = addItemToSchematic(item_ch);
+         m_mapOfSelItems[name] = item_ch;
+      }
+      //first copy the name
+      QString name_container = item->first;
+      //remove container from selected items
+      //after this operation the item cannot be used
+      m_mapOfSelItems.erase(item->first);
+      //delete it 
+      deleteGraphicalItem(name_container);
+      repaint();
+   }
+*/
+}
+
+void PcBoard::addToLibAction()
+{
+  //add dialog here
+  AddNewElToLibDlg dlg(this);
+  if(dlg.exec() == QDialog::Accepted)
+  {
+     vector<QString> v;
+     QString name;
+     dlg.getResult(v,name);
+     if(v.size() > 0)
+     {
+        if(m_myWidget)
+        {
+           auto item = m_mapOfSelItems.begin();
+           if(item != m_mapOfSelItems.end())
+           {
+              m_myWidget->addToLib(v,name,item->second);
+           }
+        }
+     }
+  }
+}
+
+
+void PcBoard::setBoardVisibleLevel(BOARD_LEVEL_ID level, bool bSet)
+{
+   for(VecLayerInrementer i = 0; i < m_layers.size();++i)
+   {
+      if(m_layers[i].getLevel() == level)
+      {
+         m_layers[i].setVisible(bSet);
+         repaint();
+         break;
+      }
+   }
+}
+
+void PcBoard::setBoardVisibleLevels(vector<BoardLevel>& levels)
+{
+   m_layers.reserve(levels.size());
+   for(VecLayerInrementer i = 0; i < levels.size() ; ++i)
+   {
+      //we need it in reverse order since they declared
+      //in the order reversed to that in which we need 
+      //to draw it
+      m_layers.push_back(BoardLayer(levels[levels.size() - 1 - i]));
+      if(levels[levels.size() - 1 - i].idLevel == BOARD_LEVEL_ID::LEVEL_A1 ||
+         levels[levels.size() - 1 - i].idLevel == BOARD_LEVEL_ID::LEVEL_F1)
+          m_selectionOrder.push_back(i);
+      else
+          m_selectionOrder.push_front(i);
+   }
+
+}
+/*
+void PcBoard::deleteGraphicalItem(const QString& name)
+{
+   // delete it in case it was copied into clipboard
+   m_mapofItemsToCopy.erase(name);
+   m_mapOfSelItems.erase(name);
+   //delete from all layers
+   for(VecLayerInrementer i = 0; i < m_layers.size(); ++i)
+   {
+      m_layers[i].deleteGraphicalItemFromLevel(name);
+   }
+}
+*/
+
+void PcBoard::deleteGraphicalItem(SmartPtr<GraphicalItem>& p)
+{
+   // delete it in case it was copied into clipboard
+//   char name[32];
+//   sprintf(name,"%d",p->getID());
+   QString name = QString::number(p->getID());
+   p->setSelected(false);
+   m_mapofItemsToCopy.erase(name);
+   m_mapOfSelItems.erase(name);
+   //delete from all layers
+   set<ITEM_ID> connectorsSet;
+   p->getConnectors(connectorsSet);
+   for(VecLayerInrementer i = 0; i < m_layers.size(); ++i)
+   {
+      m_layers[i].deleteGraphicalItemFromLevel(name);
+
+      for(auto id:connectorsSet)
+      {
+         //remove this item from connectors list
+         QString name = QString::number(id);
+         SmartPtr<GraphicalItem> ptr;
+         if(m_layers[i].getItem(name,ptr))
+            ptr->connectorRemove(id);
+      }
+   }
+}
+
+
+/*
+void PcBoard::addGraphicalItemToLevel(BOARD_LEVEL_ID level, GraphicalItem* p)
+{
+   ITEM_ID id;
+   char buf[64];
+   IDsGen_instance.getNewID(id,buf);
+   //new
+   for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+   {
+      if(m_layers[i].getLevel() == level ||
+         m_layers[i].getLevel() == m_currentLevel)
+      {
+         cout<<p->getID()<<":"<<p->getRefs()<<endl;
+         m_layers[i].addGraphicalItemToLevel(buf,p);
+         p->setID(id);
+      }
+   }
+   repaint();
+}
+
+*/
+
+//adds graphical items to the layers that should be set for this item
+//by GraphicalItem::setLevel(level) or in GraphicalItem::constructor
+//Containers may contain GraphicalItem(s) that belong to different layers,
+//this is handled by this method
+/*
+void PcBoard::addGraphicalItemToLevels(QString& name,GraphicalItem* p)
+{
+   char buf[64];
+   if(name.isEmpty())
+   {
+      ITEM_ID id = p->getID();
+      if(static_cast<int>(id) == -1)
+      {
+         IDsGen_instance.getNewID(id,buf);
+         p->setID(id);
+      }
+      else
+      {
+         IDsGen_instance.idToString(id,buf);
+      }
+      name = buf;
+   }
+   else
+   {
+      //item already has name 
+      //we need to adjust counter
+      //so that the generator will not generate this name
+      if(name.contains(szItemTemplate))
+      {
+         int len = strlen(szItemTemplate);
+         QString m = name.mid(len);
+         ITEM_ID id = m.toInt();
+         //simple set couinter larger than this one
+         IDsGen_instance.adjustCounter(id);
+         cout<<p->getID()<<":"<<p->getRefs()<<endl;
+         p->setID(id);
+      }      
+   }
+   //new
+   set<BOARD_LEVEL_ID> idSet;
+   p->getLevels(idSet);   
+   for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+   {
+      BOARD_LEVEL_ID idLevel = m_layers[i].getLevel();
+      if(idSet.find(idLevel) != idSet.end())
+          m_layers[i].addGraphicalItemToLevel(name,p);
+   }
+}
+*/
+
+void PcBoard::addGraphicalItemToLevels(SmartPtr<GraphicalItem>& p)
+{
+   if(p->getID() == ID_NONE)
+      p->setID(IDsGenerator::instance()->getNewID());
+   else
+   {
+      IDsGenerator::instance()->adjustCounter(p->getID());
+   }
+   set<BOARD_LEVEL_ID> lvlsSet;
+   p->getLevels(lvlsSet);
+   set<ITEM_ID> connectorsSet;
+   p->getConnectors(connectorsSet);
+   for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+   {
+      BOARD_LEVEL_ID idLevel = m_layers[i].getLevel();
+      if(lvlsSet.find(idLevel) != lvlsSet.end())
+         m_layers[i].addGraphicalItemToLevel(p);
+      for(auto id:connectorsSet)
+      {
+         //in case we have connector , we need to add
+         //this connector to the items that are in connectorsSet
+         QString name = QString::number(id);
+         SmartPtr<GraphicalItem> ptr;
+         if(m_layers[i].getItem(name,ptr))
+         {
+            //connector point coincides with the center of item
+            PointF pt(ptr->abs_x(),ptr->abs_y());
+            ptr->connectorAdd(p->getID(),pt);
+         }
+      }
+   }
+}
+
+void PcBoard::addVirtualConnector(SmartPtr<GraphicalItem>& p, map<GraphicalItem *, PointF>& connectorPoints)
+{
+   for(auto& item:connectorPoints)
+   {
+      if(item.first->getID() == -1)
+      {
+         item.first->setID(IDsGenerator::instance()->getNewID());
+      }
+   }
+   p->setLevel(LEVEL_VC);
+   addGraphicalItemToLevels(p);
+}
+
+void PcBoard::openNewSchematic(SchemData& data,vector< QString >& lNames, vector< SmartPtr<GraphicalItem> >& lItems)
+{
+   m_mapOfSelItems.clear();
+   m_mapOfDragData.clear();
+   //at the moment copying from one schematic to another is prohibited
+//   m_mapofItemsToCopy.clear();
+
+   for(VecLayerInrementer i = 0 ; i < m_layers.size() ; ++i)
+      m_layers[i].clear();
+   for(VecLayerInrementer i = 0; i < lItems.size();++i)
+   {
+      addGraphicalItemToLevels(lItems[i]);
+   }
+   m_width = data.m_width * m_scaleFactor;
+   m_height = data.m_height * m_scaleFactor;
+   for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+   {
+      m_layers[i].setZoom(m_scaleFactor);
+   }   
+   resizeBoard();
+   repaint();
+}
+
+
+void PcBoard::processContainer(const QPoint& position,const QString& type,
+                                 const QString& name,int n,SmartPtr<GraphicalItem>& pItem)
+{
+//   char buf[64];
+   SmartPtr<GraphicalItem> p;
+   BOARD_LEVEL_ID descLevel = LEVEL_NONE;
+//   cout<<type.toStdString()<<" OK"<<endl;
+   PointF pos(position.x()/PIXELS_PER_MM,position.y()/PIXELS_PER_MM);
+   if(type.startsWith(TYPE_S_CHIP_DIP))
+   {
+      descLevel = LevelsWrapper::geLevelForDip(m_currentLevel);
+      int n = type.mid(3).toInt();
+      p = ItemsFactory::createStdDip(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
+                                     m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+   }
+   else if(type.startsWith(TYPE_S_CHIP_SO))
+   {
+      descLevel = LevelsWrapper::geLevelForSO(m_currentLevel);
+      int n = type.mid(2).toInt();
+      p = ItemsFactory::createStdSO(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
+                                    m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+   }
+   else if(type.startsWith(TYPE_S_0805) ||
+           type.startsWith(TYPE_S_1206) ||
+           type.startsWith(TYPE_S_1210) ||
+           type.startsWith(TYPE_S_2510) ||
+           type.startsWith(TYPE_S_2512))
+   {
+      descLevel = LevelsWrapper::geLevelForSO(m_currentLevel);
+      p = ItemsFactory::createSmdType(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
+                                      getSmdPackForStr(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+   }
+   else if(type.startsWith(TYPE_S_R_DIP))
+   {
+      descLevel = LevelsWrapper::geLevelForDip(m_currentLevel);
+      p = ItemsFactory::createResistor(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
+                                      getLResistorFromStrType(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+   }
+   else if(type.startsWith(TYPE_S_CHIP_MSOP) ||
+           type.startsWith(TYPE_S_CHIP_TSOP))
+   {
+       descLevel = LevelsWrapper::geLevelForTSOP(m_currentLevel);
+       int n = type.mid(strlen(TYPE_S_CHIP_TSOP)).toInt();
+       p = ItemsFactory::createStdTSOP(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
+                                       m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+   }
+   else if(type.startsWith(TYPE_S_EL_C))
+   {
+      descLevel = LevelsWrapper::geLevelForDip(m_currentLevel);
+      p = ItemsFactory::createElCapacitor(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
+                                      getLForELCapFromStrType(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+   }
+   else if(type.startsWith(TYPE_S_C))
+   {
+      descLevel = LevelsWrapper::geLevelForDip(m_currentLevel);
+      p = ItemsFactory::createCap(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
+                                      getLForCapFromStrType(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+   }
+   else if(type.startsWith(GENERIC_TYPE_DEF) && pItem.get())
+   {
+      cout<<"duplication"<<endl;
+      p  = ItemsFactory::duplicateItem(pItem.get(),pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,false);
+      //setting current zoom
+      p->setZoom(m_scaleFactor);
+      p->setID(ID_NONE);
+   }
+   if(p.get())
+   {
+/*
+      QString name;
+      addGraphicalItemToLevels(name,p);
+*/
+      addItemToSchematic(p);
+      repaint();
+   }
+
+}
+
+void PcBoard::print()
+{
+   SetPrintPropsDlg dlg(this);
+   dlg.exec();
+   return;
+/*
+   m_currMode = MODE_PRINT;
+   QImage target(QSize(this->width(), this->height()), QImage::Format_ARGB32);
+   QPainter painter(&target);
+   render(&painter);
+   QPrinter printer(QPrinter::HighResolution);
+   printer.setOutputFileName("print.ps");
+   QPrintDialog printDialog(&printer);
+   if (printDialog.exec() == QDialog::Accepted) 
+   {   
+      QPainter p1(&printer);
+      p1.scale(printer.resolution()/254, printer.resolution()/254);      
+      p1.drawImage(QPoint(0,0),target.mirrored(true,false));
+      p1.end();
+   }
+*/
+/*   
+   QPrinter printer(QPrinter::HighResolution);
+   printer.setOutputFileName("print.ps");
+   QPainter painter;
+   painter.begin(&printer);
+   painter.scale(printer.resolution()/254, printer.resolution()/254);   
+   render(&painter);
+*/
+   m_currMode = MODE_CURSOR;
+}
+
+void PcBoard::processPlateRect(int x,int y)
+{
+   auto i1 = m_mapOfDragData.find(WIDTH_DEF);
+   auto i2 = m_mapOfDragData.find(HEIGHT_DEF);
+   if(i1 != m_mapOfDragData.end() && i2 != m_mapOfDragData.end())
+   {
+      char buf[20];
+       sprintf(buf,"%d",m_scaleFactor);
+      cout<<"r_p "<<buf<<endl;
+      SmartPtr<GraphicalItem> p = ItemsFactory::createRect(static_cast<float>(x)/m_scaleFactor/PIXELS_PER_MM,
+                                                  static_cast<float>(y)/m_scaleFactor/PIXELS_PER_MM,
+                                                     i1->second,i2->second,
+                                                     m_currentLevel,ITEMS_ORIENTATION::O_VERTICAL_TOP
+                                                     ,ID_NONE,m_scaleFactor,iNoZoom);
+/*
+      addGraphicalItemToLevel(m_currentLevel,p);
+*/
+      addItemToSchematic(p);
+      repaint();
+   }
+}
+
+
+void PcBoard::preProcessPlateRect(float w, float h)
+{
+   m_mapOfDragData[WIDTH_DEF] = w;
+   m_mapOfDragData[HEIGHT_DEF] = h;      
+   int w1 = static_cast<int>(w * PIXELS_PER_MM * m_scaleFactor);
+   int h1 = static_cast<int>(h * PIXELS_PER_MM * m_scaleFactor);
+   QPixmap buffer(w1,h1);
+   buffer.fill(Qt::transparent);
+   QPainter painter(&buffer);
+   QColor c(LevelsWrapper::getColorForMove());
+   DrawWrapper::drawRectPlate(painter,c,w1/2,h1/2,w1,h1);
+   QCursor cursor(buffer);
+   setCursor(cursor);
+   cout<<"plate_rect"<<endl;
+   m_currMode = MODE_PLATE_RECT;   
+}
+
+void PcBoard::processPackRect(float wl)
+{
+   m_wLine = wl;
+   m_currMode = MODE_PACK_RECT;
+}
+
+void PcBoard::processPackRound(float wl)
+{
+   m_wLine = wl;
+   m_currMode = MODE_PACK_ROUND;
+}
+
+void PcBoard::editPropsAction()
+{
+   if(m_mapOfSelItems.size() == 1)
+   {
+      auto item = m_mapOfSelItems.begin();
+      SmartPtr<GraphicalItem> p = item->second;
+      BOARD_LEVEL_ID iLevel = LEVEL_NONE;
+      GraphicalItemPropsDlg dlg(this,p);
+      if(dlg.exec() == QDialog::Accepted)
+      {
+         shared_ptr<PointF> pos;
+         shared_ptr<GeomCommonProps> props;
+         ContainerType containerType;
+         ITEMS_ORIENTATION o;
+         if(dlg.getResult(iLevel,pos,props,containerType,o) && pos.get())
+             m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
+         if(p->getLevel() != iLevel)
+         {
+            //we cannot pass const QString& to moveBetweenLayers
+            QString s = item->first;
+//            moveBetweenLayers(iLevel,s,p);
+            moveItemBetweenLayers(iLevel,s,p,containerType);
+         }
+         repaint();
+      }
+   }
+   else if(m_mapOfSelItems.empty())
+   {
+      PcBoardPropsDlg dlg(this);
+      if(dlg.exec() == QDialog::Accepted)
+      {
+         int w,h;
+         dlg.getResult(w,h);
+         m_myWidget->getUndoStack()->push(new SetBoardProps(this,w,h));
+         setSize(w,h);
+      }      
+   }
+   
+}
+
+
+void PcBoard::moveItemBetweenLayers(BOARD_LEVEL_ID newLevel,QString& s,
+                                    SmartPtr<GraphicalItem>& p,ContainerType type)
+{
+    if(p->getLevel() != newLevel)
+    {
+        //produce undo/redo command which will call movind
+        m_myWidget->getUndoStack()->push(new MoveBetweenLayersCommand(p,s,this,newLevel,type));
+    }
+}
+
+
+void PcBoard::moveBetweenLayers(BOARD_LEVEL_ID newLevel,QString& s,
+                                SmartPtr<GraphicalItem> p,ContainerType type)
+{
+   if(p->getLevel() != newLevel)
+   {
+      deleteGraphicalItem(p);
+      //special handling for RelocatableContainer
+      if(type == ContainerType::RelocatableDipType ||
+         type == ContainerType::RelocatableSoType )
+      {
+         BOARD_LEVEL_ID packageLevel = BOARD_LEVEL_ID::LEVEL_NONE;
+         BOARD_LEVEL_ID oldPackageLevel = BOARD_LEVEL_ID::LEVEL_NONE;
+         if(type == ContainerType::RelocatableDipType)
+         {
+            packageLevel = LevelsWrapper::geLevelForDip(newLevel);
+            oldPackageLevel = LevelsWrapper::geLevelForDip(p->getLevel());
+         }
+         else
+         {
+            packageLevel = LevelsWrapper::geLevelForSO(newLevel);
+            oldPackageLevel = LevelsWrapper::geLevelForSO(p->getLevel());
+         }
+         //set it for children
+         GenericGraphicalItemsContainer *pCont = 
+                 static_cast<GenericGraphicalItemsContainer*>(p.get());
+         auto children = pCont->getChildren();
+         for(auto& item:*children )
+         {
+            if(item->getLevel() == oldPackageLevel)
+                item->setLevel(packageLevel);
+            else if(item->getLevel() == p->getLevel())
+                item->setLevel(newLevel);
+         }
+      }
+      p->setLevel(newLevel);
+      addGraphicalItemToLevels(p);
+   }
+}
+
+
+void PcBoard::resizeBoard()
+{
+    setMaximumWidth(m_width);
+    setMinimumWidth(m_width);
+    setMaximumHeight(m_height);
+    setMinimumHeight(m_height);
+    resize(m_width,m_height);
+
+}
+
+
+void PcBoard::setSize(int w, int h)
+{
+   if(m_width != w || m_height != h)
+   {
+      m_width = w;
+      m_height = h;
+      resizeBoard();
+      QWidget *p = static_cast<QWidget*>(parent());
+      if(p)
+         p->repaint();
+      if(m_myWidget)
+         m_myWidget->updateBoardSize(w,h);
+   }
+}
+
+void PcBoard::loadImage(QString& fileName)
+{
+   QImage im(fileName);
+   float dpmX = im.dotsPerMeterX();
+   float dpmY = im.dotsPerMeterY();
+   float ratiox = PIXELS_PER_MM * 1000.0f/dpmX;
+   float ratioy = PIXELS_PER_MM * 1000.0f/dpmY;
+   QImage im1 = im.scaled(ratiox * im.width() * m_scaleFactor,ratioy * im.height() * m_scaleFactor);
+   m_pTemplateImage = new QImage(im1);
+/*   
+   int width = m_pTemplateImage->width();
+   int height = m_pTemplateImage->height();
+   float ratio = (float)PIXELS_PER_MM/(float)PIXELS_PER_MM_PRTPREVIW;
+   width *= ratio;
+   height *= ratio;
+   m_pTemplateImage->scaled(width,height);
+*/
+   repaint();
+}
+
+
+void PcBoard::unloadImage()
+{
+   delete m_pTemplateImage;
+   m_pTemplateImage = nullptr;
+   repaint();
+}
+
+void PcBoard ::processRuler()
+{
+   m_currMode = MODE_RULER;
+}
+
+void PcBoard ::processRulerMv()
+{
+   m_currMode = MODE_RULER_MV;
+}
+
+void PcBoard::processCut()
+{
+    clearCopyPasteMap();
+    clearCopyPasteMap();
+    for(auto& item:m_mapOfSelItems)
+    {
+       m_mapofItemsToCopy[item.first] = item.second;
+       deleteGraphicalItem(item.second);
+    }
+    repaint();
+}
+
+void PcBoard ::processCopy()
+{
+    clearCopyPasteMap();
+    for(auto& item:m_mapOfSelItems)
+       m_mapofItemsToCopy[item.first] = item.second;
+}
+
+void PcBoard::processPaste()
+{
+   QPoint pt = mapFromGlobal(QCursor::pos());
+   cout<<"Paste "<<std::to_string(pt.x())<<endl;
+   //we need to find upmost item. Ths will be the
+   //the starting point of insertion
+   int startY = m_height;
+   int startX = 0;
+   for(auto& item:m_mapofItemsToCopy)
+   {
+      if(item.second->y() * PIXELS_PER_MM < startY/m_scaleFactor)
+      {
+         startY = static_cast<int>(item.second->y() * PIXELS_PER_MM * m_scaleFactor);
+         startX = static_cast<int>(item.second->x() * PIXELS_PER_MM * m_scaleFactor);
+      }
+   }
+   for(auto item:m_mapofItemsToCopy)
+   {
+      int x = pt.x() + (static_cast<int>(item.second->x() * PIXELS_PER_MM * m_scaleFactor) - startX);
+      int y = pt.y() + (static_cast<int>(item.second->y() * PIXELS_PER_MM * m_scaleFactor) - startY);
+      auto p = ItemsFactory::duplicateItem(item.second.get(),
+                                                     static_cast<float>(x)/PIXELS_PER_MM/m_scaleFactor,
+                                                     static_cast<float>(y)/PIXELS_PER_MM/m_scaleFactor,false);
+      //pasted items should not be selected
+      p->setSelected(false);
+/*
+      QString name = ""; //empty because we want the new name to be generated by addGraphicalItemToLevels
+      addGraphicalItemToLevels(name,p);
+*/
+      addItemToSchematic(p);
+   }
+   repaint();
+}
+
+void PcBoard::clearCopyPasteMap()
+{
+    m_mapofItemsToCopy.clear();
+}
+
+void PcBoard::preProcessMultiPlate(float dOut,float dIn)
+{
+   m_mapOfDragData[D_EX_DEF] = dOut;
+   m_mapOfDragData[D_IN_DEF] = dIn;   
+   int w1 = static_cast<int>(dOut * PIXELS_PER_MM * m_scaleFactor);
+   int w2 = static_cast<int>(dIn * PIXELS_PER_MM * m_scaleFactor);
+   QPixmap buffer(w1 * 2,w1 * 2);
+   buffer.fill(Qt::transparent);
+   QPainter painter(&buffer);
+   QColor c(LevelsWrapper::getColorForMove());
+   QPoint hot = DrawWrapper::drawMultiPlate(painter,c,w1,w1,w1,w2);
+   //adjust the cursor pos to center of upper plate
+   QCursor cursor(buffer,w1 - hot.x() ,w1 - hot.y() );
+   setCursor(cursor);
+   m_currMode = MODE_MULTIPLATE;   
+}
+
+void PcBoard::processSelectAll()
+{
+    clearCopyPasteMap();
+    for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+    {
+       m_layers[i].copyItems(m_mapOfSelItems);
+    }
+    for(auto& item:m_mapOfSelItems)
+        item.second->setSelected(true);
+    repaint();
+}
+
+QString PcBoard::addItemToSchematic(SmartPtr<GraphicalItem>& p)
+{
+    QString name = "";
+    m_myWidget->getUndoStack()->push(new AddItemCommand(p,name,this));
+    return name;
+}
+
+void PcBoard::deleteItemFromSchematic(const QString& name)
+{
+    SmartPtr<GraphicalItem> p;
+    for(VecLayerInrementer i = 0 ; i < m_layers.size(); ++i)
+    {
+       if(m_layers[i].getItem(name,p))
+       {
+          m_myWidget->getUndoStack()->push(new DeleteItemCommand(p,this));
+          break;
+       }
+    }
+}
+
+void PcBoard::setLineWidth(const QString& text)
+{
+   m_wLine = text.toFloat();
+}
+
+void PcBoard::setItemPosAndGeometry(GraphicalItem *p, PointF& pos, GeomCommonProps *props)
+{
+    p->setX(pos.x());
+    p->setY(pos.y());
+    if(props)
+    {
+       p->setGeometry(*props);
+    }
+    repaint();
+}
+
+void PcBoard::notifyVcConnectors(SmartPtr<GraphicalItem>& p,float dx,float dy)
+{
+  for(VecLayerInrementer vecIndex = 0 ; vecIndex < m_layers.size();
+            ++vecIndex   )
+  {
+     if(m_layers[vecIndex].getLevel() == LEVEL_VC)
+     {
+        m_layers[vecIndex].notifyConnectors(p,dx,dy);
+     }
+  }
+}
+
+void PcBoard ::constructPcbLayout()
+{
+    VecLayerInrementer sizeX = static_cast<VecLayerInrementer>(m_width/fSizeOfMatrixCell/10);
+    VecLayerInrementer sizeY = static_cast<VecLayerInrementer>(m_height/fSizeOfMatrixCell/10);
+    PcbLayoutVec m(sizeY,vector<ITEM_ID>(sizeX,ID_NONE));
+    VecLayerInrementer vCon_index = LEVEL_NONE;
+    VecLayerInrementer A_Index = LEVEL_NONE;
+    vector<UniCoord> px((sizeX + sizeY) * 2,ID_NONE);
+    vector<UniCoord> py((sizeX + sizeY) * 2,ID_NONE);
+    map<QString,vector<PointF> > mapOfLinesData;
+    for(VecLayerInrementer vecIndex = 0 ; vecIndex < m_layers.size();
+              ++vecIndex   )
+    {
+      if(m_layers[vecIndex].getLevel() == LEVEL_A)
+          A_Index = vecIndex;
+      else if(m_layers[vecIndex].getLevel() == LEVEL_VC)
+          vCon_index = vecIndex;
+      if(A_Index != LEVEL_NONE && vCon_index != LEVEL_NONE)
+      {
+          //virtual connectors
+          auto vcConnectors = m_layers[vCon_index].getConnectItemsInLevel();
+          vector<SmartPtr<GraphicalItem> > vcCons;
+          set<QString> toDeleteSet;
+          using ConIterator = GraphicalItemsMap::const_iterator;
+
+          for(ConIterator iter = vcConnectors->begin(); iter != vcConnectors->end();++iter)
+          {
+//             cout<<iter->second->getID()<<endl;
+             vcCons.push_back(iter->second);
+          }
+          std::sort(vcCons.begin(),vcCons.end(),
+                    [](SmartPtr<GraphicalItem> rp,SmartPtr<GraphicalItem> lp)
+          {
+             LineGraphicalItem* connector1 = static_cast<LineGraphicalItem*>(rp.get());
+             LineGraphicalItem* connector2 = static_cast<LineGraphicalItem*>(lp.get());
+             PointF start1 = connector1->getPoints()->at(0);
+             PointF end1 = connector1->getPoints()->at(connector1->getPoints()->size() - 1);
+             PointF start2 = connector2->getPoints()->at(0);
+             PointF end2 = connector2->getPoints()->at(connector2->getPoints()->size() - 1);
+             return start1.y() < start2.y() && end1.y() < end2.y();
+          });
+//          for(VecIndex i = 0; i < vcCons.size();++i)
+//          {
+//             cout<<vcCons[i]->getID()<<endl;
+//          }
+
+          auto connectors = m_layers[A_Index].getConnectItemsInLevel();
+          auto non_connector_items = m_layers[A_Index].getItemsInLevel();
+          int len = 0;
+//          for(ConIterator iter = vcConnectors->begin(); iter != vcConnectors->end();++iter)
+          for(VecIndex i = 0; i < vcCons.size();++i)
+          {
+              LineGraphicalItem* connector = static_cast<LineGraphicalItem*>(vcCons[i].get());
+              //now we get items that this connector connects to each other
+              set<ITEM_ID> ids;
+              connector->getConnectors(ids);
+              for(VecIdsInc ln = 0; ln < sizeY; ++ln)
+              {
+                 for(VecIdsInc cl = 0; cl < sizeX; ++cl)
+                 {
+                    fillPcb(m,non_connector_items,ids,ln,cl);
+                    fillPcb(m,connectors,ids,ln,cl);
+                 }
+              }
+/*
+              for(VecIdsInc i = 0; i < len ; ++i)
+              {
+                 m[py[i].pos][px[i].pos] = -8192;
+                 py[i].pos = -1;
+                 px[i].pos = -1;
+              }
+
+*/
+              cout<<"ID of connector:"<<connector->getID();
+              for(VecIdsInc ln = 0; ln < sizeY; ++ln)
+              {
+                 for(VecIdsInc cl = 0; cl < sizeX; ++cl)
+                 {
+                    // output to see what is free and what is occupied
+                    if(m[ln][cl] == -8192)
+                       cout<<"=";
+                    else if(m[ln][cl] == ID_NONE || (m[ln][cl] < WALL && ids.find(WALL - m[ln][cl]) != ids.end()))
+                       cout<<"-";
+                    else
+                       cout<<"X";//m[ln][cl];
+                    //
+                 }
+                 cout<<endl;
+              }
+
+              PointF startPoint = connector->getPoints()->at(0);
+              PointF endPoint = connector->getPoints()->at(connector->getPoints()->size() - 1);
+              int ax = static_cast<int>(startPoint.x()/fSizeOfMatrixCell);
+              int ay = static_cast<int>(startPoint.y()/fSizeOfMatrixCell);
+              int bx = static_cast<int>(endPoint.x()/fSizeOfMatrixCell);
+              int by = static_cast<int>(endPoint.y()/fSizeOfMatrixCell);
+              len = 0;
+              if(lee(m,static_cast<int>(sizeX),
+                     static_cast<int>(sizeY),
+                     static_cast<VecLayerInrementer>(ax),
+                     static_cast<VecLayerInrementer>(ay),
+                     static_cast<VecLayerInrementer>(bx),
+                     static_cast<VecLayerInrementer>(by),len,px,py,ids))
+              {
+                 vector<PointF> points;
+                 createPointsForLineFromLeePath(points,px,py,len);
+                 auto p = SmartPtr<GraphicalItem>::make_smartptr<LineGraphicalItem>(std::move(points),
+                                                   fWidthOfConAuto,
+                                                   LEVEL_A,
+                                                   m_scaleFactor,1,ID_NONE);
+                 p->setVisible(true);
+                 addGraphicalItemToLevels(p);
+                 QString str_id = QString::number(connector->getID());
+                 m_layers[vCon_index].deleteGraphicalItemFromLevel(str_id);
+              }
+          }
+          repaint();
+      }
+   }    
+}
+
+void PcBoard::createPointsForLineFromLeePath(vector<PointF>& points,
+                                               vector<UniCoord>& px,
+                                               vector<UniCoord>& py,
+                                               int length)
+{
+    unsigned len = static_cast<unsigned>(length);
+    points.push_back(PointF(px[0].pos * fSizeOfMatrixCell + fSizeOfMatrixCell/2,
+                     py[0].pos * fSizeOfMatrixCell + fSizeOfMatrixCell/2));
+    int dif = abs((px[1].pos - px[0].pos) * 2) + abs(py[1].pos - py[0].pos);
+    for(VecIdsInc index = 1;
+        index < static_cast<unsigned int>(len); ++index)
+    {
+       int dif_part1 = px[index].pos - px[index - 1].pos;
+       int dif_part2 = py[index].pos - py[index - 1].pos;
+       if(((abs(dif_part1 * 2) + abs(dif_part2)) != dif)
+               || index ==static_cast<unsigned int>(len - 1))
+       {
+          dif = (abs(dif_part1 * 2) + abs(dif_part2));
+          points.push_back(PointF(px[index - 1].pos * fSizeOfMatrixCell + fSizeOfMatrixCell/2,
+                           py[index - 1].pos * fSizeOfMatrixCell + fSizeOfMatrixCell/2));
+
+          px[index - 1] = -1;
+          py[index - 1] = -1;
+       }
+
+    }
+    points.push_back(PointF(px[len - 1].pos * fSizeOfMatrixCell + fSizeOfMatrixCell/2,
+                     py[len - 1].pos * fSizeOfMatrixCell + fSizeOfMatrixCell/2));
+}
+
+
+
+bool PcBoard ::fillPcb(PcbLayoutVec& m,GraphicalItemsMap* items,set<ITEM_ID>& ids,
+                         VecIdsInc ln,VecIdsInc cl)
+{
+    for(const auto& item:*items)
+    {
+       PointF top;
+       top.setX(cl * fSizeOfMatrixCell);
+       top.setY(ln * fSizeOfMatrixCell);
+       PointF bottom;
+       bottom.setX((cl + 1) * fSizeOfMatrixCell);
+       bottom.setY((ln + 1) * fSizeOfMatrixCell);
+       auto& p = item.second;
+       ITEM_ID id = const_cast<SmartPtr<GraphicalItem>& >(p)->isRectOccupied(top,bottom);
+       if(id != ID_NONE)
+       {
+           //in case the cell is already occupied see if it has connectors connected
+           if(m[ln][cl] < WALL)
+           {
+               auto iter = ids.find(WALL - m[ln][cl]);
+               if(iter == ids.end())
+               {
+                  iter = ids.find(id);
+                  if(iter != ids.end())
+                  {
+                     m[ln][cl] = WALL - *iter;
+                     return true;
+                  }
+               }
+               else
+                  return true;
+           }
+           else
+           {
+              m[ln][cl] = WALL - id;
+              return false;
+           }
+       }
+       else if(!(m[ln][cl] < WALL))
+          m[ln][cl] = ID_NONE;
+    }
+    return false;
+}
+
+void PcBoard::processText(int fontSize,bool vcLevel)
+{
+  setMode(MODE_TEXT);
+  textFontSize = fontSize;
+}
+
+void PcBoard ::drawTemporaryConnector(QPainter& p,const QColor& c,float width)
+{
+   //draw all virtual connector pieces except the last one
+   if(m_vcConstrInfo.size() > 1)
+   {
+      DrawWrapper::drawConnector(p,c,m_vcConstrInfo,nullptr,false,width,m_scaleFactor,1);
+   }
+   //draw the last connector piece
+   if(m_vcConstrInfo.size() > 0 && m_constInfo.m_pt.x() >= 0)
+   {
+       QPen pen;
+       pen.setWidth(static_cast<int>(width * PIXELS_PER_MM * m_scaleFactor));
+       pen.setColor(c);
+       p.setPen(pen);
+       p.drawLine(static_cast<int>(m_vcConstrInfo.back().m_pt.x() * PIXELS_PER_MM * m_scaleFactor),
+                  static_cast<int>(m_vcConstrInfo.back().m_pt.y() * PIXELS_PER_MM * m_scaleFactor),
+                  static_cast< int>(m_constInfo.m_pt.x() * PIXELS_PER_MM * m_scaleFactor),
+                  static_cast<int>(m_constInfo.m_pt.y() * PIXELS_PER_MM * m_scaleFactor)); //coordinates of the plate
+       p.setPen(Qt::NoPen);
+   }
+   //draw the plate for the last point
+   if(m_vcConstrInfo.size() == 1 && m_vcConstrInfo[0].isConnected())
+   {
+      DrawWrapper::drawConnectorPlate(p,c,m_vcConstrInfo[0].m_pt.x(),m_vcConstrInfo[0].m_pt.y(),m_scaleFactor);
+   }
+   //draw the plate for the last point
+   if(m_constInfo.isConnected())
+   {
+      DrawWrapper::drawConnectorPlate(p,c,m_constInfo.m_pt.x(),m_constInfo.m_pt.y(),m_scaleFactor);
+   }
+}
+
+void PcBoard::handleProcessText(int x, int y)
+{
+    if(!m_pText)
+    {
+       m_pText = new TextEditField(this);
+       QFont font("Arial",textFontSize);
+       m_pText->setFont(font);
+       QPalette p = m_pText->palette();
+       p.setColor(QPalette::Text,LevelsWrapper::getColorForLevel(m_currentLevel));
+       m_pText->setPalette(p);
+       //7 to 14 characters
+       m_pText->setGeometry(x,y,textFontSize * 7,textFontSize * 2);
+       m_pText->show();
+       m_pText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    }
+    else
+    {
+       if(!m_pText->isVisible())
+       {
+          if(m_pText->fontInfo().pointSize() != textFontSize)
+          {
+             QFont font("Arial",textFontSize);
+             m_pText->setFont(font);
+             QPalette p = m_pText->palette();
+             p.setColor(QPalette::Text,LevelsWrapper::getColorForLevel(m_currentLevel));
+             m_pText->setPalette(p);
+             //7 to 14 characters
+             m_pText->setGeometry(x,y,textFontSize * 7,textFontSize * 2);
+          }
+          m_pText->showText(x,y);
+       }
+    }
+
+}
+
+/*
+    auto setL = [&m,&mapOfOccupiedCoord](GraphicalItemsMap* items,VecIdsInc indexX,VecIdsInc indexY)
+    {
+        for(auto item:*items)
+        {
+           PointF top;
+           top.setX(indexX * fSizeOfMatrixCell);
+           top.setY(indexY * fSizeOfMatrixCell);
+           PointF bottom;
+           bottom.setX((indexX + 1) * fSizeOfMatrixCell);
+           bottom.setY((indexY + 1) * fSizeOfMatrixCell);
+           ITEM_ID id = item.second->isRectOccupied(top,bottom);
+           if(id != ID_NONE)
+           {
+
+               auto listOfPoints = mapOfOccupiedCoord.find(id);
+               if(listOfPoints == mapOfOccupiedCoord.end())
+               {
+                   list<QPoint> l;
+                   l.push_back(QPoint(indexX,indexY));
+                   mapOfOccupiedCoord[id] = l;
+               }
+               else
+               {
+                   listOfPoints->second.push_back(QPoint(indexX,indexY));
+               }
+               m[indexY][indexX] = id;
+//               cout<<"m["<<indexY<<"]["<<indexX<<"]="<<m[indexY][indexX]<<"id="<<id<<endl;
+           }
+        }
+    };
+*/
+
+
+//#include "PcBoard.moc"
+

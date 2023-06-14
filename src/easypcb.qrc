@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/copy.png</file>
+        <file>images/cut.png</file>
+        <file>images/new.png</file>
+        <file>images/open.png</file>
+        <file>images/paste.png</file>
+        <file>images/save.png</file>
+        <file>images/exit.png</file>
+        <file>images/print.png</file>
+        <file>images/select.png</file>
+        <file>images/select-all.png</file>
+        <file>images/connection.png</file>
+        <file>images/ruler.png</file>
+        <file>images/zoom.png</file>
+        <file>images/zoom-out.png</file>
+        <file>images/distance.png</file>
+        <file>images/redo.png</file>
+        <file>images/undo.png</file>
+        <file>images/eraser.png</file>
+        <file>images/ic.png</file>
+        <file>images/auto.png</file>
+        <file>images/link.png</file>
+        <file>images/new-document.png</file>
+        <file>images/gbr.png</file>
+    </qresource>
+</RCC>
