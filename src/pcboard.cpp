@@ -907,7 +907,6 @@ void PcBoard::contextMenuEvent(QContextMenuEvent *e)
           {
             // more than 1 item can be grouped             
              menu.addAction(groupAct);
-             menu.exec(e->globalPos());
           }
           else
           {
