@@ -51,11 +51,11 @@ void RectPackageGraphicalItem::paintItemIntoBuffer(float difX,float difY,QPainte
    float x1,y1;
    coordRelativeToAbsolute(x1,y1);
    if(filled)
-      DrawWrapper::drawFilledRectPackageF(p,c,m_type,x1 + difX/zoom * zoom_d,
+      DrawWrapper::drawFilledRectPackageF(p,c,m_type,x1 + difX,
                                   y1 + difY,
                                   m_width,m_height,zoom,zoom_d);
    else
-      DrawWrapper::drawRectPackageF(p,c,m_type,x1 + difX/zoom * zoom_d,
+      DrawWrapper::drawRectPackageF(p,c,m_type,x1 + difX,
                                  y1 + difY,
                                  m_width,m_height,zoom,zoom_d);
 }

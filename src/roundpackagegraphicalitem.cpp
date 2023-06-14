@@ -132,7 +132,7 @@ void RoundPackageGraphicalItem::rotate(BOARD_LEVEL_ID idLevel, int x, int y, int
 SmartPtr<GraphicalItem> RoundPackageGraphicalItem::clone()
 {
    auto p = SmartPtr<GraphicalItem>::make_smartptr<RoundPackageGraphicalItem>(m_level,m_x,m_y,m_D,m_d,
-                                                                m_type,ID_NONE);
+                                                                m_type,IDsGenerator::instance()->getNewID());
    p->setVisible(m_bVisible);
    p->setSelected(m_selected);
    p->setParent(m_parent,false);
