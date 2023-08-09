@@ -112,6 +112,8 @@ public:
     virtual PointF getArea() = 0;
     virtual bool isGerberSupported(){return false;}
     virtual string getGerberString(GerberGenerator& gen,BOARD_LEVEL_ID idLevel){return string();}
+    virtual bool isHoleCapable(){return false;}
+    virtual float getHoleDiameter(){return -1.0f;}
 };
 
 #endif // GRAPHICALITEM_H

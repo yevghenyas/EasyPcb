@@ -377,8 +377,8 @@ SmartPtr<GraphicalItem> ItemsFactory::createSmdType(float x, float y, ITEMS_ORIE
    items.push_back(createRectPackage(x,y,pt.x(),pt.y(),
                                        LevelsWrapper::geLevelForSO(level),type,
                                         id != ID_NONE ? IDsGenerator::instance()->getNewID() : ID_NONE,k_zoom,zoom_d));
-   float plate_h = pt.x()/2;
-   float plate_w = pt.y();
+   float plate_h = pt.y();
+   float plate_w = pt.x()/3;
    //vertical orientation
    items.push_back(createRect(x - pt.x()/2,
                                          y - 0.1f,

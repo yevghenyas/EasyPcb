@@ -205,7 +205,8 @@ public:
     //d1 external D d2 internal d
     void preProcessPlate(float dOut,float dIn);
     void processSimpleGraphicalItems(QMouseEvent* e);
-    void processGerber();
+    void processGerber(QString& name);
+    void processExcellon(QString& name);
     void processPlate(int x,int y);
     void preProcessMultiPlate(float dOut,float dIn);
     void processMultiPlate(int x,int y);

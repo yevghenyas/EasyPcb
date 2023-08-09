@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <QFileDialog>
 #include "ruler.h"
 #include "mywidget.h"
 #include <QtPrintSupport/QPrinter>
@@ -57,6 +58,7 @@
 #include "editmultiplate.h"
 #include "autocommanditem.h"
 #include "editexporttogerberprops.h"
+#include "excellongenerator.h"
 
 using namespace std;
 
@@ -918,10 +920,10 @@ void PcBoard::contextMenuEvent(QContextMenuEvent *e)
              {
                 menu.addAction(ungroupAct );
              }
+             menu.addAction(rotateAct);
           }
           menu.addAction(cutAct);
           menu.addAction(copyAct);
-          menu.addAction(rotateAct);
        }
        //paste for items in copy map
        if(!m_mapofItemsToCopy.empty())
@@ -1942,6 +1944,7 @@ void PcBoard::setItemPosAndGeometry(GraphicalItem *p, PointF& pos, GeomCommonPro
 
 void PcBoard ::constructPcbLayout()
 {
+   /*
    if(!m_myWidget->getUndoStack()->isClean())
    {
       QMessageBox msgBox(QMessageBox::Critical,SAVE_SCHEMA_TITLE,
@@ -1950,7 +1953,7 @@ void PcBoard ::constructPcbLayout()
       msgBox.exec();
       return;
    }
-
+*/
 
    using ConMap = map<BOARD_LEVEL_ID,vector<SmartPtr<GraphicalItem>>>;
    using ConPair = pair<BOARD_LEVEL_ID,vector<SmartPtr<GraphicalItem>>>;
@@ -2399,16 +2402,38 @@ void PcBoard::handleProcessText(int x, int y)
    }
 }
 
-void PcBoard::processGerber()
+void PcBoard::processExcellon(QString& name)
+{
+
+   QString url = QDir::currentPath() + "/" +
+           QFileInfo(name).baseName() + ".drl";
+
+   QString fileName =
+           QFileDialog::getSaveFileName(this,
+                                              tr("Select folder"),
+                                              url,
+                                                ".drl");
+   if(!fileName.isEmpty())
+   {
+      fstream out_excellon(fileName.toStdString(),std::fstream::in | std::fstream::out | std::fstream::app);
+      ExcellonGenerator gen(&boardLayers);
+      gen.generateFile(out_excellon);
+   }
+
+}
+
+void PcBoard::processGerber(QString& name)
 {
    set<BOARD_LEVEL_ID> layersSet;
    boardLayers.getNonEmptyLayersIds(layersSet,true);
    if(layersSet.size() > 0)
    {
+      QString fileName = name.isEmpty() ? "out" : name;
       EditExportToGerberProps dlg(&boardLayers,
                                   std::move(layersSet),
                                   m_schemData.m_width/PIXELS_PER_MM,
-                                  m_schemData.m_height/PIXELS_PER_MM);
+                                  m_schemData.m_height/PIXELS_PER_MM,
+                                  name);
       dlg.exec();
    }
    return;

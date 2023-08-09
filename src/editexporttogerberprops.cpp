@@ -5,12 +5,15 @@
 #include <thread>
 #include "gerbergenerator.h"
 #include <fstream>
+//#include <ctime>
 
 EditExportToGerberProps::EditExportToGerberProps(BoardLayersWrapper *pB,
                   set<BOARD_LEVEL_ID>&& lSet,
-                  float bW,float bH):
+                  float bW,float bH,
+                  QString& name):
                   pBoardLayers(pB),layersSet(std::move(lSet)),
-                  boardWidth(bW),boardHeight(bH)
+                  boardWidth(bW),boardHeight(bH),
+                  schemaName(name)
 {
    createComponents();
 }
@@ -188,10 +191,12 @@ void EditExportToGerberProps::exportToGerber()
          if(iter == chkIndexToVIndex.end())
             continue;
          //construct name of output file
-         QString fileName = m_ActiveLevels[iter->second].desc;
+         QString fileName = QFileInfo(schemaName).baseName() +
+                 "_" + m_ActiveLevels[iter->second].desc;
          fileName += "_";
-         fileName += QString::number(std::chrono::system_clock::to_time_t(
-                                     std::chrono::system_clock::now()));
+         auto tt = std::chrono::system_clock::to_time_t(
+                     std::chrono::system_clock::now());
+         fileName += QString::number(tt);
          fileName += ".gbr";
          //construct full path
          auto dirStr = folderLabel->text() + "/" + fileName ;

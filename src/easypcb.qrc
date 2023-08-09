@@ -23,5 +23,6 @@
         <file>images/link.png</file>
         <file>images/new-document.png</file>
         <file>images/gbr.png</file>
+        <file>images/exc.png</file>
     </qresource>
 </RCC>

@@ -23,6 +23,7 @@ class EditExportToGerberProps : public QDialog
    map<int,int> chkIndexToVIndex;
    float boardWidth;
    float boardHeight;
+   QString schemaName;
 
    QDialogButtonBox *buttonBox;
    QWidget *verticalLayoutWidget;
@@ -51,7 +52,8 @@ class EditExportToGerberProps : public QDialog
 public:
    EditExportToGerberProps(BoardLayersWrapper *layers,
                            set<BOARD_LEVEL_ID>&& lSet,
-                           float bW,float bH);
+                           float bW,float bH,
+                           QString& name);
    void createComponents();
    void selectOutputFolder();
    void onApply(QAbstractButton *b);

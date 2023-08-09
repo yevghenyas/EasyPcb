@@ -26,7 +26,8 @@ class ConnectorWrapper
    void paintForConnector(QPainter& p, QColor& c,int zoom_plus);
    void paintForConnectedRuler(QPainter& p, QColor& c,int zoom_plus);
    void paintForSimpleRuler(QPainter& p, QColor& c,int zoom_plus);
-   void paintText(QPainter& p,QColor &c,PointF& pt1,PointF& pt2);
+   void paintText(QPainter& p,QColor &c,PointF& pt1,
+                  PointF& pt2,int zoom_plus);
 public:
    ConnectorWrapper();
    virtual ~ConnectorWrapper(){}
