@@ -32,6 +32,7 @@ class MainWindow : public QMainWindow
   QAction *openAct;
   QAction *saveAct;
   QAction *gbrAct;
+  QAction *excAct;
   QAction *saveAsAct;
   QAction *printAct;
   QAction *exitAct;

@@ -277,3 +277,13 @@ string RoundPlateGraphicalItem::getGerberString(GerberGenerator& gen,
 {
    return gen.getStringForRoundPlate(getID(),x(),y(),d(),d1());
 }
+
+float RoundPlateGraphicalItem::getHoleDiameter()
+{
+   return d1();
+}
+
+bool RoundPlateGraphicalItem::isHoleCapable()
+{
+   return true;
+}

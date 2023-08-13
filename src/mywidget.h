@@ -219,6 +219,7 @@ public:
   void close();
   void checkSuggestSaving();
   void exportGerber();
+  void exportExcellon();
 public slots:
   void processPlate(int index = 0);
   void processCursor();

@@ -158,7 +158,7 @@ void ConnectorWrapper::paintForConnectedRuler(QPainter& p,QColor& c,int zoom_plu
 
    if(size > 0)
    {
-      paintText(p,c,pt1,pt2);
+      paintText(p,c,pt1,pt2,zoom_plus);
    }
 }
 
@@ -189,20 +189,24 @@ bool ConnectorWrapper::isConnecting()
    }
 }
 
-void ConnectorWrapper::paintText(QPainter& p,QColor &c,PointF &pt1,PointF& pt2)
+void ConnectorWrapper::paintText(QPainter& p,QColor &c,
+                                 PointF &pt1,
+                                 PointF& pt2,
+                                 int zoom_plus)
 {
    float difX = abs(pt1.x() - pt2.x());
    float difY = abs(pt1.y() - pt2.y());
    float l = hypotf(difX,difY);
    char buf[64];
-   sprintf(buf,"x=%.3f,y=%.3f,l=%.3f",
+   sprintf(buf,"dx=%.3f,dy=%.3f,dist=%.3f",
             static_cast<double>(difX),
             static_cast<double>(difY),
             static_cast<double>(l));
    QString text = buf;
    float x = (pt1.x() + pt2.x())/2;
    float y = (pt1.y() + pt2.y())/2;
-   DrawWrapper::drawText(p,c,text,textSize,-1,-1,x,y,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,1,1);
+   DrawWrapper::drawHorText(p,c,text,textSize,x,y,
+                         zoom_plus);
 }
 
 void ConnectorWrapper::paintForSimpleRuler(QPainter& p, QColor& c,int zoom_plus)
@@ -212,5 +216,5 @@ void ConnectorWrapper::paintForSimpleRuler(QPainter& p, QColor& c,int zoom_plus)
    paintForConnector(p,c,zoom_plus);
    PointF pt1 = m_tempItem->getPoints()->at(0);
    PointF pt2 = m_tempPoint;
-   paintText(p,c,pt1,pt2);
+   paintText(p,c,pt1,pt2,zoom_plus);
 }

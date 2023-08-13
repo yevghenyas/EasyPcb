@@ -61,6 +61,12 @@ MainWindow::MainWindow()
    connect(gbrAct, &QAction::triggered, m_widget, &MyWidget::exportGerber);
    fileBar->addAction(gbrAct);
 
+   const QIcon excIcon = QIcon::fromTheme("document-open", QIcon(":/images/exc.png"));
+   excAct = new QAction(excIcon,tr("Excellon file"), this);
+   excAct->setStatusTip(tr("Export to excellon file"));
+   connect(excAct, &QAction::triggered, m_widget, &MyWidget::exportExcellon);
+   fileBar->addAction(excAct);
+
 
    const QIcon printIcon = QIcon::fromTheme("document-open", QIcon(":/images/print.png"));
    printAct = new QAction(printIcon,tr(PRINT_MENU_STR), this);
@@ -160,6 +166,7 @@ MainWindow::MainWindow()
    fileMenu->addAction(saveAsAct);
    auto exportMenu = fileMenu->addMenu(tr("Export"));
    exportMenu->addAction(gbrAct);
+   exportMenu->addAction(excAct);
    fileMenu->addAction(printAct);
    fileMenu->addAction(exitAct);
 

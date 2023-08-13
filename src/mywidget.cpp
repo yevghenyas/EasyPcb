@@ -931,8 +931,14 @@ void MyWidget::onCustomTreeContextMenu(const QPoint& p)
 
 void MyWidget::exportGerber()
 {
-   m_board->processGerber();
+   m_board->processGerber(m_curSchemName);
 }
+
+void MyWidget::exportExcellon()
+{
+   m_board->processExcellon(m_curSchemName);
+}
+
 
 void MyWidget::onNewTreeItem()
 {

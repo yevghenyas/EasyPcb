@@ -56,6 +56,8 @@ public:
     virtual bool isGerberSupported() override {return true;}
     virtual string getGerberString(GerberGenerator& gen,
                                    BOARD_LEVEL_ID idLevel) override;
+    virtual bool isHoleCapable() override;
+    virtual float getHoleDiameter() override;
 };
 
 #endif // ROUNDPLATEGRAPHICALITEM_H

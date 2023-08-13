@@ -110,6 +110,7 @@ public:
     static void drawConnector(QPainter& p, const QColor& c, vector<VcConCunstrInfo>& points ,PointF *ptParent,bool bSelected,float w,int zoom, int zoom_d);
     static void drawText(QPainter& p, const QColor& c, QString& text,int fontSize,float centerX,float centerY,float x,float y,ITEMS_ORIENTATION o,
                          int zoom, int zoom_d);
+    static void drawHorText(QPainter& p, const QColor& c, QString& text,int fontSize,float centerX,float centerY,int zoom);
     ~DrawWrapper();
 };
 

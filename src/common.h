@@ -1499,4 +1499,16 @@ static bool lee(vector<vector<ITEM_ID> >& grid,
 }
 */
 
+template <typename K,typename D>
+void pushIntoMappedVector(map<K,vector<D>>& map,K& key,D& data)
+{
+   auto v = map.find(key);
+   if(v == map.end())
+      map[key] = {data};
+   else
+      v->second.push_back(data);
+}
+
+
+
 #endif // COMMONN_H

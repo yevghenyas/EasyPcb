@@ -827,6 +827,29 @@ void DrawWrapper::drawText(QPainter& p, const QColor& c, QString& text,int fontS
     p.restore();
 }
 
+void DrawWrapper::drawHorText(QPainter& p, const QColor& c, QString& text,int fontSize,float centerX,float centerY,int zoom)
+{
+    QScreen* pScreen = QGuiApplication::primaryScreen();
+    auto ratioX = pScreen->physicalDotsPerInchX()/72;
+    auto ratioY = pScreen->physicalDotsPerInchY()/72;
+    auto dx = castFloatToInt(text.length() * (fontSize * static_cast<float>(ratioX) * zoom)/2 + 1);
+    auto dy = castFloatToInt((fontSize * static_cast<float>(ratioY) * zoom)/2 + 1);
+    cout<<"dy="<<dy<<endl;
+    auto x = static_cast<int>(centerX * zoom * PIXELS_PER_MM);
+    auto y = static_cast<int>(centerY * zoom * PIXELS_PER_MM);
+    if(x - dx < 0)
+        x = dx;
+    if(y - dy < 0)
+        y = dy;
+    QPen pen;
+    pen.setColor(c);
+    pen.setStyle(Qt::PenStyle::SolidLine);
+    p.setPen(pen);
+    p.drawText(x - dx,
+               y - dy,2 * dx,3 * dy  ,Qt::AlignCenter | Qt::AlignVCenter,text);
+
+}
+
 void DrawWrapper::drawLine(QPainter& p, const QColor& c,float x1,float y1,float x2,float y2,
                      bool ,float w,LINE_STYLE style,int zoom, int )
 {
