@@ -1964,6 +1964,7 @@ void PcBoard ::constructPcbLayout()
    auto vcCons = layerVC->getConnectItemsInLevel();
    ConMap levelToSimpleConnectors;
    ConMap dualConnectors;
+   //check all layers used in this pcb and put them into map
    for(auto& vcCon:*vcCons)
    {
       auto conItems = static_cast<ConnectorGraphicalItem*>(vcCon.second.get())->getConnectedItems();
@@ -1973,6 +1974,11 @@ void PcBoard ::constructPcbLayout()
 
       layersSet.insert(conLayersSet.begin(),conLayersSet.end());
 
+      auto id = *conLayersSet.begin();
+      pushIntoMappedVector(levelToSimpleConnectors,
+                           id,vcCon.second);
+
+/*
       auto lAddCon = [&vcCon](ConMap& m,BOARD_LEVEL_ID id)
       {
          auto levelItems = m.find(id);
@@ -1984,8 +1990,9 @@ void PcBoard ::constructPcbLayout()
       };
 
       lAddCon(levelToSimpleConnectors,*conLayersSet.begin());
+*/
    }
-
+   //check if essential layers exist
    if(levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_A) == levelToSimpleConnectors.end()
         && levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_F) == levelToSimpleConnectors.end())
    {
@@ -1996,7 +2003,7 @@ void PcBoard ::constructPcbLayout()
       return;
    }
 
-
+   //edit properties before construction
    float fConWidth = fSizeOfMatrixCell;
    vector<BOARD_LEVEL_ID> layerIds;
    AutoConstructProps dlg(std::move(layersSet));
@@ -2012,7 +2019,7 @@ void PcBoard ::constructPcbLayout()
          levelToSimpleConnectors[id] = {};
       }
 
-
+   //construct board
    PcbAutoConstructor pcbAutoConstrutor(m_myWidget,fConWidth,layerIds);
    //these variables intended to store results
    map<QString,SmartPtr<GraphicalItem>> bestProc;

@@ -113,8 +113,10 @@ bool BoardLayersWrapper::addGraphicalItemToLayers(SmartPtr<GraphicalItem>& p)
          {
             ConnectorGraphicalItem* ptr = dynamic_cast<ConnectorGraphicalItem*>(p.get());
             if(ptr != nullptr)
-            for(auto& item:*ptr->getConnectedItems())
-               item.second->connect(ptr->getID());
+            {
+               for(auto& item:*ptr->getConnectedItems())
+                  item.second->connect(ptr->getID());
+            }
          }
       }
       else
@@ -157,7 +159,12 @@ bool BoardLayersWrapper::deleteGraphicalItemFromLayers(SmartPtr<GraphicalItem>& 
          pLayer->deleteConnectorFromLevel(p);
       }
    }
-*/
+*/ ConnectorGraphicalItem *pC = nullptr;
+   if((pC = dynamic_cast<ConnectorGraphicalItem*>(p.get())) != nullptr)
+   {
+      for(auto& conItem :*pC->getConnectedItems())
+         conItem.second->disconnect(p->getID());
+   }
    for(auto& layer:boardLayers)
       layer.deleteGraphicalItemFromLevel(name);
 }
