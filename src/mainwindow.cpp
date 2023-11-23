@@ -28,23 +28,23 @@ MainWindow::MainWindow()
    setCentralWidget(m_widget);
    QToolBar *fileBar = new QToolBar();
 
-   const QIcon newDocIcon = QIcon::fromTheme("document-open", QIcon(":/images/new-document.png"));
-   newDocAct = new QAction(newDocIcon,tr(NEW_MENU_STR), this);
+//   const QIcon newDocIcon = QIcon::fromTheme("document-open", QIcon(":/images/new-document.png"));
+   newDocAct = new QAction(QIcon(":/images/new-document.png"),tr(NEW_MENU_STR), this);
    newDocAct->setShortcuts(QKeySequence::Open);
    newDocAct->setStatusTip(tr(OPEN_TIP_STR));
    connect(newDocAct, SIGNAL(triggered()), m_widget, SLOT(newDocument()));
    fileBar->addAction(newDocAct);
 
 
-   const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(":/images/open.png"));
-   openAct = new QAction(openIcon,tr(OPEN_MENU_STR), this);
+//   const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(":/images/open.png"));
+   openAct = new QAction(QIcon(":/images/open.png"),tr(OPEN_MENU_STR), this);
    openAct->setShortcuts(QKeySequence::Open);
    openAct->setStatusTip(tr(OPEN_TIP_STR));
    connect(openAct, SIGNAL(triggered()), m_widget, SLOT(open()));
    fileBar->addAction(openAct);
 
-   const QIcon saveIcon = QIcon::fromTheme("document-open", QIcon(":/images/save.png"));
-   saveAct = new QAction(saveIcon,tr(SAVE_MENU_STR), this);
+//   const QIcon saveIcon = QIcon::fromTheme("document-open", QIcon(":/images/save.png"));
+   saveAct = new QAction(QIcon(":/images/save.png"),tr(SAVE_MENU_STR), this);
    saveAct->setShortcuts(QKeySequence::Save);
    saveAct->setStatusTip(tr(SAVE_TIP_STR));
    connect(saveAct, SIGNAL(triggered()), m_widget, SLOT(save()));
@@ -55,28 +55,28 @@ MainWindow::MainWindow()
    saveAsAct->setStatusTip(tr(SAVE_TIP_STR));
    connect(saveAsAct, SIGNAL(triggered()), m_widget, SLOT(saveAs()));
 
-   const QIcon gbrIcon = QIcon::fromTheme("document-open", QIcon(":/images/gbr.png"));
-   gbrAct = new QAction(gbrIcon,tr("Gerber file"), this);
+//   const QIcon gbrIcon = QIcon::fromTheme("document-open", QIcon(":/images/gbr.png"));
+   gbrAct = new QAction(QIcon(":/images/gbr.png"),tr("Gerber file"), this);
    gbrAct->setStatusTip(tr("Export to gerber file"));
    connect(gbrAct, &QAction::triggered, m_widget, &MyWidget::exportGerber);
    fileBar->addAction(gbrAct);
 
-   const QIcon excIcon = QIcon::fromTheme("document-open", QIcon(":/images/exc.png"));
-   excAct = new QAction(excIcon,tr("Excellon file"), this);
+//   const QIcon excIcon = QIcon::fromTheme("document-open", QIcon(":/images/exc.png"));
+   excAct = new QAction(QIcon(":/images/exc.png"),tr("Excellon file"), this);
    excAct->setStatusTip(tr("Export to excellon file"));
    connect(excAct, &QAction::triggered, m_widget, &MyWidget::exportExcellon);
    fileBar->addAction(excAct);
 
 
-   const QIcon printIcon = QIcon::fromTheme("document-open", QIcon(":/images/print.png"));
-   printAct = new QAction(printIcon,tr(PRINT_MENU_STR), this);
+//   const QIcon printIcon = QIcon::fromTheme("document-open", QIcon(":/images/print.png"));
+   printAct = new QAction(QIcon(":/images/print.png"),tr(PRINT_MENU_STR), this);
    printAct->setShortcuts(QKeySequence::Print);
    printAct->setStatusTip(tr(PRINT_TIP_STR));
    connect(printAct, SIGNAL(triggered()), m_widget, SLOT(print()));
    fileBar->addAction(printAct);
    
-   const QIcon exitIcon = QIcon::fromTheme("document-open", QIcon(":/images/exit.png"));
-   exitAct = new QAction(exitIcon,tr(EXIT_MENU_STR), this);
+//   const QIcon exitIcon = QIcon::fromTheme("document-open", QIcon(":/images/exit.png"));
+   exitAct = new QAction(QIcon(":/images/exit.png"),tr(EXIT_MENU_STR), this);
    exitAct->setShortcuts(QKeySequence::Quit);
    exitAct->setStatusTip(tr(EXIT_TIP_STR));
    connect(exitAct, &QAction::triggered, this, &MainWindow::close);
@@ -85,44 +85,44 @@ MainWindow::MainWindow()
 
    QToolBar *toolsBar = new QToolBar();
 
-   const QIcon selectIcon = QIcon::fromTheme("document-open", QIcon(":/images/select.png"));
-   QAction *selectAct = new QAction(selectIcon,tr(CURSOR_TEXT), this);
+//   const QIcon selectIcon = QIcon::fromTheme("document-open", QIcon(":/images/select.png"));
+   QAction *selectAct = new QAction(QIcon(":/images/select.png"),tr(CURSOR_TEXT), this);
    selectAct->setStatusTip(tr(CURSOR_TEXT_TIP));
    connect(selectAct, SIGNAL(triggered()), m_widget, SLOT(processCursor()));
    toolsBar->addAction(selectAct);
 
-   const QIcon connectionIcon = QIcon::fromTheme("document-open", QIcon(":/images/connection.png"));
-   QAction *connectionAct = new QAction(connectionIcon,tr(CONNECTOR_TEXT), this);
+//   const QIcon connectionIcon = QIcon::fromTheme("document-open", QIcon(":/images/connection.png"));
+   QAction *connectionAct = new QAction(QIcon(":/images/connection.png"),tr(CONNECTOR_TEXT), this);
    connectionAct->setStatusTip(tr(CONNECTOR_TEXT_TIP));
    connect(connectionAct, SIGNAL(triggered()), m_widget, SLOT(processLines()));
    toolsBar->addAction(connectionAct);
 
-   const QIcon linkIcon = QIcon::fromTheme("document-open", QIcon(":/images/link.png"));
-   QAction *linkAct = new QAction(linkIcon,tr(EL_CONNECTOR_TEXT), this);
+//   const QIcon linkIcon = QIcon::fromTheme("document-open", QIcon(":/images/link.png"));
+   QAction *linkAct = new QAction(QIcon(":/images/link.png"),tr(EL_CONNECTOR_TEXT), this);
    linkAct->setStatusTip(tr(EL_CONNECTOR_TEXT_TIP));
    connect(linkAct, SIGNAL(triggered()), m_widget, SLOT(processVirtConnector()));
    toolsBar->addAction(linkAct);
 
-   const QIcon zoomIcon = QIcon::fromTheme("document-open", QIcon(":/images/zoom.png"));
-   QAction *zoomAct = new QAction(zoomIcon,tr(ZOOM_IN_TEXT), this);
+//   const QIcon zoomIcon = QIcon::fromTheme("document-open", QIcon(":/images/zoom.png"));
+   QAction *zoomAct = new QAction(QIcon(":/images/zoom.png"),tr(ZOOM_IN_TEXT), this);
    zoomAct->setStatusTip(tr(ZOOM_IN_TEXT_TIP));
    connect(zoomAct, SIGNAL(triggered()), m_widget, SLOT(processZoom_plus()));
    toolsBar->addAction(zoomAct);
 
-   const QIcon zoomOutIcon = QIcon::fromTheme("document-open", QIcon(":/images/zoom-out.png"));
-   QAction *zoomOutAct = new QAction(zoomOutIcon,tr(ZOOM_OUT_TEXT), this);
+//   const QIcon zoomOutIcon = QIcon::fromTheme("document-open", QIcon(":/images/zoom-out.png"));
+   QAction *zoomOutAct = new QAction(QIcon(":/images/zoom-out.png"),tr(ZOOM_OUT_TEXT), this);
    zoomOutAct->setStatusTip(tr(ZOOM_OUT_TEXT_TIP));
    connect(zoomOutAct, SIGNAL(triggered()), m_widget, SLOT(processZoom_minus()));
    toolsBar->addAction(zoomOutAct);
 
-   const QIcon rulerIcon = QIcon::fromTheme("document-open", QIcon(":/images/ruler.png"));
-   QAction *rulerAct = new QAction(rulerIcon,tr(RULER_STR), this);
+//   const QIcon rulerIcon = QIcon::fromTheme("document-open", QIcon(":/images/ruler.png"));
+   QAction *rulerAct = new QAction(QIcon(":/images/ruler.png"),tr(RULER_STR), this);
    rulerAct->setStatusTip(tr(RULER_STR));
    connect(rulerAct, SIGNAL(triggered()), m_widget, SLOT(processRuler()));
    toolsBar->addAction(rulerAct);
 
-   const QIcon distIcon = QIcon::fromTheme("document-open", QIcon(":/images/distance.png"));
-   distAct = new QAction(distIcon,tr(DISTANCE_STR), this);
+//   const QIcon distIcon = QIcon::fromTheme("document-open", QIcon(":/images/distance.png"));
+   distAct = new QAction(QIcon(":/images/distance.png"),tr(DISTANCE_STR), this);
    distAct->setCheckable(true);
    distAct->setStatusTip(tr(DISTANCE_STR));
    connect(distAct, &QAction::triggered, this, &MainWindow::processConnectedRuler);
@@ -130,14 +130,14 @@ MainWindow::MainWindow()
    toolsBar->addAction(distAct);
 
 
-   const QIcon templateIcon = QIcon::fromTheme("document-open", QIcon(":/images/ic.png"));
-   loadTemplateAct = new QAction(templateIcon,tr(LOAD_TEMPLATE), this);
+//   const QIcon templateIcon = QIcon::fromTheme("document-open", QIcon(":/images/ic.png"));
+   loadTemplateAct = new QAction(QIcon(":/images/ic.png"),tr(LOAD_TEMPLATE), this);
    loadTemplateAct->setStatusTip(tr(LOAD_TEMPLATE_TIP));
    connect(loadTemplateAct, SIGNAL(triggered()), m_widget, SLOT(loadImage()));
    toolsBar->addAction(loadTemplateAct);
    
-   const QIcon eraseTmpltIcon = QIcon::fromTheme("document-open", QIcon(":/images/eraser.png"));
-   unloadTemplateAct = new QAction(eraseTmpltIcon,tr(UNLOAD_TEMPLATE), this);
+//   const QIcon eraseTmpltIcon = QIcon::fromTheme("document-open", QIcon(":/images/eraser.png"));
+   unloadTemplateAct = new QAction(QIcon(":/images/eraser.png"),tr(UNLOAD_TEMPLATE), this);
    unloadTemplateAct->setStatusTip(tr(UNLOAD_TEMPLATE_TIP));
    connect(unloadTemplateAct, SIGNAL(triggered()), m_widget, SLOT(unloadImage()));
    toolsBar->addAction(unloadTemplateAct);
@@ -150,8 +150,8 @@ MainWindow::MainWindow()
    toolsBar->addAction(unloadTemplateAct);
 
 
-   const QIcon autoIcon = QIcon::fromTheme("document-open", QIcon(":/images/auto.png"));
-   autodrawAction = new QAction(autoIcon,tr("Construct PCB"),this);
+//   const QIcon autoIcon = QIcon::fromTheme("document-open", QIcon(":/images/auto.png"));
+   autodrawAction = new QAction(QIcon(":/images/auto.png"),tr("Construct PCB"),this);
    autodrawAction->setStatusTip(tr("Replace electrical connector with physical"));
    connect(autodrawAction, SIGNAL(triggered()), m_widget, SLOT(processAutodraw()));
    toolsBar->addAction(autodrawAction);
@@ -172,29 +172,29 @@ MainWindow::MainWindow()
 
    QToolBar *editBar = new QToolBar();
 
-   const QIcon cutIcon = QIcon::fromTheme("document-open", QIcon(":/images/cut.png"));
-   cutAct = new QAction(cutIcon,tr("Cut"), this);
+//   const QIcon cutIcon = QIcon::fromTheme("document-open", QIcon(":/images/cut.png"));
+   cutAct = new QAction(QIcon(":/images/cut.png"),tr("Cut"), this);
    cutAct->setShortcuts(QKeySequence::Cut);
    cutAct->setStatusTip(tr(CUT_DEF_TIP_STR));
    connect(cutAct, SIGNAL(triggered()), m_widget, SLOT(processCut()));
    editBar->addAction(cutAct);
 
-   const QIcon copyIcon = QIcon::fromTheme("document-open", QIcon(":/images/copy.png"));
-   copyAct = new QAction(copyIcon,tr("Copy"), this);
+//   const QIcon copyIcon = QIcon::fromTheme("document-open", QIcon(":/images/copy.png"));
+   copyAct = new QAction(QIcon(":/images/copy.png"),tr("Copy"), this);
    copyAct->setShortcuts(QKeySequence::Copy);
    copyAct->setStatusTip(tr(COPY_DEF_TIP_STR));
    connect(copyAct, SIGNAL(triggered()), m_widget, SLOT(processCopy()));
    editBar->addAction(copyAct);
 
-   const QIcon pasteIcon = QIcon::fromTheme("document-open", QIcon(":/images/paste.png"));
-   pasteAct = new QAction(pasteIcon,tr("Paste"), this);
+//   const QIcon pasteIcon = QIcon::fromTheme("document-open", QIcon(":/images/paste.png"));
+   pasteAct = new QAction(QIcon(":/images/paste.png"),tr("Paste"), this);
    pasteAct->setShortcuts(QKeySequence::Paste);
    pasteAct->setStatusTip(tr(CUT_DEF_TIP_STR));
    connect(pasteAct, SIGNAL(triggered()), m_widget, SLOT(processPaste()));
    editBar->addAction(pasteAct);
 
-   const QIcon selectAllIcon = QIcon::fromTheme("document-open", QIcon(":/images/select-all.png"));
-   selAllAct = new QAction(selectAllIcon,tr("Select all"), this);
+//   const QIcon selectAllIcon = QIcon::fromTheme("document-open", QIcon(":/images/select-all.png"));
+   selAllAct = new QAction(QIcon(":/images/select-all.png"),tr("Select all"), this);
    selAllAct->setShortcuts(QKeySequence::SelectAll);
    selAllAct->setStatusTip(tr(SELALL_DEF_TIP_STR));
    connect(selAllAct, SIGNAL(triggered()), m_widget, SLOT(processSelectAll()));
@@ -202,15 +202,15 @@ MainWindow::MainWindow()
 
    m_pStack = new QUndoStack(this);
 
-   const QIcon undoIcon = QIcon::fromTheme("document-open", QIcon(":/images/undo.png"));
+//   const QIcon undoIcon = QIcon::fromTheme("document-open", QIcon(":/images/undo.png"));
    undoAction = m_pStack->createUndoAction(this, tr("&Undo"));
    undoAction->setShortcuts(QKeySequence::Undo);
-   undoAction->setIcon(undoIcon);
+   undoAction->setIcon(QIcon(":/images/undo.png"));
 
-   const QIcon redoIcon = QIcon::fromTheme("document-open", QIcon(":/images/redo.png"));
+//   const QIcon redoIcon = QIcon::fromTheme("document-open", QIcon(":/images/redo.png"));
    redoAction = m_pStack->createRedoAction(this, tr("&Redo"));
    redoAction->setShortcuts(QKeySequence::Redo);
-   redoAction->setIcon(redoIcon);
+   redoAction->setIcon(QIcon(":/images/redo.png"));
 
    m_widget->setUndoStack(m_pStack);
 
