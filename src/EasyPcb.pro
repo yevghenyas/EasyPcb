@@ -83,7 +83,8 @@ SOURCES += \
     componentstreeview.cpp \
     packagewrapper.cpp \
     gerbergenerator.cpp \
-    editexporttogerberprops.cpp
+    editexporttogerberprops.cpp \
+    excellongenerator.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -144,14 +145,8 @@ HEADERS += \
     componentstreeview.h \
     packagewrapper.h \
     gerbergenerator.h \
-    editexporttogerberprops.h
-
-FORMS += \
-        mainwindow.ui \
-    mainwindow.ui \
-    dialog.ui \
-    dialog.ui \
-    gerber.ui
+    editexporttogerberprops.h \
+    excellongenerator.h
 
 RESOURCES += \
     easypcb.qrc

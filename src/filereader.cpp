@@ -50,7 +50,7 @@ SchemData FileReader::parseItems(vector< SmartPtr<GraphicalItem> >& items, vecto
          if(m_reader.attributes().size() > 0)
          {
             QXmlStreamAttributes attributes = m_reader.attributes();
-            if(m_reader.name().compare(BD_STRT_EL) == 0)
+            if(m_reader.name().compare(QString(BD_STRT_EL)) == 0)
             {
                if(m_reader.attributes().hasAttribute(WIDTH_DEF)
                    && m_reader.attributes().hasAttribute(HEIGHT_DEF))
@@ -209,8 +209,8 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
             info.setGraphicalItem(p);
             if(!p.get())
                return p;
-            
-         }         
+
+         }
          else if(str.compare(RESISTOR_DEF) == 0)
          {
             p = ItemsFactory::createResistor(attributes,itemName);
@@ -313,7 +313,7 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
       {
          QString str = m_reader.name().toString();
          cout <<"End element:"<<str.toStdString()<<endl;
-         if(m_reader.name().compare(CONNECTOR_DEF) == 0)
+         if(m_reader.name().compare(QString(CONNECTOR_DEF)) == 0)
          {
             ITEM_ID id = name.toInt();
             if(!id)
@@ -347,7 +347,7 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
                return p;
             }
          }
-         else if(m_reader.name().compare(CONTAINER_DEF) == 0)
+         else if(m_reader.name().compare(QString(CONTAINER_DEF)) == 0)
          {
             if(m_items.size() > 0)
             {
@@ -368,9 +368,9 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          }
          else if(xmlElemName.compare(CONNECTOR_DEF) == 0)
          {
-            if(m_reader.name().compare(POINT_DEF) == 0)
+            if(m_reader.name().compare(QString(POINT_DEF)) == 0)
                m_points.push_back(pt);
-            if(m_reader.name().compare(PLATE_CNT) == 0)
+            if(m_reader.name().compare(QString(PLATE_CNT)) == 0)
                ids_connected[conn_id] = conn_ind;
          }
          else if(xmlElemName.compare(CONTAINER_DEF) == 0)         
@@ -453,7 +453,7 @@ GraphicalItem* FileReader::readElement(QXmlStreamAttributes& attributes, string&
           vector<string> names;
           if(!m_reader.attributes().hasAttribute(NAME_DEF)
               || !m_reader.attributes().hasAttribute(X_DEF) 
-              || !m_reader.attributes().hasAttribute(Y_DEF) 
+              || !m_reader.attributes().hasAttribute(Y_DEF)
               || !m_reader.attributes().hasAttribute(LEVEL_DEF)
             )
               return NULL;
@@ -473,7 +473,7 @@ GraphicalItem* FileReader::readElement(QXmlStreamAttributes& attributes, string&
                    if(p != NULL)
                    {
                       items.push_back(p);
-                      names.push_back(name);
+                          cout <<"End el"<<m_reader.name().string()->toStdString()<<endl;     names.push_back(name);
                    }
                 }
                 else if(str.compare(PACKAGE_DEF) == 0 && m_reader.attributes().size() > 0)
@@ -539,7 +539,6 @@ GraphicalItem* FileReader::readElement(QXmlStreamAttributes& attributes, string&
              return ItemsFactory::createStdSO(attributes,name,iPreviewSizeX/2,iPreviewSizeY/2);
           else
              return ItemsFactory::createStdSO(attributes,name);
-          
        }                     
        else
        {
@@ -560,6 +559,8 @@ void FileReader::readLibraryFile(QStandardItemModel& model,map<QString,tree_data
        if (token == QXmlStreamReader::StartDocument)
           continue;
        
+       if (token == QXmlStreamReader::EndDocument)
+          break;
 
        if (token == QXmlStreamReader::StartElement)
        {
@@ -597,6 +598,10 @@ void FileReader::readLibraryFile(QStandardItemModel& model,map<QString,tree_data
           {
              QStandardItem *pItem = new QStandardItem(m_reader.name().toString());
              cout<<m_reader.name().toString().toStdString()<<endl;
+             if(m_reader.name().string()->compare("CUSTOM") == 0)
+             {
+                cout<<"Ok"<<endl;
+             }
              if(!curItem)
                 item->appendRow(pItem);
              else

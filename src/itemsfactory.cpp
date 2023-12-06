@@ -73,7 +73,7 @@ SmartPtr<GraphicalItem> ItemsFactory::createItem(QXmlStreamAttributes& attribute
    if (attributes.hasAttribute("type"))
    {
       QStringRef ref = attributes.value("type");
-      if(ref.compare(PLATE_ROUNd_TYPE_DEF))
+      if(ref.compare(QString(PLATE_ROUNd_TYPE_DEF)))
       {
          p = createRoundPlate(attributes,name);
          return p;

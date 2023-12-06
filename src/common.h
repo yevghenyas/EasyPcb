@@ -3,6 +3,7 @@
 
 #include <QColor>
 #include <vector>
+#include <map>
 #include <QPointF>
 #include <mutex>
 #include <stdio.h>
@@ -11,6 +12,8 @@
 #include <atomic>
 #include <unordered_set>
 #include <set>
+#include <math.h>
+#include <QObject>
 using namespace std;
 
 #define _SCROLL
