@@ -37,7 +37,7 @@ public:
 
     map<QString,SmartPtr<GraphicalItem>> constructOneLayer(BoardLayer& boardLayer,
                                                            vector<SmartPtr<GraphicalItem>>& vcCons,
-                                                           PcbLayoutVec& m);
+                                                           PcbLayoutVec& m,bool beforeLast = false);
 
     bool fillPcb(PcbLayoutVec& m,GraphicalItemsMap* items,set<ITEM_ID>& ids,VecIdsInc ln,VecIdsInc cl);
     void createPointsForLineFromLeePath(vector<PointF>& points,
@@ -66,7 +66,7 @@ public:
     vector<UniCoord> lee(vector<vector<int> >& grid,
         VecIndex ax, VecIndex ay, // start and
         VecIndex bx, VecIndex by, // end coordinates
-        set<ITEM_ID> ids);
+        set<ITEM_ID> ids,bool& bReturnPartial);
 };
 
 #endif // PCBAUTOCONSTRUCTOR_H
