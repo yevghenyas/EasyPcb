@@ -1,6 +1,6 @@
 #include "autocommanditem.h"
 
-AutoCommandItem::AutoCommandItem(ConnectorMap&& cMap,MultiMap&& mMap,PcBoard *p)
+AutoCommandItem::AutoCommandItem(ConstructedLayer&& cMap,MultiMap&& mMap,PcBoard *p)
                                  :conMap(cMap),multiMap(mMap),m_pBoard(p)
 {
    for(auto& vcToPoints:conMap)

@@ -11,6 +11,7 @@ using VecLayerInrementer = std::vector<BoardLayer>::size_type;
 using PcbLayoutVec = vector<vector<ITEM_ID> >;
 using VecIdsInc = std::vector<int>::size_type;
 using ConMap = map<BOARD_LEVEL_ID,vector<SmartPtr<GraphicalItem>>>;
+using ConstructedLayer = multimap<QString,SmartPtr<GraphicalItem>>;
 
 
 #include "boardlayerswrapper.h"
@@ -31,15 +32,15 @@ public:
                                                 ConMap& simleVcCons,                         //input
                                                 ConMap& dualVcCons,                          //input
                                                 const int w,const int h,                     //input
-                                                map<QString,SmartPtr<GraphicalItem>>& result,//output
+                                                ConstructedLayer& result,//output
                                                 map<ITEM_ID,vector<SmartPtr<GraphicalItem>>>& mapOfMultiplates//output
                                                                                 );
 
-    map<QString,SmartPtr<GraphicalItem>> constructOneLayer(BoardLayer& boardLayer,
+    ConstructedLayer constructOneLayer(BoardLayer& boardLayer,
                                                            vector<SmartPtr<GraphicalItem>>& vcCons,
-                                                           PcbLayoutVec& m,bool beforeLast = false);
-
-    bool fillPcb(PcbLayoutVec& m,GraphicalItemsMap* items,set<ITEM_ID>& ids,VecIdsInc ln,VecIdsInc cl);
+                                                           PcbLayoutVec& m,bool bProducePartial = false);
+    template <typename Container>
+    bool fillPcb(PcbLayoutVec& m,Container* items,set<ITEM_ID>& ids,VecIdsInc ln,VecIdsInc cl);
     void createPointsForLineFromLeePath(vector<PointF>& points,
                                                    vector<UniCoord>& pxy);
     void createPointsForLineFromLeePath(vector<PointF>& points,

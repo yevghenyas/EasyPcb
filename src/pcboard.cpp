@@ -2022,7 +2022,7 @@ void PcBoard ::constructPcbLayout()
    //construct board
    PcbAutoConstructor pcbAutoConstrutor(m_myWidget,fConWidth,layerIds);
    //these variables intended to store results
-   map<QString,SmartPtr<GraphicalItem>> bestProc;
+   ConstructedLayer bestProc;
    map<ITEM_ID,vector<SmartPtr<GraphicalItem>>> multiplates;
    pcbAutoConstrutor.constructPcbLayout(boardLayers,levelToSimpleConnectors,
                                                     dualConnectors,

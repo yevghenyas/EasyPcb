@@ -80,6 +80,12 @@ public:
    virtual bool isGerberSupported()override {return true;}
    virtual string getGerberString(GerberGenerator& gen,
                                   BOARD_LEVEL_ID idLevel) override;
+   PointF getFirstPoint(){return m_points[0];}
+   void setFirstPoint(const PointF& pt){m_points[0] = pt;}
+   PointF getLastPoint(){return m_points[m_points.size() - 1];}
+   void setLastPoint(const PointF& pt){m_points[m_points.size() - 1] = pt;}
+   PointF getPointAt(size_t index){return m_points[index];}
+   void setPointAt(const PointF& pt,size_t index){m_points[index] = pt;}
 };
 
 #endif // CONNECTORGRAPHICALITEM_H
