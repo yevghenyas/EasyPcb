@@ -53,8 +53,8 @@ void FileWriter::startDocument(int iBoardWidth,int iBoardHeight)
    m_xmlWriter.writeStartDocument();     // Запускаем запись в документ
    m_xmlWriter.writeStartElement(BD_STRT_EL);
    //write board width and height
-   m_xmlWriter.writeAttribute(WIDTH_DEF,std::to_string(iBoardWidth).c_str());
-   m_xmlWriter.writeAttribute(HEIGHT_DEF,std::to_string(iBoardHeight).c_str());
+   m_xmlWriter.writeAttribute(WIDTH_DEF,QString::number(iBoardWidth));
+   m_xmlWriter.writeAttribute(HEIGHT_DEF,QString::number(iBoardHeight));
    m_xmlWriter.writeStartElement(ITEMS_DEF);
 }
 
@@ -82,9 +82,9 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(CONTAINER_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,GENERIC_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pC->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pC->y()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pC->getLevel()).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pC->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pC->y()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pC->getLevel()));
       if(pC->isParent())
          m_xmlWriter.writeAttribute(PARENT_DEF,"y");
       std::vector<SmartPtr<GraphicalItem> > *vecChildren = pC->getChildren();
@@ -102,16 +102,16 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(CONNECTOR_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,CONNECTOR_TYPE_DEF);
-      m_xmlWriter.writeAttribute(WIDTH_DEF,std::to_string(pL->width()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pL->getLevel()).c_str());
-      m_xmlWriter.writeAttribute(STYLE_DEF,std::to_string(static_cast<int>(pL->getStyle())).c_str());
-      m_xmlWriter.writeAttribute(EL_OR_BOARD_DEF,std::to_string(static_cast<int>(pL->getConnectorType())).c_str());
+      m_xmlWriter.writeAttribute(WIDTH_DEF,QString::number(pL->width()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pL->getLevel()));
+      m_xmlWriter.writeAttribute(STYLE_DEF,QString::number(static_cast<int>(pL->getStyle())));
+      m_xmlWriter.writeAttribute(EL_OR_BOARD_DEF,QString::number(static_cast<int>(pL->getConnectorType())));
       vector<PointF> *pPts = pL->getPoints();
       for(auto point:*pPts)
       {
          m_xmlWriter.writeStartElement(POINT_DEF);
-         m_xmlWriter.writeAttribute(X_DEF,std::to_string(point.x()).c_str());
-         m_xmlWriter.writeAttribute(Y_DEF,std::to_string(point.y()).c_str());
+         m_xmlWriter.writeAttribute(X_DEF,QString::number(point.x()));
+         m_xmlWriter.writeAttribute(Y_DEF,QString::number(point.y()));
          m_xmlWriter.writeEndElement();
       }
       auto connItems = pL->getConnectedItems();
@@ -133,14 +133,15 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    RoundPlateGraphicalItem* pRp;
    if((pRp = dynamic_cast<RoundPlateGraphicalItem*> (p)) )
    {
+      auto xx = QString::number(pRp->x());
       m_xmlWriter.writeStartElement(PLATE_RND_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,PLATE_ROUNd_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pRp->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pRp->y()).c_str());
-      m_xmlWriter.writeAttribute(D_EX_DEF,std::to_string(pRp->d()).c_str());
-      m_xmlWriter.writeAttribute(D_IN_DEF,std::to_string(pRp->d1()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pRp->getLevel()).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pRp->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRp->y()));
+      m_xmlWriter.writeAttribute(D_EX_DEF,QString::number(pRp->d()));
+      m_xmlWriter.writeAttribute(D_IN_DEF,QString::number(pRp->d1()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pRp->getLevel()));
       m_xmlWriter.writeEndElement();
       return;
    }
@@ -150,13 +151,13 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(PACKAGE_RECT_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,RECT_PKG_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pRpkg->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pRpkg->y()).c_str());
-      m_xmlWriter.writeAttribute(WIDTH_DEF,std::to_string(pRpkg->width()).c_str());
-      m_xmlWriter.writeAttribute(HEIGHT_DEF,std::to_string(pRpkg->height()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pRpkg->getLevel()).c_str());
-      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,std::to_string(pRpkg->getType()).c_str());
-      m_xmlWriter.writeAttribute(FILLED_SHORT_DEF,std::to_string(pRpkg->isFilled() ? 1 : 0).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pRpkg->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRpkg->y()));
+      m_xmlWriter.writeAttribute(WIDTH_DEF,QString::number(pRpkg->width()));
+      m_xmlWriter.writeAttribute(HEIGHT_DEF,QString::number(pRpkg->height()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pRpkg->getLevel()));
+      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,QString::number(pRpkg->getType()));
+      m_xmlWriter.writeAttribute(FILLED_SHORT_DEF,QString::number(pRpkg->isFilled() ? 1 : 0));
       m_xmlWriter.writeEndElement();
       return;
    }
@@ -166,12 +167,12 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(PACKAGE_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,PKG_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pPkg->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pPkg->y()).c_str());
-      m_xmlWriter.writeAttribute(WIDTH_DEF,std::to_string(pPkg->width()).c_str());
-      m_xmlWriter.writeAttribute(HEIGHT_DEF,std::to_string(pPkg->height()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pPkg->getLevel()).c_str());
-      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,std::to_string(pPkg->getType()).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pPkg->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pPkg->y()));
+      m_xmlWriter.writeAttribute(WIDTH_DEF,QString::number(pPkg->width()));
+      m_xmlWriter.writeAttribute(HEIGHT_DEF,QString::number(pPkg->height()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pPkg->getLevel()));
+      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,QString::number(pPkg->getType()));
       m_xmlWriter.writeEndElement();
       return;
    }
@@ -181,14 +182,14 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(PACKAGE_RND_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,RND_PKG_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pRndPkg->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pRndPkg->y()).c_str());
-      m_xmlWriter.writeAttribute(D_EX_DEF,std::to_string(pRndPkg->d()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pRndPkg->getLevel()).c_str());
-      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,std::to_string(pRndPkg->getType()).c_str());
-      m_xmlWriter.writeAttribute(ANGLE_ST_DEF,std::to_string(pRndPkg->getStartAngle()).c_str());
-      m_xmlWriter.writeAttribute(ANGLE_SP_DEF,std::to_string(pRndPkg->getSpanAngle()).c_str());
-      m_xmlWriter.writeAttribute(CHORD,std::to_string(pRndPkg->isClosed()).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pRndPkg->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRndPkg->y()));
+      m_xmlWriter.writeAttribute(D_EX_DEF,QString::number(pRndPkg->d()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pRndPkg->getLevel()));
+      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,QString::number(pRndPkg->getType()));
+      m_xmlWriter.writeAttribute(ANGLE_ST_DEF,QString::number(pRndPkg->getStartAngle()));
+      m_xmlWriter.writeAttribute(ANGLE_SP_DEF,QString::number(pRndPkg->getSpanAngle()));
+      m_xmlWriter.writeAttribute(CHORD,QString::number(pRndPkg->isClosed()));
       m_xmlWriter.writeEndElement();
       return;
    }
@@ -198,12 +199,12 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(PLATE_RECT_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,RECT_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pRect->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pRect->y()).c_str());
-      m_xmlWriter.writeAttribute(WIDTH_DEF,std::to_string(pRect->width()).c_str());
-      m_xmlWriter.writeAttribute(HEIGHT_DEF,std::to_string(pRect->height()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pRect->getLevel()).c_str());
-      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,std::to_string(pRect->getType()).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pRect->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRect->y()));
+      m_xmlWriter.writeAttribute(WIDTH_DEF,QString::number(pRect->width()));
+      m_xmlWriter.writeAttribute(HEIGHT_DEF,QString::number(pRect->height()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pRect->getLevel()));
+      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,QString::number(pRect->getType()));
       m_xmlWriter.writeEndElement();
       return;
    }
@@ -213,11 +214,11 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(CAP_SCEMATIC_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,CAP_SCHEM_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pCap->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pCap->y()).c_str());
-      m_xmlWriter.writeAttribute(WIDTH_DEF,std::to_string(pCap->f()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pCap->getLevel()).c_str());
-      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,std::to_string(pCap->getType()).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pCap->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pCap->y()));
+      m_xmlWriter.writeAttribute(WIDTH_DEF,QString::number(pCap->f()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pCap->getLevel()));
+      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,QString::number(pCap->getType()));
       m_xmlWriter.writeEndElement();
       return;
    }
@@ -227,12 +228,12 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
       m_xmlWriter.writeStartElement(TEXT_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
       m_xmlWriter.writeAttribute(TYPE_DEF,TEXT_TYPE_DEF);
-      m_xmlWriter.writeAttribute(X_DEF,std::to_string(pText->x()).c_str());
-      m_xmlWriter.writeAttribute(Y_DEF,std::to_string(pText->y()).c_str());
-      m_xmlWriter.writeAttribute(LEVEL_DEF,std::to_string(pText->getLevel()).c_str());
+      m_xmlWriter.writeAttribute(X_DEF,QString::number(pText->x()));
+      m_xmlWriter.writeAttribute(Y_DEF,QString::number(pText->y()));
+      m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pText->getLevel()));
       m_xmlWriter.writeAttribute(TXT_CONT_DEF,pText->getText());
-      m_xmlWriter.writeAttribute(TXT_FNT_SZ_DEF,std::to_string(pText->getFontSize()).c_str());
-      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,std::to_string(pText->getType()).c_str());
+      m_xmlWriter.writeAttribute(TXT_FNT_SZ_DEF,QString::number(pText->getFontSize()));
+      m_xmlWriter.writeAttribute(ORIENTATION_SHORT_DEF,QString::number(pText->getType()));
       m_xmlWriter.writeEndElement();
       return;
    }
