@@ -20,6 +20,8 @@ using namespace std;
 
 constexpr float PI = 3.14159265358979323846f;
 
+constexpr int autoConstructIterNum = 0;
+
 enum MODE_DRAW
 {
     MODE_CURSOR,
@@ -237,8 +239,15 @@ static GeomCommonProps* makeTextGeom(int fntSize)
 #define MULPLATE_D_EX 1.0f
 #define MULPLATE_D_IN 0.5f
 
+#define AUTO_CONSTR_MSG2 "The following actions will be done: \n 1} Undo/Redo history will be cleared\n \
+2) Current scheme will be saved \n \
+3) An attempt to construct PCB will be made.\n \
+4) The result will be saved as %s \n            Continue?"
 
-
+#define AUTO_CONSTR_MSG1 "The following actions will be done: \n \
+1} Undo/Redo history will be cleared\n \
+2) Current scheme will be saved n \
+3) An attempt to construct PCB will be made.\n         Continue?"
 
 
 
@@ -701,7 +710,7 @@ public:
    }
 
       strcpy(levels[3].desc,"C");
-      strcpy(levels[3].colorDesc,"darkCyan");http://
+      strcpy(levels[3].colorDesc,"darkCyan");
       
       levels[4].idLevel =  LEVEL_D;
       levels[4].color = Qt::darkMagenta;
@@ -719,7 +728,7 @@ public:
       strcpy(levels[6].desc,"F");
       strcpy(levels[6].colorDesc,"green");
       
-      levels[7].idLevel =  LEVEL_F1;http://
+      levels[7].idLevel =  LEVEL_F1;
       levels[7].color = Qt::yellow;
       strcpy(levels[7].desc,"F1");
       strcpy(levels[7].colorDesc,"yellow");

@@ -251,6 +251,7 @@ public slots:
   void onNewTreeItem();
   void onRenameTreeItem();
   void onDeleteTreeItem();
+  QString getCurrentSchemeName(){return m_curSchemName;}
 };
 
 #endif // MYWIDGET_H

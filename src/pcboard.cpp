@@ -59,6 +59,7 @@
 #include "autocommanditem.h"
 #include "editexporttogerberprops.h"
 #include "excellongenerator.h"
+#include <QDateTime>
 
 using namespace std;
 
@@ -1955,8 +1956,22 @@ void PcBoard ::constructPcbLayout()
    }
 */
 
+   QDateTime date = QDateTime::currentDateTime();
+   QFileInfo fileOld(m_myWidget->getCurrentSchemeName());
+   QString fileNewName = fileOld.baseName() + date.toString("-dd-MM-yyyy-hh-mm-ss") + ".bd_xml";
+
+   char buf[256];
+   sprintf(buf,AUTO_CONSTR_MSG2,fileNewName.toStdString().c_str());
+   QString msg = tr(buf);
+
+   if (QMessageBox::question(m_myWidget,"Warning",msg,QMessageBox::Yes| QMessageBox::No,QMessageBox::No) == QMessageBox::No)
+       return;
+
+   QString fileNewComplete = fileOld.path() + "/" + fileNewName;
+   m_myWidget->save();
+
+
    using ConMap = map<BOARD_LEVEL_ID,vector<SmartPtr<GraphicalItem>>>;
-   using ConPair = pair<BOARD_LEVEL_ID,vector<SmartPtr<GraphicalItem>>>;
 
    auto layerVC = boardLayers.getLayer(BOARD_LEVEL_ID::LEVEL_VC);
 
@@ -1967,6 +1982,7 @@ void PcBoard ::constructPcbLayout()
    //check all layers used in this pcb and put them into map
    for(auto& vcCon:*vcCons)
    {
+
       auto conItems = static_cast<ConnectorGraphicalItem*>(vcCon.second.get())->getConnectedItems();
       set<BOARD_LEVEL_ID> conLayersSet;
       for(auto& conItem:*conItems)
@@ -2032,8 +2048,10 @@ void PcBoard ::constructPcbLayout()
 
    if(bestProc.size() > 0)
    {
-      m_myWidget->getUndoStack()->push(new AutoCommandItem(std::move(bestProc),                                                           std::move(multiplates),this));
+      m_myWidget->getUndoStack()->push(new AutoCommandItem(std::move(bestProc), std::move(multiplates),this));
       repaint();
+      m_myWidget->getUndoStack()->clear();
+      m_myWidget->saveToFile(fileNewComplete);
    }
    return;
 

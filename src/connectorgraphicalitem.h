@@ -86,6 +86,7 @@ public:
    void setLastPoint(const PointF& pt){m_points[m_points.size() - 1] = pt;}
    PointF getPointAt(size_t index){return m_points[index];}
    void setPointAt(const PointF& pt,size_t index){m_points[index] = pt;}
+   int pointsNum(){return m_points.size();}
 };
 
 #endif // CONNECTORGRAPHICALITEM_H

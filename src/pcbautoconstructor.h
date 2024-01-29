@@ -38,9 +38,10 @@ public:
 
     ConstructedLayer constructOneLayer(BoardLayer& boardLayer,
                                                            vector<SmartPtr<GraphicalItem>>& vcCons,
+                                                           ConstructedLayer& createdItems,
                                                            PcbLayoutVec& m,bool bProducePartial = false);
     template <typename Container>
-    bool fillPcb(PcbLayoutVec& m,Container* items,set<ITEM_ID>& ids,VecIdsInc ln,VecIdsInc cl);
+    bool fillPcb(PcbLayoutVec& m,Container* items,set<ITEM_ID>& ids,VecIdsInc ln,VecIdsInc cl,BOARD_LEVEL_ID layer = LEVEL_ALL);
     void createPointsForLineFromLeePath(vector<PointF>& points,
                                                    vector<UniCoord>& pxy);
     void createPointsForLineFromLeePath(vector<PointF>& points,

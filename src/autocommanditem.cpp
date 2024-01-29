@@ -5,10 +5,13 @@ AutoCommandItem::AutoCommandItem(ConstructedLayer&& cMap,MultiMap&& mMap,PcBoard
 {
    for(auto& vcToPoints:conMap)
    {
-      SmartPtr<GraphicalItem> vcCon = m_pBoard->getBoardLayers()->findItem(vcToPoints.first,
+      if(conMap.count(vcToPoints.first) == 1)
+      {
+         SmartPtr<GraphicalItem> vcCon = m_pBoard->getBoardLayers()->findItem(vcToPoints.first,
                                                                            BOARD_LEVEL_ID::LEVEL_VC);
-      if(vcCon.get() != nullptr)
-         vcCons.push_back(vcCon);
+         if(vcCon.get() != nullptr)
+            vcCons.push_back(vcCon);
+      }
    }
 }
 
