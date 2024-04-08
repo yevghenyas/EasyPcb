@@ -162,8 +162,12 @@ bool BoardLayersWrapper::deleteGraphicalItemFromLayers(SmartPtr<GraphicalItem>& 
 */ ConnectorGraphicalItem *pC = nullptr;
    if((pC = dynamic_cast<ConnectorGraphicalItem*>(p.get())) != nullptr)
    {
-      for(auto& conItem :*pC->getConnectedItems())
-         conItem.second->disconnect(p->getID());
+      auto pConItems =  pC->getConnectedItems();
+      if(pConItems != nullptr)
+      {
+         for(auto& conItem :*pConItems)
+            conItem.second->disconnect(p->getID());
+      }
    }
    for(auto& layer:boardLayers)
       layer.deleteGraphicalItemFromLevel(name);
