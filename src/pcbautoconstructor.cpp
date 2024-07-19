@@ -8,7 +8,6 @@
 
 
 
-
 PcbAutoConstructor::PcbAutoConstructor(QWidget *p,const float fWidth,
                                        const vector<BOARD_LEVEL_ID>& l)
                                        : m_parent(p),fConWidth(fWidth),layers(l)
@@ -71,8 +70,10 @@ vector<BOARD_LEVEL_ID> PcbAutoConstructor::prepareLayersForAuto(ConMap& simpleVc
 
 }
 
-bool PcbAutoConstructor::fillPcb(PcbLayoutVec& m,GraphicalItemsMap* items,set<ITEM_ID>& ids,
-                         VecIdsInc ln,VecIdsInc cl)
+
+template <typename Container>
+bool PcbAutoConstructor::fillPcb(PcbLayoutVec& m,Container* items,set<ITEM_ID>& ids,
+                         VecIdsInc ln,VecIdsInc cl,BOARD_LEVEL_ID layer)
 {
     using PcbVectorIndex = std::vector<ITEM_ID>::size_type;
     auto layerId = BOARD_LEVEL_ID::LEVEL_A;
@@ -97,7 +98,11 @@ bool PcbAutoConstructor::fillPcb(PcbLayoutVec& m,GraphicalItemsMap* items,set<IT
           auto topIndexX = static_cast<PcbVectorIndex>(topCell.x());
           auto topIndexY = static_cast<PcbVectorIndex>(topCell.y());
           auto botIndexX = static_cast<PcbVectorIndex>(bottomCell.x());
+          if(botIndexX > pcb.at(0).size() - 1)
+              botIndexX = pcb.at(0).size() - 1;
           auto botIndexY = static_cast<PcbVectorIndex>(bottomCell.y());
+          if(botIndexY > pcb.size() - 1)
+              botIndexY = pcb.size() - 1;
           for(PcbVectorIndex i = topIndexX; i <= botIndexX; ++i)
           {
              for(PcbVectorIndex j = topIndexY; j <= botIndexY; ++j)
@@ -141,7 +146,8 @@ bool PcbAutoConstructor::fillPcb(PcbLayoutVec& m,GraphicalItemsMap* items,set<IT
        }
        else
        {
-          lambda(item.second.get(),m);
+          if(layer == LEVEL_ALL || item.second->getLevel() == layer)
+             lambda(item.second.get(),m);
        }
    }
    return false;
@@ -158,7 +164,7 @@ void PcbAutoConstructor::createPointsForLineFromLeePath(vector<PointF>& points,
     int dif = abs((px[1].pos - px[0].pos) * 2) + abs(py[1].pos - py[0].pos);
     for(VecIdsInc index = 1;
         index < static_cast<unsigned int>(len); ++index)
-    {
+    {https://www.youtube.com/watch?v=LjMeE7pQ9dQ
        int dif_part1 = px[index].pos - px[index - 1].pos;
        int dif_part2 = py[index].pos - py[index - 1].pos;
        if(((abs(dif_part1 * 2) + abs(dif_part2)) != dif)
@@ -275,7 +281,8 @@ bool PcbAutoConstructor::checkCell(vector<vector<int> >& grid,
 vector<UniCoord> PcbAutoConstructor::lee(vector<vector<int> >& grid,
     VecIndex ax, VecIndex ay, // start and
     VecIndex bx, VecIndex by, // end coordinates
-    set<ITEM_ID> ids)
+    set<ITEM_ID> ids,//ids of items already placed on pcb
+    bool& bReturnPartial) //indicates that even not completed path should be returned
 {
    bool bFound = false;
    vector<UniCoord> result;
@@ -287,18 +294,18 @@ vector<UniCoord> PcbAutoConstructor::lee(vector<vector<int> >& grid,
    auto sizeX = grid.at(0).size();
    size_t  step_num = 0;
    auto bContinue = true;
-   grid[ay][ax] = step_num;
+   grid[ay][ax] = static_cast<int>(step_num);
    while (true)
    {
       for(auto indexX = x_l; indexX <= x_h; ++indexX)
       {
          for(auto indexY = y_l; indexY <= y_h; ++indexY)
          {  
-            if(grid[indexY][indexX] == step_num - 1)
+            if(grid[indexY][indexX] == static_cast<int>(step_num) - 1)
             {
                if(indexX == bx && indexY == by)
                {
-                  step_num = grid[by][bx];
+                  step_num = static_cast<size_t>(grid[by][bx]);
                   bFound = true;
                }
                auto l = [&grid,&ids,sizeX,sizeY](size_t ix,size_t iy){
@@ -379,6 +386,14 @@ vector<UniCoord> PcbAutoConstructor::lee(vector<vector<int> >& grid,
       if(bFound)
          break;
 
+      if(!bContinue)
+      {
+         if(bReturnPartial)
+            break;
+         else
+            return result;
+      }
+
       if(x_l > 0)
          --x_l;
       if(y_l > 0)
@@ -388,8 +403,7 @@ vector<UniCoord> PcbAutoConstructor::lee(vector<vector<int> >& grid,
       if(y_h < sizeY - 1)
          ++y_h;
 
-      if(!bContinue)
-         return result;
+
       bContinue = false;
       ++step_num;
       cout<<"step="<<step_num<<endl;
@@ -399,39 +413,70 @@ vector<UniCoord> PcbAutoConstructor::lee(vector<vector<int> >& grid,
 //   AutoDlg dlg(&grid,w,h,ax,ay,bx,by);
 //   dlg.exec();
 
-   if(bFound)
+   auto construct_path = [&step_num,&grid,&result,sizeX,sizeY](int xx,int yy)
    {
       result.assign(step_num,-1);
-      result[step_num - 1] = UniCoord(bx,by);
+      result[step_num - 1] = UniCoord(static_cast<char16_t>(xx),static_cast<char16_t>(yy));
       --step_num;
       for(; step_num > 0; --step_num)
       {
          UniCoord cur_point = result[step_num];
-         cout<<"grid x - 1="<<grid[cur_point.coord.y][cur_point.coord.x - 1]<<endl;
-         cout<<"grid x + 1="<<grid[cur_point.coord.y][cur_point.coord.x + 1]<<endl;
-         cout<<"grid y - 1="<<grid[cur_point.coord.y - 1][cur_point.coord.x]<<endl;
-         cout<<"grid y + 1="<<grid[cur_point.coord.y + 1][cur_point.coord.x]<<endl;
-         if(cur_point.coord.x - 1 > 0 && grid[cur_point.coord.y][cur_point.coord.x - 1] == step_num)
+//         cout<<"grid x - 1="<<grid[cur_point.coord.y][cur_point.coord.x - 1]<<endl;
+//         cout<<"grid x + 1="<<grid[cur_point.coord.y][cur_point.coord.x + 1]<<endl;
+//         cout<<"grid y - 1="<<grid[cur_point.coord.y - 1][cur_point.coord.x]<<endl;
+//         cout<<"grid y + 1="<<grid[cur_point.coord.y + 1][cur_point.coord.x]<<endl;
+         if(cur_point.coord.x - 1 > 0 && grid[cur_point.coord.y][cur_point.coord.x - 1] == static_cast<int>(step_num))
          {
             result[step_num - 1] = UniCoord(cur_point.coord.x - 1,cur_point.coord.y);
             continue;
          }
-         else if(cur_point.coord.x + 1 < sizeX && grid[cur_point.coord.y][cur_point.coord.x + 1] == step_num)
+         else if(cur_point.coord.x + 1 < sizeX && grid[cur_point.coord.y][cur_point.coord.x + 1] == static_cast<int>(step_num))
          {
             result[step_num - 1] = UniCoord(cur_point.coord.x + 1,cur_point.coord.y);
             continue;
          }
-         else if(cur_point.coord.y - 1 > 0 && grid[cur_point.coord.y - 1][cur_point.coord.x] == step_num)
+         else if(cur_point.coord.y - 1 > 0 && grid[cur_point.coord.y - 1][cur_point.coord.x] == static_cast<int>(step_num))
          {
             result[step_num - 1] = UniCoord(cur_point.coord.x,cur_point.coord.y - 1);
             continue;
          }
-         else if(cur_point.coord.y + 1 < sizeY && grid[cur_point.coord.y + 1][cur_point.coord.x] == step_num)
+         else if(cur_point.coord.y + 1 < sizeY && grid[cur_point.coord.y + 1][cur_point.coord.x] == static_cast<int>(step_num))
          {
             result[step_num - 1] = UniCoord(cur_point.coord.x,cur_point.coord.y + 1);
             continue;
          }
       }
+   };
+   if(bFound)
+   {
+      construct_path(static_cast<int>(bx),static_cast<int>(by));
+      bReturnPartial = false; //the path is completed
+   }
+   else if(bReturnPartial)
+   {
+      //try to construct the part of the shortest path
+      auto min_l = std::hypot(abs(static_cast<int>(bx-ax)),abs(static_cast<int>(by-ay)));
+      auto min_x = ax;
+      auto min_y = ay;
+      for(auto indexX = x_l; indexX <= x_h; ++indexX)
+      {
+         for(auto indexY = y_l; indexY <= y_h; ++indexY)
+         {
+            if(grid[indexY][indexX] > 0)
+            {
+               auto temp = std::hypot(abs(static_cast<int>(bx - indexX)),abs(static_cast<int>(by - indexY)));
+               if(temp < min_l)
+               {
+                  min_l = temp;
+                  min_x = indexX;
+                  min_y = indexY;
+                  step_num = grid[indexY][indexX];
+               }
+            }
+         }
+      }
+      construct_path(static_cast<int>(min_x),static_cast<int>(min_y));
+      bReturnPartial = true;//the path is not completed;
    }
    return result;
 }
@@ -551,9 +596,10 @@ bool PcbAutoConstructor::lee(vector<vector<int> >& grid,
 }
 
 
-map<QString,SmartPtr<GraphicalItem>> PcbAutoConstructor::constructOneLayer(BoardLayer& boardLayer,
+ConstructedLayer PcbAutoConstructor::constructOneLayer(BoardLayer& boardLayer,
                                                        vector<SmartPtr<GraphicalItem>>& vcCons,
-                                                       PcbLayoutVec& m)
+                                                       ConstructedLayer& createdItems,
+                                                       PcbLayoutVec& m,bool bProducePartial)
 {
     auto sizeY = m.size();
     auto sizeX = m.at(0).size();
@@ -566,7 +612,9 @@ map<QString,SmartPtr<GraphicalItem>> PcbAutoConstructor::constructOneLayer(Board
     };
 
     AUTO_SORT index = TOP_LEFT;
-    map<AUTO_SORT,map<QString,SmartPtr<GraphicalItem>>> mapOfConnectors;
+    map<AUTO_SORT,ConstructedLayer> mapOfConnectors;
+    map<int,int> partialMap;
+    ConstructedLayer vcIdToConPoints;
     while(true)
     {
        int value = 0;
@@ -602,7 +650,7 @@ map<QString,SmartPtr<GraphicalItem>> PcbAutoConstructor::constructOneLayer(Board
        auto connectors = boardLayer.getConnectItemsInLevel();
        auto non_connector_items = boardLayer.getItemsInLevel();
        int len = 0;
-       map<QString,SmartPtr<GraphicalItem>> vcIdToConPoints;
+       auto partialNum = 0;
        for(VecIndex i = 0; i < vcCons.size();++i)
        {
            //clear board before start
@@ -619,10 +667,12 @@ map<QString,SmartPtr<GraphicalItem>> PcbAutoConstructor::constructOneLayer(Board
            fillPcb(m,non_connector_items,ids,0,0);
            fillPcb(m,connectors,ids,0,0);
            fillPcb(m,&vcIdToConPoints,ids,0,0);
+           if(createdItems.size() > 0)
+              fillPcb(m,&createdItems,ids,0,0,boardLayer.getLevel());
 
 
-           PointF startPoint = connector->getPoints()->at(0);
-           PointF endPoint = connector->getPoints()->at(connector->getPoints()->size() - 1);
+           PointF startPoint = connector->getFirstPoint();
+           PointF endPoint = connector->getLastPoint();
            int ax = static_cast<int>(startPoint.x()/fConWidth);
            int ay = static_cast<int>(startPoint.y()/fConWidth);
            int bx = static_cast<int>(endPoint.x()/fConWidth);
@@ -638,11 +688,12 @@ map<QString,SmartPtr<GraphicalItem>> PcbAutoConstructor::constructOneLayer(Board
                          //       static_cast<VecLayerInrementer>(bx),
                          //       static_cast<VecLayerInrementer>(by),len,px,py,ids))
            //********
+           auto bReturnPartial = bProducePartial;
            auto result = PcbAutoConstructor::lee(m,
                   static_cast<VecLayerInrementer>(ax),
                   static_cast<VecLayerInrementer>(ay),
                   static_cast<VecLayerInrementer>(bx),
-                  static_cast<VecLayerInrementer>(by),ids);
+                  static_cast<VecLayerInrementer>(by),ids,bReturnPartial);
            if(result.size() > 0)
            {
               vector<PointF> points;
@@ -655,59 +706,79 @@ map<QString,SmartPtr<GraphicalItem>> PcbAutoConstructor::constructOneLayer(Board
                                                 CONNECTOR_TYPE::SCHEMATIC,
                                                 IDsGenerator::instance()->getNewID());
               QString str_id = QString::number(connector->getID());
-              vcIdToConPoints[str_id] = p;
+              vcIdToConPoints.insert(multimap<QString,SmartPtr<GraphicalItem>>::value_type(str_id,p));
+              if(bReturnPartial) //partial part was returned
+              {
+                 partialNum++;
+                 points.clear();
+                 clearL();
+                 fillPcb(m,non_connector_items,ids,0,0);
+                 fillPcb(m,connectors,ids,0,0);
+                 fillPcb(m,&vcIdToConPoints,ids,0,0);
+                 if(createdItems.size() > 0)
+                    fillPcb(m,&createdItems,ids,0,0,boardLayer.getLevel());
+
+                 auto result1 = PcbAutoConstructor::lee(m,
+                                                        static_cast<VecLayerInrementer>(bx),
+                                                        static_cast<VecLayerInrementer>(by),
+                                                        static_cast<VecLayerInrementer>(result[result.size() - 1].coord.x),
+                                                        static_cast<VecLayerInrementer>(result[result.size() - 1].coord.y),ids,bReturnPartial);
+                 createPointsForLineFromLeePath(points,result1);
+
+                 auto p1 = SmartPtr<GraphicalItem>::make_smartptr<ConnectorGraphicalItem>(std::move(points),
+                                                   fConWidth,
+                                                   boardLayer.getLevel(),
+                                                   CONNECTOR_TYPE::SCHEMATIC,
+                                                   IDsGenerator::instance()->getNewID());
+                 vcIdToConPoints.insert(multimap<QString,SmartPtr<GraphicalItem>>::value_type(str_id,p1));
+
+              }
            }
-              //AutoDlg dlg(&m,w,h,ax,ay,bx,by);
-              //dlg.exec();
+//           AutoDlg dlg(&m,w,h,ax,ay,bx,by);
+//           dlg.exec();
 
        }
-
-       if(vcIdToConPoints.size() == vcCons.size())
+       partialMap[index] = partialNum;
+       if(partialNum == 0)
        {
           //we are done.create schematic connectors from points
           return vcIdToConPoints;
 //             connectorsFromVcs(vcIdToConPoints,this);
-          break;
        }
        else
        {
+          //store results
+          mapOfConnectors[index] = std::move(vcIdToConPoints);
+          cout<<"index="<<index<<" num="<<vcIdToConPoints.size()<<endl;
+          //in case the map was copied(not moved) clear it
+          vcIdToConPoints.clear();
+
           //try differents sorting
-          auto old_index = index;
           index = getNextAutoSort(index);
           if(index == SORT_NONE)
           {
              //we've tried all sortings
              //try to find out the best processing
              AUTO_SORT sortMax = index;
-             size_t max = 0;
-             for(auto oneProcessing:mapOfConnectors)
+             size_t min = 256  * 256;
+             for(auto oneProcessing:partialMap)
              {
-                if(oneProcessing.second.size() > max)
+                if(oneProcessing.second < min)
                 {
-                   max = oneProcessing.second.size();
-                   sortMax = oneProcessing.first;
+                   min = oneProcessing.second;
+                   sortMax = static_cast<AUTO_SORT>(oneProcessing.first);
                 }
              }
              if(sortMax != SORT_NONE)
-             {
-                auto bestProcessing = mapOfConnectors.find(sortMax);
-                return bestProcessing->second;
-//                   connectorsFromVcs(bestProcessing->second,this);
-
-             }
+                return mapOfConnectors.find(sortMax)->second;
+             else
+                return mapOfConnectors.begin()->second;
              break;
-          }
-          else
-          {
-             //store results
-             mapOfConnectors[old_index] = std::move(vcIdToConPoints);
-             //in case the map was copied(not moved) clear it
-             vcIdToConPoints.clear();
           }
        }
        progress.setValue(++value);
        if (progress.wasCanceled())
-          return map<QString,SmartPtr<GraphicalItem>>();
+          return ConstructedLayer();
 
     }
 
@@ -729,7 +800,7 @@ void PcbAutoConstructor::constructPcbLayout(BoardLayersWrapper& boardLayers,
                                             ConMap& simleVcCons,                         //input
                                             ConMap& dualVcCons,                          //input
                                             const int w,const int h,                     //input
-                                            map<QString,SmartPtr<GraphicalItem>>& result,//output
+                                            ConstructedLayer& result,//output
                                             map<ITEM_ID,vector<SmartPtr<GraphicalItem>>>& mapOfMultiplates//output
                                                                             )
 
@@ -742,206 +813,122 @@ void PcbAutoConstructor::constructPcbLayout(BoardLayersWrapper& boardLayers,
     vector<UniCoord> py((sizeX + sizeY) * 2,ID_NONE);
     map<QString,vector<PointF> > mapOfLinesData;
     BOARD_LEVEL_ID prevLayerId = BOARD_LEVEL_ID::LEVEL_NONE;
-
-    for(auto& oneLayer:simleVcCons)
+    auto iterationCounter = autoConstructIterNum;
+    for(auto oneLayer = simleVcCons.begin(); oneLayer != simleVcCons.end();)
     {
        if(prevLayerId != BOARD_LEVEL_ID::LEVEL_NONE &&
                simleVcCons.find(prevLayerId)->second.size() > 0)
        {
           //add items from previous layer with multiplates
           //and try to construct this layer using them
+//          vector<SmartPtr<GraphicalItem> > temp;
           for(auto& vcCon:simleVcCons.find(prevLayerId)->second)
           {
-             auto connectors = static_cast<ConnectorGraphicalItem*>(vcCon.get())->getConnectedItems();
+             auto multiplateL = [] ( PointF pt,vector<BOARD_LEVEL_ID>&& levels)
+             {
+                 return ItemsFactory::createRoundMultiPlate(pt.x()
+                                                            ,pt.y(),
+                                                                                MULPLATE_D_EX,MULPLATE_D_IN,
+                                                                                std::move(levels),ID_NONE,1,1);
+             };
              vector<SmartPtr<GraphicalItem>> multiplates;
-             for(auto& oneCon:*connectors)
+             auto id_m = vcCon->getID();
+             auto mp = multiplateL(static_cast<ConnectorGraphicalItem*>(vcCon.get())->getLastPoint(),
+                                           std::vector<BOARD_LEVEL_ID>{prevLayerId,oneLayer->first});
+
+
+
+             if(mp.get() != nullptr)//check for empty object
              {
-                auto mp = createMultiplateForConnector(oneCon.second,oneLayer.first);
-                if(mp.get() != nullptr)//check for empty object
-                   multiplates.push_back(mp);
+                pushIntoMappedVector(mapOfMultiplates,id_m,mp);
+                auto c = static_cast<ConnectorGraphicalItem*>(vcCon.get());
+                c->insertConnectedNode(c->pointsNum() - 1,mp);
              }
-             oneLayer.second.push_back(vcCon);
-             mapOfMultiplates[vcCon->getID()] = multiplates;
+
+
+             auto mp1 = multiplateL(static_cast<ConnectorGraphicalItem*>(vcCon.get())->getFirstPoint(),
+                                           std::vector<BOARD_LEVEL_ID>{prevLayerId,oneLayer->first});
+
+             if(mp1.get() != nullptr)//check for empty object
+             {
+                pushIntoMappedVector(mapOfMultiplates,id_m,mp1);
+                auto c = static_cast<ConnectorGraphicalItem*>(vcCon.get());
+                c->insertConnectedNode(0,mp1);
+             }
+
+             oneLayer->second.push_back(vcCon);
+//             temp.push_back(vcCon);
           }
+//          simleVcCons.find(prevLayerId)->second.erase(temp.begin(),temp.end());
        }
-       auto boardLayer = boardLayers.getLayer(oneLayer.first);
-       auto res = constructOneLayer(*boardLayer,oneLayer.second,m);
-       //remove schematic connectors from input vector in case there were
-       //consructed new pcb connectors for them
-       for(auto& itemNew:res)
+       if(simleVcCons.find(prevLayerId)!= simleVcCons.end())
+           simleVcCons.find(prevLayerId)->second.clear();
+       auto boardLayer = boardLayers.getLayer(oneLayer->first);
+       //call to cunstruct one layer,partial connectors should be returned in case there are more
+       //than one layer
+       auto res = constructOneLayer(*boardLayer,oneLayer->second,result,m,simleVcCons.size() > 1 && (std::next(oneLayer) != simleVcCons.end()
+                                    || iterationCounter > 0));
+       if(simleVcCons.size() == 1)
        {
-          for(auto iter = oneLayer.second.begin(); iter != oneLayer.second.end(); ++iter)
-             if((*iter)->getID() == itemNew.first.toInt())
+          ++oneLayer;
+       }
+       else
+       {
+          //remove schematic connectors from input vector in case there were
+          //consructed new pcb connectors for them
+          vector<SmartPtr<GraphicalItem>> temp;
+          for(auto iter = oneLayer->second.begin(); iter != oneLayer->second.end(); ++iter)
+          {
+             QString key = QString::number((*iter)->getID());
+             auto num = res.count(key);
+             if(num == 0 || num > 1)
+                temp.push_back(*iter);
+             if(num > 1)
              {
-                oneLayer.second.erase(iter);
-                break;
+                //two partial connectors
+                auto partialRange = res.equal_range(key);
+                vector<SmartPtr<GraphicalItem>> partialCons;
+                for(auto it = partialRange.first; it != partialRange.second; ++it)
+                   partialCons.push_back(it->second);
+                //update connector first and last points in accordance with partial connectors points
+                ConnectorGraphicalItem *con1 = static_cast<ConnectorGraphicalItem*>(partialCons.at(0).get());
+                ConnectorGraphicalItem *con2 = static_cast<ConnectorGraphicalItem*>(partialCons.at(1).get());
+                ConnectorGraphicalItem *schemCon = static_cast<ConnectorGraphicalItem*>(iter->get());
+                schemCon->setFirstPoint(con1->getLastPoint());
+                schemCon->setLastPoint(con2->getLastPoint());
              }
-       }
-       result.insert(res.begin(),res.end());
-       //delete multiplates we were not able to construct connector for
-       for(auto& item:oneLayer.second)
-       {
-          mapOfMultiplates.erase(item->getID());
-       }
-       prevLayerId = oneLayer.first;
-    }
-//    auto layerA = boardLayers.getLayer(BOARD_LEVEL_ID::LEVEL_A);
-//    auto layerF = boardLayers.getLayer(BOARD_LEVEL_ID::LEVEL_F);
-//    auto layerVC = boardLayers.getLayer(BOARD_LEVEL_ID::LEVEL_VC);
+          }
+          //update schenatic connectors list
+          oneLayer->second.clear();
+          oneLayer->second.assign(temp.begin(),temp.end());
+
 /*
-    if(layerA != nullptr && layerVC != nullptr )
-    {
-       AUTO_SORT index = TOP_LEFT;
-       map<AUTO_SORT,map<QString,SmartPtr<GraphicalItem>>> mapOfConnectors;
-       while(true)
-       {
-          int value = 0;
-          QProgressDialog progress("Processing connectors...",
-                                   "Abort processing", 0, 4,m_parent);
-          progress.setWindowModality(Qt::WindowModal);
-
-          //virtual connectors
-          auto vcConnectors = layerVC->getConnectItemsInLevel();
-          vector<SmartPtr<GraphicalItem> > vcCons;
-          set<QString> toDeleteSet;
-          using ConIterator = GraphicalItemsMap::const_iterator;
-
-          for(ConIterator iter = vcConnectors->begin(); iter != vcConnectors->end();++iter)
-             vcCons.push_back(iter->second);
-
-          std::sort(vcCons.begin(),vcCons.end(),
-                    [&index](SmartPtr<GraphicalItem> rp,SmartPtr<GraphicalItem> lp)
+          for(auto& itemNew:res)
           {
-             ConnectorGraphicalItem* connector1 = static_cast<ConnectorGraphicalItem*>(rp.get());
-             ConnectorGraphicalItem* connector2 = static_cast<ConnectorGraphicalItem*>(lp.get());
-             PointF start1 = connector1->getPoints()->at(0);
-             PointF end1 = connector1->getPoints()->at(connector1->getPoints()->size() - 1);
-             PointF start2 = connector2->getPoints()->at(0);
-             PointF end2 = connector2->getPoints()->at(connector2->getPoints()->size() - 1);
-             PointF rpt((start1.x() + end1.x())/2,(start1.y() + end1.y())/2);
-             PointF lpt((start2.x() + end2.x())/2,(start2.y() + end2.y())/2);
-             //return start1.y() < start2.y() && end1.y() < end2.y();
-             if(index == TOP_LEFT)
-                return rpt.y() < lpt.y() && rpt.x() < lpt.x();
-             else if(index == TOP_RIGHT)
-                return rpt.y() < lpt.y() && rpt.x() > lpt.x();
-             else if(index == BOTTOM_LEFT)
-                return rpt.y() > lpt.y() && rpt.x() < lpt.x();
-             else
-                return rpt.y() > lpt.y() && rpt.x() > lpt.x();
-          });
-
-          auto connectors = layerA->getConnectItemsInLevel();
-          auto non_connector_items = layerA->getItemsInLevel();
-          int len = 0;
-          map<QString,SmartPtr<GraphicalItem>> vcIdToConPoints;
-          for(VecIndex i = 0; i < vcCons.size();++i)
-          {
-              //clear board before start
-              clearL();
-              ConnectorGraphicalItem* connector = static_cast<ConnectorGraphicalItem*>(vcCons[i].get());
-              cout<<"ID of connector:"<<connector->getID()<<endl;
-              //now we get items that this connector connects to
-              set<ITEM_ID> ids;
-              auto pMap = connector->getConnectedItems();
-              for(auto& item:*pMap)
-                 ids.insert(item.second->getID());
-
-
-              fillPcb(m,non_connector_items,ids,0,0);
-              fillPcb(m,connectors,ids,0,0);
-              fillPcb(m,&vcIdToConPoints,ids,0,0);
-
-
-              PointF startPoint = connector->getPoints()->at(0);
-              PointF endPoint = connector->getPoints()->at(connector->getPoints()->size() - 1);
-              int ax = static_cast<int>(startPoint.x()/fConWidth);
-              int ay = static_cast<int>(startPoint.y()/fConWidth);
-              int bx = static_cast<int>(endPoint.x()/fConWidth);
-              int by = static_cast<int>(endPoint.y()/fConWidth);
-              len = 0;
-
-
-//******** lee based on vector call. commented
-              //if(PcbAutoConstructor::lee(m,static_cast<int>(sizeX),
-              //       static_cast<int>(sizeY),
-              //       static_cast<VecLayerInrementer>(ax),
-              //       static_cast<VecLayerInrementer>(ay),
-              //       static_cast<VecLayerInrementer>(bx),
-              //       static_cast<VecLayerInrementer>(by),len,px,py,ids))
-//********
-              auto result = PcbAutoConstructor::lee(m,
-                     static_cast<VecLayerInrementer>(ax),
-                     static_cast<VecLayerInrementer>(ay),
-                     static_cast<VecLayerInrementer>(bx),
-                     static_cast<VecLayerInrementer>(by),ids);
-              if(result.size() > 0)
-              {
-                 vector<PointF> points;
-//                 createPointsForLineFromLeePath(points,px,py,len);
-                 createPointsForLineFromLeePath(points,result);
-
-                 auto p = SmartPtr<GraphicalItem>::make_smartptr<ConnectorGraphicalItem>(std::move(points),
-                                                   fConWidth,
-                                                   LEVEL_A,
-                                                   CONNECTOR_TYPE::SCHEMATIC,
-                                                   IDsGenerator::instance()->getNewID());
-                 QString str_id = QString::number(connector->getID());
-                 vcIdToConPoints[str_id] = p;
-              }
-//              AutoDlg dlg(&m,w,h,ax,ay,bx,by);
-//              dlg.exec();
-
-          }
-
-          if(vcIdToConPoints.size() == vcCons.size())
-          {
-             //we are done.create schematic connectors from points
-             return vcIdToConPoints;
-//             connectorsFromVcs(vcIdToConPoints,this);
-             break;
-          }
-          else
-          {
-             //try differents sorting
-             auto old_index = index;
-             index = getNextAutoSort(index);
-             if(index == SORT_NONE)
-             {
-                //we've tried all sortings
-                //try to find out the best processing
-                AUTO_SORT sortMax = index;
-                size_t max = 0;
-                for(auto oneProcessing:mapOfConnectors)
+             for(auto iter = oneLayer.second.begin(); iter != oneLayer.second.end(); ++iter)
+                if((*iter)->getID() == itemNew.first.toInt())
                 {
-                   if(oneProcessing.second.size() > max)
-                   {
-                      max = oneProcessing.second.size();
-                      sortMax = oneProcessing.first;
-                   }
+                   oneLayer.second.erase(iter);
+                   break;
                 }
-                if(sortMax != SORT_NONE)
-                {
-                   auto bestProcessing = mapOfConnectors.find(sortMax);
-                   return bestProcessing->second;
-//                   connectorsFromVcs(bestProcessing->second,this);
-
-                }
-                break;
-             }
-             else
+          }
+*/
+          result.insert(res.begin(),res.end());
+          //delete multiplates we were not able to construct connector for
+//          for(auto& item:oneLayer->second)
+//          {
+//             mapOfMultiplates.erase(item->getID());
+//          }
+          prevLayerId = oneLayer->first;
+          if(std::next(oneLayer) == simleVcCons.end() && oneLayer->second.size() > 0)
+          {
+             if(iterationCounter-- > 0)
              {
-                //store results
-                mapOfConnectors[old_index] = std::move(vcIdToConPoints);
-                //in case the map was copied(not moved) clear it
-                vcIdToConPoints.clear();
+                --oneLayer;
+                continue;
              }
           }
-          progress.setValue(++value);
-          if (progress.wasCanceled())
-             return map<QString,SmartPtr<GraphicalItem>>();
-
+          ++oneLayer;
        }
-   }
-   */
+    }
 }

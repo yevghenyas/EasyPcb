@@ -68,7 +68,7 @@ public:
    void connect(ITEM_ID) override;
    virtual void disconnect(ITEM_ID connectorID) override;
    void getConnectors(set<ITEM_ID>& connectors) override;
-   map<int,SmartPtr<GraphicalItem>>* getConnectedItems(){return m_vcCons.get();}
+   map<int,SmartPtr<GraphicalItem>>* getConnectedItems(){return m_vcCons == nullptr ? nullptr : m_vcCons.get();}
    virtual ITEM_ID isRectOccupied(PointF& ,PointF& ) override;
    LINE_STYLE getStyle(){return m_style;}
    bool isAboveTheCenter(PointF&) override {return false;}
@@ -80,6 +80,13 @@ public:
    virtual bool isGerberSupported()override {return true;}
    virtual string getGerberString(GerberGenerator& gen,
                                   BOARD_LEVEL_ID idLevel) override;
+   PointF getFirstPoint(){return m_points[0];}
+   void setFirstPoint(const PointF& pt){m_points[0] = pt;}
+   PointF getLastPoint(){return m_points[m_points.size() - 1];}
+   void setLastPoint(const PointF& pt){m_points[m_points.size() - 1] = pt;}
+   PointF getPointAt(size_t index){return m_points[index];}
+   void setPointAt(const PointF& pt,size_t index){m_points[index] = pt;}
+   int pointsNum(){return m_points.size();}
 };
 
 #endif // CONNECTORGRAPHICALITEM_H

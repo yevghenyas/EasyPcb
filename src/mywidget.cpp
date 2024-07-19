@@ -813,12 +813,14 @@ void MyWidget::save(bool bSaveTo)
       if(!bSaveTo)
          m_schematics.erase(item);
       m_curSchemName = name;
-      m_schematics[m_curSchemName] = data;         
+      m_schematics[m_curSchemName] = data;
    }
    else
    {
       saveToFile(m_curSchemName);
    }
+   if(!bSaveTo)
+      m_pStack->setClean();
 }
 
 

@@ -1,14 +1,17 @@
 #include "autocommanditem.h"
 
-AutoCommandItem::AutoCommandItem(ConnectorMap&& cMap,MultiMap&& mMap,PcBoard *p)
+AutoCommandItem::AutoCommandItem(ConstructedLayer&& cMap,MultiMap&& mMap,PcBoard *p)
                                  :conMap(cMap),multiMap(mMap),m_pBoard(p)
 {
    for(auto& vcToPoints:conMap)
    {
-      SmartPtr<GraphicalItem> vcCon = m_pBoard->getBoardLayers()->findItem(vcToPoints.first,
+      if(conMap.count(vcToPoints.first) == 1)
+      {
+         SmartPtr<GraphicalItem> vcCon = m_pBoard->getBoardLayers()->findItem(vcToPoints.first,
                                                                            BOARD_LEVEL_ID::LEVEL_VC);
-      if(vcCon.get() != nullptr)
-         vcCons.push_back(vcCon);
+         if(vcCon.get() != nullptr)
+            vcCons.push_back(vcCon);
+      }
    }
 }
 

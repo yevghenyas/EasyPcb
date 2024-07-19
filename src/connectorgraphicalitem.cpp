@@ -505,7 +505,11 @@ void ConnectorGraphicalItem::insertConnectedNode(int index,SmartPtr<GraphicalIte
    if(!m_vcCons)
        m_vcCons.reset(new map<int,SmartPtr<GraphicalItem>>);
 
+   if(m_vcCons->find(index) != m_vcCons->end())
+       m_vcCons->find(index)->second->disconnect(getID());
+
    (*m_vcCons)[index] = item;
+   item->connect(getID());
 }
 
 bool ConnectorGraphicalItem::isInArea(int x,int y)

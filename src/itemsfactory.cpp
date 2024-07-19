@@ -93,12 +93,12 @@ SmartPtr<GraphicalItem> ItemsFactory::createRoundPlate(QXmlStreamAttributes& att
       !attributes.hasAttribute(LEVEL_DEF) ||
       !attributes.hasAttribute(NAME_DEF))
       return p;
-   
-   float x = roundFloat(attributes.value(X_DEF).toString().toFloat());
-   float y = roundFloat(attributes.value(Y_DEF).toString().toFloat());
-   float d_ex = roundFloat(attributes.value(D_EX_DEF).toString().toFloat());
-   float d_in = roundFloat(attributes.value(D_IN_DEF).toString().toFloat());
-   int level = attributes.value(LEVEL_DEF).toString().toInt();
+
+   float x = roundFloat(attributes.value(X_DEF).toFloat());
+   float y = roundFloat(attributes.value(Y_DEF).toFloat());
+   float d_ex = roundFloat(attributes.value(D_EX_DEF).toFloat());
+   float d_in = roundFloat(attributes.value(D_IN_DEF).toFloat());
+   int level = attributes.value(LEVEL_DEF).toInt();
    name = attributes.value(NAME_DEF).toString();
    ITEM_ID id = name.toInt();
    if(!id)
@@ -156,9 +156,9 @@ SmartPtr<GraphicalItem> ItemsFactory::createPackage(QXmlStreamAttributes attribu
    if(!resolveCoordinates(attributes,x,y))
       return p;
 
-   float w = roundFloat(attributes.value(WIDTH_DEF).toString().toFloat());
-   float h = roundFloat(attributes.value(HEIGHT_DEF).toString().toFloat());
-   int level = attributes.value(LEVEL_DEF).toString().toInt();
+   float w = roundFloat(attributes.value(WIDTH_DEF).toFloat());
+   float h = roundFloat(attributes.value(HEIGHT_DEF).toFloat());
+   int level = attributes.value(LEVEL_DEF).toInt();
    name = attributes.value(NAME_DEF).toString();
    ITEMS_ORIENTATION o = ITEMS_ORIENTATION::O_VERTICAL_TOP;
    ITEM_ID id = name.toInt();
@@ -182,8 +182,8 @@ SmartPtr<GraphicalItem> ItemsFactory::createStdDip(QXmlStreamAttributes attribut
    float x,y;
    if(!resolveCoordinates(attributes,x,y))
       return p;
-   int n = attributes.value(N_DEF).toString().toInt();
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+   int n = attributes.value(N_DEF).toInt();
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    auto orient = attributes.value(ORIENTATION_DEF).toString();
    name = attributes.value(NAME_DEF).toString();
    ITEMS_ORIENTATION o_t = getOrientationStr(orient);
@@ -274,8 +274,8 @@ SmartPtr<GraphicalItem> ItemsFactory::createElCapacitor(QXmlStreamAttributes att
    int zoom_d = 1;
    resolveZoom(attributes,zoom,zoom_d);   
    
-   float d = attributes.value(WIDTH_DEF).toString().toFloat();
-   int level = attributes.value(LEVEL_DEF).toString().toInt();
+   float d = attributes.value(WIDTH_DEF).toFloat();
+   int level = attributes.value(LEVEL_DEF).toInt();
    name = attributes.value(NAME_DEF).toString();
    ITEM_ID id = name.toInt();
    if(!id)
@@ -354,8 +354,8 @@ SmartPtr<GraphicalItem> ItemsFactory::createResistor(QXmlStreamAttributes attrib
    int zoom_d = 1;
    resolveZoom(attributes,zoom,zoom_d);   
    
-   float l = roundFloat(attributes.value(WIDTH_DEF).toString().toFloat());
-   int level = attributes.value(LEVEL_DEF).toString().toInt();
+   float l = roundFloat(attributes.value(WIDTH_DEF).toFloat());
+   int level = attributes.value(LEVEL_DEF).toInt();
    name = attributes.value(NAME_DEF).toString();
    ITEM_ID id = name.toInt();
    if(!id)
@@ -419,7 +419,7 @@ SmartPtr<GraphicalItem> ItemsFactory::createSmdType(QXmlStreamAttributes attribu
    int zoom_d = 1;
    resolveZoom(attributes,zoom,zoom_d);   
    
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    QString type = attributes.value(TYPE_DEF).toString();
    name = attributes.value(NAME_DEF).toString();
    ITEM_ID id = name.toInt();
@@ -447,13 +447,13 @@ SmartPtr<GraphicalItem> ItemsFactory::createCapSchematic(QXmlStreamAttributes at
    int zoom_d = 1;
    resolveZoom(attributes,zoom,zoom_d);   
       
-   float width = roundFloat(attributes.value(WIDTH_DEF).toString().toFloat());
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+   float width = roundFloat(attributes.value(WIDTH_DEF).toFloat());
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    string type = attributes.value(TYPE_DEF).toString().toStdString();
    name = attributes.value(NAME_DEF).toString();
    ITEMS_ORIENTATION o = ITEMS_ORIENTATION::O_VERTICAL_TOP;
    if(attributes.hasAttribute(ORIENTATION_SHORT_DEF))
-      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toString().toInt());
+      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toInt());
    ITEM_ID id = name.toInt();
    if(!id)
       id = ID_NONE;
@@ -513,8 +513,8 @@ SmartPtr<GraphicalItem> ItemsFactory::createCap(QXmlStreamAttributes attributes,
    int zoom_d = 1;
    resolveZoom(attributes,zoom,zoom_d);   
       
-   float width = roundFloat(attributes.value(WIDTH_DEF).toString().toFloat());
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+   float width = roundFloat(attributes.value(WIDTH_DEF).toFloat());
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    string type = attributes.value(TYPE_DEF).toString().toStdString();
    name = attributes.value(NAME_DEF).toString();
    ITEM_ID id = name.toInt();
@@ -544,7 +544,7 @@ SmartPtr<GraphicalItem> ItemsFactory::createStdSO(QXmlStreamAttributes attribute
    if(!resolveCoordinates(attributes,x,y))
       return ptr;
    int n = attributes.value(N_DEF).toString().toInt();
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    auto orient = attributes.value(ORIENTATION_DEF).toString();
    name = attributes.value(NAME_DEF).toString();
    ITEMS_ORIENTATION o_t = getOrientationStr(orient);
@@ -624,14 +624,14 @@ SmartPtr<GraphicalItem> ItemsFactory::createRect(QXmlStreamAttributes attributes
    if(!resolveCoordinates(attributes,x,y))
       return ptr;
    
-   float w = roundFloat(attributes.value(WIDTH_DEF).toString().toFloat());
-   float h = roundFloat(attributes.value(HEIGHT_DEF).toString().toFloat());
+   float w = roundFloat(attributes.value(WIDTH_DEF).toFloat());
+   float h = roundFloat(attributes.value(HEIGHT_DEF).toFloat());
 
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    name = attributes.value(NAME_DEF).toString();
    ITEMS_ORIENTATION o = ITEMS_ORIENTATION::O_VERTICAL_TOP;
    if(attributes.hasAttribute(ORIENTATION_SHORT_DEF))
-      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toString().toInt());
+      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toInt());
    ITEM_ID id = name.toInt();
    if(!id)
       id = ID_NONE;
@@ -655,13 +655,13 @@ SmartPtr<GraphicalItem> ItemsFactory::createRectPackage(QXmlStreamAttributes att
    if(!resolveCoordinates(attributes,x,y))
       return ptr;
    
-   float w = roundFloat(attributes.value(WIDTH_DEF).toString().toFloat());
-   float h = roundFloat(attributes.value(HEIGHT_DEF).toString().toFloat());
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+   float w = roundFloat(attributes.value(WIDTH_DEF).toFloat());
+   float h = roundFloat(attributes.value(HEIGHT_DEF).toFloat());
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    name = attributes.value(NAME_DEF).toString();
    ITEMS_ORIENTATION o = ITEMS_ORIENTATION::O_VERTICAL_TOP;
    if(attributes.hasAttribute(ORIENTATION_SHORT_DEF))
-      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toString().toInt());
+      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toInt());
    ITEM_ID id = name.toInt();
    if(!id)
       id = ID_NONE;
@@ -686,16 +686,16 @@ SmartPtr<GraphicalItem> ItemsFactory::createRoundPackage(QXmlStreamAttributes at
    
    bool bCircle = false;
    float d_in = 0.0f;
-   float d_ex = roundFloat(attributes.value(D_EX_DEF).toString().toFloat());
+   float d_ex = roundFloat(attributes.value(D_EX_DEF).toFloat());
    if (!attributes.hasAttribute(D_IN_DEF))
        bCircle = true;
    else
-       d_in = roundFloat(attributes.value(D_IN_DEF).toString().toFloat());
-   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+       d_in = roundFloat(attributes.value(D_IN_DEF).toFloat());
+   BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
    name = attributes.value(NAME_DEF).toString();
    ITEMS_ORIENTATION o = ITEMS_ORIENTATION::O_VERTICAL_TOP;
    if(attributes.hasAttribute(ORIENTATION_SHORT_DEF))
-      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toString().toInt());
+      o = static_cast<ITEMS_ORIENTATION>(attributes.value(ORIENTATION_SHORT_DEF).toInt());
    ITEM_ID id = name.toInt();
    if(!id)
       id = ID_NONE;
@@ -703,13 +703,13 @@ SmartPtr<GraphicalItem> ItemsFactory::createRoundPackage(QXmlStreamAttributes at
    ptr = createRoundPackage(x,y,d_ex,bCircle ? d_ex : d_in,level,o,id,iNoZoom,iNoZoom);
    if(attributes.hasAttribute(ANGLE_ST_DEF))
        static_cast<RoundPackageGraphicalItem*>(ptr.get())->setStartAngle(
-               attributes.value(ANGLE_ST_DEF).toString().toInt());
+               attributes.value(ANGLE_ST_DEF).toInt());
    if(attributes.hasAttribute(ANGLE_SP_DEF))
        static_cast<RoundPackageGraphicalItem*>(ptr.get())->setSpanAngle(
-               attributes.value(ANGLE_SP_DEF).toString().toInt());
+               attributes.value(ANGLE_SP_DEF).toInt());
    if(attributes.hasAttribute(CHORD))
        static_cast<RoundPackageGraphicalItem*>(ptr.get())->setClosed(
-               attributes.value(CHORD).toString().toInt());
+               attributes.value(CHORD).toInt());
 
    return ptr;
 
@@ -808,8 +808,8 @@ SmartPtr<GraphicalItem> ItemsFactory::createStdTSOP(QXmlStreamAttributes attribu
     float x,y;
     if(!resolveCoordinates(attributes,x,y))
        return ptr;
-    int n = attributes.value(N_DEF).toString().toInt();
-    BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
+    int n = attributes.value(N_DEF).toInt();
+    BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toInt());
     auto orient = attributes.value(ORIENTATION_DEF).toString();
     name = attributes.value(NAME_DEF).toString();
     ITEMS_ORIENTATION o_t = getOrientationStr(orient);
@@ -841,9 +841,9 @@ SmartPtr<GraphicalItem> ItemsFactory::createText(QXmlStreamAttributes attributes
        !attributes.hasAttribute(NAME_DEF))
        return p;
 
-    float x = roundFloat(attributes.value(X_DEF).toString().toFloat());
-    float y = roundFloat(attributes.value(Y_DEF).toString().toFloat());
-    int level = attributes.value(LEVEL_DEF).toString().toInt();
+    float x = roundFloat(attributes.value(X_DEF).toFloat());
+    float y = roundFloat(attributes.value(Y_DEF).toFloat());
+    int level = attributes.value(LEVEL_DEF).toInt();
     name = attributes.value(NAME_DEF).toString();
     QString text = attributes.value(TXT_CONT_DEF).toString();
     int fontSize = attributes.value(TXT_FNT_SZ_DEF).toInt();
