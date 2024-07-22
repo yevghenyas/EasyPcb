@@ -426,7 +426,7 @@ struct  SchemData
 {
    SchemData():m_width(NEW_SCHEM_DEF_WIDTH * PIXELS_PER_MM),m_height(NEW_SCHEM_DEF_HEIGHT * PIXELS_PER_MM){}
    SchemData(int w,int h):m_width(w),m_height(h){}
-   bool setStored(bool s){stored = s;}
+   void setStored(bool s){stored = s;}
    bool isStored(){return stored;}
    bool stored{false}; //is the shema associated was saved into file;
    int m_width;
@@ -650,32 +650,47 @@ static void rotateRectShape(PointF& pt,float& x1,float& y1,int angle,ITEMS_ORIEN
 
 static void rotateRectShape(QPoint& pt,int& x1,int& y1,int angle,ITEMS_ORIENTATION& t)
 {
-   if (angle != 90 * 16) //at the moment only 90 degrees supported
+   if (angle % (90 * 16) > 0) //at the moment only 90 * n degrees supported
       return;
 
-   if(pt.x() != x1 || pt.y() != y1)
-      rotateRoundShape(pt,x1,y1,angle);      
-
-   switch(t)
+   for(int r = 0; r < angle / (90 * 16) ; ++r)
    {
-      case O_VERTICAL_TOP:
-         t = O_HORIZONTAL_RIGHT;
-         break;
-      case O_HORIZONTAL_RIGHT:
-         t = O_VERTICAL_BOTTOM;
-         break;         
-      case O_VERTICAL_BOTTOM:
-         t = O_HORIZONTAL_LEFT;
-         break;                  
-      case O_HORIZONTAL_LEFT:
-         t = O_VERTICAL_TOP;
-         break;                           
-      default:
-         break;            
-   }      
+      if(pt.x() != x1 || pt.y() != y1)
+         rotateRoundShape(pt,x1,y1,angle);
+
+      switch(t)
+      {
+         case O_VERTICAL_TOP:
+            t = O_HORIZONTAL_RIGHT;
+            break;
+         case O_HORIZONTAL_RIGHT:
+            t = O_VERTICAL_BOTTOM;
+            break;
+         case O_VERTICAL_BOTTOM:
+            t = O_HORIZONTAL_LEFT;
+            break;
+         case O_HORIZONTAL_LEFT:
+            t = O_VERTICAL_TOP;
+            break;
+         default:
+            break;
+      }
+   }
 };
 
-
+static void mirrowCoordHorizontally(PointF *center,PointF& pt) noexcept
+{
+   if(center == nullptr)
+   {
+      //pt coordinate are relative to parent coordinates
+      pt.setX(-pt.x());
+   }
+   else
+   {
+      auto difX = center->x() - pt.x();
+      pt.setX(center->x() + difX);
+   }
+}
 
 
 
@@ -1521,6 +1536,60 @@ void pushIntoMappedVector(map<K,vector<D>>& map,K& key,D& data)
       v->second.push_back(data);
 }
 
+
+static void calculatePointsForPins(list<PointF>& pinsCoord,
+                            ITEMS_ORIENTATION o,
+                            int pinsNum,
+                            double pinsDist,
+                            double pinPackDist,
+                            double packWidth,double packHeight
+                            )
+{
+   auto d1 = 0.0;
+   auto horizontal = true;
+   if(o == ITEMS_ORIENTATION::O_VERTICAL_TOP || o ==  ITEMS_ORIENTATION::O_VERTICAL_BOTTOM)
+       horizontal  = false;
+
+   if(horizontal)
+      d1 = packWidth/2 + pinPackDist;
+   else
+      d1 = packHeight/2 + pinPackDist;
+
+
+
+   if(pinsNum > 0)
+   {
+      auto start_coord = pinsNum%2 == 0 ? -((pinsNum/2 - 1) * pinsDist + pinsDist/2) : -(pinsNum/2 * pinsDist);
+      for(auto j = 0; j < pinsNum; ++j)
+      {
+         PointF coord;
+         if(o == ITEMS_ORIENTATION::O_HORIZONTAL_LEFT)
+         {
+            coord.setX(-d1);
+            coord.setY(start_coord + j * pinsDist);
+            pinsCoord.push_back(coord);
+         }
+         else if(o == ITEMS_ORIENTATION::O_HORIZONTAL_RIGHT)
+         {
+            coord.setX(d1);
+            coord.setY(start_coord + j * pinsDist);
+            pinsCoord.push_front(coord);
+         }
+         else if(o == ITEMS_ORIENTATION::O_VERTICAL_TOP)
+         {
+            coord.setY(-d1);
+            coord.setX(start_coord + j * pinsDist);
+            pinsCoord.push_front(coord);
+         }
+         else if(o == ITEMS_ORIENTATION::O_VERTICAL_BOTTOM)
+         {
+            coord.setY(d1);
+            coord.setX(start_coord + j * pinsDist);
+            pinsCoord.push_back(coord);
+         }
+      }
+   }
+}
 
 
 #endif // COMMONN_H
