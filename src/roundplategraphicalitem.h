@@ -49,6 +49,7 @@ public:
     virtual GraphicalItem* isConnectable(PointF& pt) override;
     virtual void connect(ITEM_ID connectorID) override;
     virtual void getConnectors(set<ITEM_ID>& connectors) override;
+    virtual int getConnectorsNumber() override;
     virtual void disconnect(ITEM_ID id) override;
     virtual ITEM_ID isRectOccupied(PointF& ,PointF& ) override;
     virtual bool isInArea(int x,int y) override;

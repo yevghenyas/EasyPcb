@@ -103,6 +103,7 @@ public:
     virtual void disconnect(ITEM_ID id) = 0;
     //returns connected items
     virtual void getConnectors(set<ITEM_ID>& connectors) = 0;
+    virtual int getConnectorsNumber() = 0;
     virtual bool isAboveTheCenter(PointF &pt) ;
     virtual void setDragCoord(PointF& pt);
     virtual void releaseDragCoord(){m_dragCoord.release();}

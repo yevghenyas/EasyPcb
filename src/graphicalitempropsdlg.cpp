@@ -114,11 +114,19 @@ GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<Graphical
       type == ContainerType::RelocatableSoType ||
       type == ContainerType::NonContainer )
    {
+      bool bEnableCombo = true;
       vector<BoardLevel> v;
       if(type == ContainerType::RelocatableDipType ||
               type == ContainerType::RelocatableSoType)
       {
          LevelsWrapper::getActiveLevels(v);
+
+         auto cont = dynamic_cast<GenericGraphicalItemsContainer*>(m_pItem.get());
+         for(auto& children:*cont->getChildren())
+         {
+            if(children->getConnectorsNumber() > 0)
+               bEnableCombo = false;
+         }
       }
       else
       {
@@ -128,8 +136,9 @@ GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<Graphical
          LevelsWrapper::getDrawableLevels(v);
       }
       createLayersCombo(type,ids,v,rowCounter++);
+      if(!bEnableCombo)
+         layersCombo->setEnabled(false);
    }
-
 
    updPropsChk = new QCheckBox(gridLayoutWidget);
    updPropsChk->setObjectName(QString::fromUtf8("checkBox"));

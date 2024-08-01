@@ -54,6 +54,7 @@ public:
     virtual void connect(ITEM_ID connectorID) override;
     virtual void disconnect(ITEM_ID connectorID) override;
     virtual void getConnectors(set<ITEM_ID>& connectors) override;
+    int getConnectorsNumber() override {return 0;}
     virtual ITEM_ID isRectOccupied(PointF& ,PointF& ) override {return ID_NONE;}
     virtual bool isInArea(int x,int y) override;
     virtual PointF getArea() override;

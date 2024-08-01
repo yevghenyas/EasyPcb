@@ -106,7 +106,8 @@ TextGraphicalItem::TextGraphicalItem(float x,float y,QString& text,
  }
  PointF TextGraphicalItem::getPos()
  {
-
+    PointF pt(m_x,m_y);
+    return pt;
  }
  SmartPtr<GraphicalItem> TextGraphicalItem::clone()
  {

@@ -211,6 +211,14 @@ void RectGraphicalItem::getConnectors(set<ITEM_ID>& set)
 
 }
 
+int RectGraphicalItem::getConnectorsNumber()
+{
+   if(!m_vcCons.get())
+      return 0;
+   else
+      return m_vcCons->size();
+
+}
 
 ITEM_ID RectGraphicalItem::isRectOccupied(PointF& top,PointF& bottom)
 {
