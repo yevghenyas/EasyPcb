@@ -24,5 +24,10 @@
         <file>images/new-document.png</file>
         <file>images/gbr.png</file>
         <file>images/exc.png</file>
+        <file>images/dippack.jpeg</file>
+        <file>images/smdpack.jpeg</file>
+        <file>images/dippack.png</file>
+        <file>images/smdpack.png</file>
+        <file>images/genpack.gif</file>
     </qresource>
 </RCC>

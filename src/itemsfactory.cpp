@@ -859,8 +859,71 @@ SmartPtr<GraphicalItem> ItemsFactory::createText(QXmlStreamAttributes attributes
     return p;
 }
 
+SmartPtr<GraphicalItem> ItemsFactory::createGenericChip(bool dip,          //is the dip type?
+                                                 double x,
+                                                 double y,
+                                                 double pinsDist, // distance between pins
+                                                 double pinPackDist, //distance between pin and package
+                                                 double width, //package width
+                                                 double height, //package height
+                                                 BOARD_LEVEL_ID idLevel, // layer
+                                                 ITEM_ID id,  // ID of item if any
+                                                 ITEMS_ORIENTATION o, //orientation
+                                                 array<int,4>& n //pins number for each side
+)
+{
+    auto num = 0;
+    for(auto it:n)
+       num += it;
+
+    auto pinHeight = abs(pinPackDist) * 2;
+    auto pinWidth = pinsDist * 0.7;
+
+    vector<SmartPtr<GraphicalItem>> itemsVector;
+    //anticlockwise
+    ITEMS_ORIENTATION po[4] = {O_HORIZONTAL_LEFT,O_VERTICAL_BOTTOM,O_HORIZONTAL_RIGHT,O_VERTICAL_TOP};
+    if(o == ITEMS_ORIENTATION::O_HORIZONTAL_LEFT|| o == ITEMS_ORIENTATION::O_HORIZONTAL_RIGHT )
+    {
+       po[0] = O_VERTICAL_BOTTOM;
+       po[1] = O_HORIZONTAL_RIGHT;
+       po[2] = O_VERTICAL_TOP;
+       po[3] = O_HORIZONTAL_LEFT;
+    }
+    itemsVector.push_back(SmartPtr<GraphicalItem>::make_smartptr<PackageGraphicalItem>(dip? LevelsWrapper::geLevelForDip(idLevel) :
+                                                                                            LevelsWrapper::geLevelForSO(idLevel),
+                                              PointF(x,y),width,height,o,
+                                              id != ID_NONE ? IDsGenerator::instance()->getNewID() : ID_NONE));
 
 
+    for (size_t i = 0; i < n.size(); ++i)
+    {
+       if(n[i] > 0)
+       {
+          list<PointF> points;
+          calculatePointsForPins(points,po[i],n[i],pinsDist,pinPackDist,width,height);
+          for(auto& coord:points)
+          {
+
+             if(dip)
+             {
+                 itemsVector.push_back(SmartPtr<GraphicalItem>::make_smartptr<RoundPlateGraphicalItem>(coord.x(),coord.y(),
+                                                                  pinsDist*0.7,pinsDist*0.7/3,idLevel,
+                                                                  id != ID_NONE ? IDsGenerator::instance()->getNewID() : ID_NONE));
+                 itemsVector.back()->setType(po[i]);
+             }
+             else
+             {
+                 itemsVector.push_back(SmartPtr<GraphicalItem>::make_smartptr<RectGraphicalItem>(coord.x(),coord.y(),pinWidth,pinHeight,idLevel,
+                                                               po[i],
+                                                               id != ID_NONE ? IDsGenerator::instance()->getNewID() : ID_NONE));
+             }
+          }
+       }
+    }
+    SmartPtr<GraphicalItem> p = createContainer(x,y,idLevel,itemsVector,id);
+    static_cast<GenericGraphicalItemsContainer*>(p.get())->setAsParent(true,true);
+    return p;
+}
 ItemsFactory::~ItemsFactory()
 {
 

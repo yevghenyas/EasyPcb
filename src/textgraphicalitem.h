@@ -24,6 +24,7 @@ public:
     virtual void connect(ITEM_ID connectorID) override;
     virtual void disconnect(ITEM_ID connectorID) override;
     virtual void getConnectors(set<ITEM_ID>& connectors) override;
+    int getConnectorsNumber() override {return 0;}
     void setFontSize(int size){m_fontSize = size;}
     int getFontSize(){return m_fontSize;}
     QString getText(){return m_text;}

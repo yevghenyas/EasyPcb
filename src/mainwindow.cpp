@@ -200,6 +200,12 @@ MainWindow::MainWindow()
    connect(selAllAct, SIGNAL(triggered()), m_widget, SLOT(processSelectAll()));
    editBar->addAction(selAllAct);
 
+   newGenPackWizAct = new QAction(QIcon(":/images/dippack.png"),tr("General chip wizard"), this);
+//   newGenPackWizAct->setShortcuts(QKeySequence::Cut);
+   newGenPackWizAct->setStatusTip(tr(CUT_DEF_TIP_STR));
+   connect(newGenPackWizAct, SIGNAL(triggered()), m_widget, SLOT(processGenWizard()));
+   toolsBar->addAction(newGenPackWizAct);
+
    m_pStack = new QUndoStack(this);
 
 //   const QIcon undoIcon = QIcon::fromTheme("document-open", QIcon(":/images/undo.png"));
@@ -212,7 +218,10 @@ MainWindow::MainWindow()
    redoAction->setShortcuts(QKeySequence::Redo);
    redoAction->setIcon(QIcon(":/images/redo.png"));
 
+
    m_widget->setUndoStack(m_pStack);
+
+
 
    editMenu = menuBar()->addMenu(tr("Edit"));
    editMenu->addAction(cutAct);

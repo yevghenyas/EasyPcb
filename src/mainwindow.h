@@ -47,6 +47,7 @@ class MainWindow : public QMainWindow
   QAction *autodrawAction;
   QAction *distAct;
   QAction *newDocAct;
+  QAction *newGenPackWizAct;
   //QAction *rotateAct;
   QUndoStack *m_pStack;
   MyWidget *m_widget;

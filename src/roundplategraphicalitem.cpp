@@ -212,6 +212,14 @@ void RoundPlateGraphicalItem::disconnect(ITEM_ID id)
       m_vcCons->erase(id);
 }
 
+int RoundPlateGraphicalItem::getConnectorsNumber()
+{
+   if(!m_vcCons.get())
+      return 0;
+   else
+      return m_vcCons->size();
+
+}
 
 void RoundPlateGraphicalItem::getConnectors(set<ITEM_ID>& set)
 {

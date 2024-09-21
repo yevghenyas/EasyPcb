@@ -70,6 +70,18 @@ public:
     static SmartPtr<GraphicalItem> createText(QXmlStreamAttributes attributes,QString& name);
     static SmartPtr<GraphicalItem> createQfp(float x, float y,int n,BOARD_LEVEL_ID level,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createQfp(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createGenericChip(bool dip,          //is the dip type?
+                                                     double x,
+                                                     double y,
+                                                     double pinsDist, // distance between pins
+                                                     double pinPackDist, //distance between pin and package
+                                                     double width, //package width
+                                                     double height, //package height
+                                                     BOARD_LEVEL_ID idLevel, // layer
+                                                     ITEM_ID id,  // ID of item if any
+                                                     ITEMS_ORIENTATION o, //orientation
+                                                     array<int,4>& n //pins number for each side
+                                                     );
     ~ItemsFactory();
 };
 

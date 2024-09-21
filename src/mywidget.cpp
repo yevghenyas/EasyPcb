@@ -38,6 +38,7 @@
 #include <QGroupBox>
 #include <QMenu>
 #include <QInputDialog>
+#include "genpackwizard.h"
 
 using namespace std;
 
@@ -866,7 +867,7 @@ void MyWidget::updateBoardSize(int width, int height)
 void MyWidget::processRuler()
 {
    m_board->processRuler();
-}
+};
 
 void MyWidget::unloadImage()
 {
@@ -997,7 +998,14 @@ void MyWidget::onDeleteTreeItem()
    m_bTreeWasUpdated = true;
 }
 
-
+void MyWidget::processGenWizard()
+{
+    GenPackWizard *p = new GenPackWizard();
+    p->exec();
+    auto item = p->getPageData()->item;
+    m_board->processContainer(QPoint(100,100),GENERIC_TYPE_DEF,"item1",1,item);
+   
+}
 
 //#include "mywidget.moc"
 

@@ -44,11 +44,14 @@
 #include "ruler.h"
 #include "filewriter.h"
 #include <QScrollArea>
+#include "previewlabel.h"
 
 using namespace std;
 
 enum class ContextMenuId {Add = 0,Rename,Delete};
 
+
+/*
 class PreviewLabel : public QLabel
 {
    GraphicalItem *m_itemInPreview;
@@ -157,7 +160,7 @@ public:
    }   
 };
 
-
+*/
 
 
 
@@ -251,6 +254,7 @@ public slots:
   void onNewTreeItem();
   void onRenameTreeItem();
   void onDeleteTreeItem();
+  void processGenWizard();
   QString getCurrentSchemeName(){return m_curSchemName;}
 };
 

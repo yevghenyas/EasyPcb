@@ -27,6 +27,10 @@ QT += printsupport
 
 
 SOURCES += \
+    genpackwizard.cpp \
+    genpackwizpinsdescpage.cpp \
+    genpackwizstartpage.cpp \
+    genwizdipgeompage.cpp \
         main.cpp \
         mainwindow.cpp \
     addneweltolibdlg.cpp \
@@ -42,6 +46,7 @@ SOURCES += \
     linegraphicalitem.cpp \
     mywidget.cpp \
     packagegraphicalitem.cpp \
+    previewlabel.cpp \
     printpreviewwidget.cpp \
     rectgraphicalitem.cpp \
     rectpackagegraphicalitem.cpp \
@@ -87,6 +92,10 @@ SOURCES += \
     excellongenerator.cpp
 
 HEADERS += \
+    genpackwizard.h \
+    genpackwizpinsdescpage.h \
+    genpackwizstartpage.h \
+    genwizdipgeompage.h \
         mainwindow.h \
     addneweltolibdlg.h \
     capgraphicalitem.h \
@@ -103,6 +112,8 @@ HEADERS += \
     linegraphicalitem.h \
     mywidget.h \
     packagegraphicalitem.h \
+    pagedata.h \
+    previewlabel.h \
     printpreviewwidget.h \
     rectgraphicalitem.h \
     rectpackagegraphicalitem.h \
@@ -150,4 +161,7 @@ HEADERS += \
 
 RESOURCES += \
     easypcb.qrc
+
+FORMS += \
+    wizardpage.ui
 

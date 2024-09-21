@@ -1691,6 +1691,17 @@ void PcBoard::moveBetweenLayers(BOARD_LEVEL_ID newLevel,QString& s,
                item->setLevel(LevelsWrapper::getOppositeLevel(p->getLevel()));
             else
                item->setLevel(newLevel);
+            auto pText = dynamic_cast<TextGraphicalItem*>(item.get());
+            auto pRect = dynamic_cast<RectGraphicalItem*>(item.get());
+            auto pRnd = dynamic_cast<RoundPlateGraphicalItem*>(item.get());
+            if(pText != nullptr || pRect != nullptr || pRnd != nullptr)
+            {
+               auto pt = item->getPos();
+               mirrowCoordHorizontally(nullptr,pt);
+               item->setX(pt.x());
+               item->setY(pt.y());
+            }
+
          }
       }
       /*
