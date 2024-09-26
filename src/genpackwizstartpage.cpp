@@ -7,23 +7,23 @@
 
 GenPackWizStartPage::GenPackWizStartPage(PageData *p):pData(p)
 {
-    QVBoxLayout *pLayout = new QVBoxLayout(this);
+    QVBoxLayout *pLayout = new QVBoxLayout;
 
-    QFormLayout *pFrnLay = new QFormLayout(this);
-    QLabel *selLabel = new QLabel(this);
+    QFormLayout *pFrnLay = new QFormLayout;
+    QLabel *selLabel = new QLabel;
     selLabel->setText("Select the type of the package:");
     pLayout->addWidget(selLabel);
     pLayout->addSpacing(15);
-    pButDip = new QRadioButton(this);
+    pButDip = new QRadioButton;
     pButDip->setChecked(true);
     pButDip->setText("DIP packege and similar");
-    QLabel *pLblDip = new QLabel(this);
+    QLabel *pLblDip = new QLabel;
     pLblDip->setPixmap(QPixmap(":/images/dippack.png"));
     pFrnLay->addRow(pLblDip,pButDip);
 
-    QLabel *pLblSmd = new QLabel(this);
+    QLabel *pLblSmd = new QLabel;
     pLblSmd->setPixmap(QPixmap(":/images/smdpack.png"));
-    pButSmd = new QRadioButton(this);
+    pButSmd = new QRadioButton;
     pButSmd->setText("SSOP,SOIC,DPAK and similar");
     pFrnLay->addRow(pLblSmd,pButSmd);
     pLayout->addLayout(pFrnLay);
@@ -31,36 +31,6 @@ GenPackWizStartPage::GenPackWizStartPage(PageData *p):pData(p)
     registerField("dipType",pButDip);
     connect(pButDip,SIGNAL(clicked()),this,SLOT(butClicked()));
     connect(pButSmd,SIGNAL(clicked()),this,SLOT(butClicked()));
-
-    /*
-//   QVBoxLayout *pLayout = new QVBoxLayout(this);
-
-   QGridLayout *gridLayout = new QGridLayout(this);
-
-//   QLabel *selLabel = new QLabel(this);
-//   selLabel->setText("Select the type of package:");
-   //pLayout->addWidget(selLabel);
-
-   QRadioButton *pButDip = new QRadioButton(this);
-   pButDip->setText("DIP packege and similar");
-//   pButDip->setIcon(QIcon(QPixmap(":/images/dippack.jpeg")));
-   QLabel *pLblDip = new QLabel(this);
-   pLblDip->setPixmap(QPixmap(":/images/dippack.png"));
-//   pLayout->addWidget(pButDip);
-   gridLayout->addWidget(pLblDip,0,1);
-   gridLayout->addWidget(pButDip,0,0);
-
-   QLabel *pLblSmd = new QLabel(this);
-   pLblSmd->setPixmap(QPixmap(":/images/smdpack.png"));
-   QRadioButton *pButSmd = new QRadioButton(this);
-   pButSmd->setText("SSOP,SOIC,DPAK and similar");
-//   pButSmd->setIcon(QIcon(QPixmap(":/images/smdpack.jpeg")));
-//   pLayout->addWidget(pButSmd);
-   gridLayout->addWidget(pLblSmd,1,1);
-   gridLayout->addWidget(pButSmd,1,0);
-
-   setLayout(gridLayout);
-   */
 }
 
 void GenPackWizStartPage::butClicked()

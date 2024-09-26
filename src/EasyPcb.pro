@@ -162,6 +162,3 @@ HEADERS += \
 RESOURCES += \
     easypcb.qrc
 
-FORMS += \
-    wizardpage.ui
-
