@@ -13,61 +13,61 @@
 
 GenWizDipGeomPage::GenWizDipGeomPage(PageData *p) : pData(p)
 {
-   QGridLayout *pLay = new QGridLayout(this);
-   QFormLayout *pFrnLay = new QFormLayout(this);
+   QGridLayout *pLay = new QGridLayout;
+   QFormLayout *pFrnLay = new QFormLayout;
 
-   QLabel *pLblNum1 = new QLabel(this);
+   QLabel *pLblNum1 = new QLabel;
    pLblNum1->setText("The number of pins for Side 1:");
-   pNumSpin1 = new QSpinBox(this);
+   pNumSpin1 = new QSpinBox;
    pNumSpin1->setRange(2,120);
    pNumSpin1->setValue(4);
    pFrnLay->addRow(pLblNum1,pNumSpin1);
 
-   QLabel *pLblNum2 = new QLabel(this);
+   QLabel *pLblNum2 = new QLabel;
    pLblNum2->setText("The number of pins for Side 2:");
-   pNumSpin2 = new QSpinBox(this);
+   pNumSpin2 = new QSpinBox;
    pNumSpin2->setRange(0,120);
    pNumSpin2->setValue(0);
    pFrnLay->addRow(pLblNum2,pNumSpin2);
 
-   QLabel *pLblNum3 = new QLabel(this);
+   QLabel *pLblNum3 = new QLabel;
    pLblNum3->setText("The number of pins for Side 3:");
-   pNumSpin3 = new QSpinBox(this);
+   pNumSpin3 = new QSpinBox;
    pNumSpin3->setRange(2,120);
    pNumSpin3->setValue(4);
    pFrnLay->addRow(pLblNum3,pNumSpin3);
 
-   QLabel *pLblNum4 = new QLabel(this);
+   QLabel *pLblNum4 = new QLabel;
    pLblNum4->setText("The number of pins for Side 4:");
-   pNumSpin4 = new QSpinBox(this);
+   pNumSpin4 = new QSpinBox;
    pNumSpin4->setRange(0,120);
    pNumSpin4->setValue(0);
    pFrnLay->addRow(pLblNum4,pNumSpin4);
 
 
-   QLabel *pLblDist = new QLabel(this);
+   QLabel *pLblDist = new QLabel;
    pLblDist->setText("Distance between pins:");
-   pDistSpin = new QDoubleSpinBox(this);
+   pDistSpin = new QDoubleSpinBox;
    pDistSpin->setRange(0.3,10.0);
    pFrnLay->addRow(pLblDist,pDistSpin);
 
-   QLabel *pLblHeight = new QLabel(this);
+   QLabel *pLblHeight = new QLabel;
    pLblHeight->setText(HEIGHT_DEF);
-   pHeightSpin = new QDoubleSpinBox(this);
+   pHeightSpin = new QDoubleSpinBox;
    pHeightSpin->setRange(1.0,100.0);
    pFrnLay->addRow(pLblHeight,pHeightSpin);
    registerField("pacHeight",pHeightSpin);
 
 
-   QLabel *pLblWidth = new QLabel(this);
+   QLabel *pLblWidth = new QLabel;
    pLblWidth->setText(WIDTH_DEF);
-   pWidthSpin = new QDoubleSpinBox(this);
+   pWidthSpin = new QDoubleSpinBox;
    pWidthSpin->setRange(1.0,100.0);
    pFrnLay->addRow(pLblWidth,pWidthSpin);
 
-   QLabel *pLblPackPinDist = new QLabel(this);
+   QLabel *pLblPackPinDist = new QLabel;
    pLblPackPinDist->setText("Pin-package) distance");
-   pPinPackDistSpin = new QDoubleSpinBox(this);
+   pPinPackDistSpin = new QDoubleSpinBox;
    pPinPackDistSpin->setRange(-100.0,100.0);
    pFrnLay->addRow(pLblPackPinDist,pPinPackDistSpin);
 

@@ -1002,6 +1002,8 @@ void MyWidget::processGenWizard()
 {
     GenPackWizard *p = new GenPackWizard();
     p->exec();
+    if(!p->getPageData()->bValidated)
+       return;
     auto item = p->getPageData()->item;
     m_board->processContainer(QPoint(100,100),GENERIC_TYPE_DEF,"item1",1,item);
    

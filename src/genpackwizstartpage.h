@@ -2,11 +2,12 @@
 #define GENPACKWIZSTARTPAGE_H
 
 #include <QWizardPage>
-#include "pagedata.h"
 #include <QRadioButton>
+#include "pagedata.h"
 
 class GenPackWizStartPage : public QWizardPage
 {
+    Q_OBJECT
     QRadioButton *pButDip{nullptr};
     QRadioButton *pButSmd{nullptr};
     PageData *pData{nullptr};

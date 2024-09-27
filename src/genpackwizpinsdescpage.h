@@ -15,7 +15,7 @@ class GenPackWizPinsDescPage : public QWizardPage
    QListWidget *lWidget2{nullptr};
    QPushButton *but1{nullptr};
    QPushButton *but2{nullptr};
-   PageData    *pData;
+   PageData    *pData{nullptr};
 public:
    GenPackWizPinsDescPage(PageData *p);
    void initializePage() override;

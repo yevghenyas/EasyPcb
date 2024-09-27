@@ -11,8 +11,8 @@
 
 GenPackWizPinsDescPage::GenPackWizPinsDescPage(PageData *p) : pData(p)
 {
-   QHBoxLayout *hBox = new QHBoxLayout(this);
-   QVBoxLayout *vBox = new QVBoxLayout(this);
+   QHBoxLayout *hBox = new QHBoxLayout;
+   QVBoxLayout *vBox = new QVBoxLayout;
    lWidget1 = new QListWidget();
    hBox->addWidget(lWidget1);
    but1 = new QPushButton();
