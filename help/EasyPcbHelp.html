@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.3.6.2 (Linux)"/>
+	<meta name="created" content="2024-10-21T12:47:00.993849564"/>
+	<meta name="changed" content="2025-01-02T20:14:05.188623796"/>
+	<style type="text/css">
+		td p { line-height: 115%; orphans: 0; widows: 0; margin-bottom: 0.25cm; background: transparent }
+		h1 { margin-bottom: 0.21cm; background: transparent }
+		h1.western { font-family: "Liberation Sans", sans-serif; font-size: 18pt }
+		h1.cjk { font-family: "Droid Sans Fallback"; font-size: 18pt }
+		h1.ctl { font-family: "Droid Sans Devanagari"; font-size: 18pt }
+		p { line-height: 115%; margin-bottom: 0.25cm; background: transparent }
+		h3 { margin-top: 0.25cm; margin-bottom: 0.21cm; background: transparent }
+		h3.western { font-family: "Liberation Serif", serif }
+		h3.cjk { font-family: "Droid Sans Fallback" }
+		h3.ctl { font-family: "Droid Sans Devanagari" }
+		h2 { margin-top: 0.35cm; margin-bottom: 0.21cm; background: transparent }
+		h2.western { font-family: "Liberation Sans", sans-serif; font-size: 16pt }
+		h2.cjk { font-family: "Droid Sans Fallback"; font-size: 16pt }
+		h2.ctl { font-family: "Droid Sans Devanagari"; font-size: 16pt }
+		a:link { so-language: zxx }
+	</style>
+</head>
+<body lang="ru-RU" dir="ltr"><h1 class="western" align="center">EasyPcb</h1>
+<p align="left" style="font-weight: normal"><font size="3" style="font-size: 12pt">EasyPcb
+is a simple application that can help to create simple PCBs. Each PCB
+consists of layers where the metalic connections are created. EasyPcb
+uses the following layers</font></p>
+<table width="680" cellpadding="4" cellspacing="0">
+	<col width="101"/>
+
+	<col width="561"/>
+
+	<tr valign="top">
+		<td width="101" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0.1cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p align="left">
+			<img src="EasyPcbHelp_html_5883023958920b30.gif" name="Image18" align="left" width="43" height="38" border="0"/>
+<br/>
+
+			</p>
+		</td>
+		<td width="561" style="border: 1px solid #000000; padding: 0.1cm"><p align="left" style="font-weight: normal">
+			<font size="3" style="font-size: 12pt">This is a package layer
+			i.e. on this layer the bodies of electric elements are drawn not
+			physical connections.</font></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="101" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p align="left">
+			<img src="EasyPcbHelp_html_a66647c54f7f5080.gif" name="Image19" align="left" width="36" height="42" border="0"/>
+<br/>
+
+			</p>
+		</td>
+		<td width="561" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p align="left" style="font-weight: normal">
+			<font size="3" style="font-size: 12pt">This is a bottom physical
+			connections layer i.e on this layer connections may be drawn.</font></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="101" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p align="left">
+			<img src="EasyPcbHelp_html_f547387268c2021d.gif" name="Image20" align="left" width="36" height="34" border="0"/>
+<br/>
+
+			</p>
+		</td>
+		<td width="561" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p align="left" style="font-weight: normal">
+			<font size="3" style="font-size: 12pt">This is a mid physical
+			connection layer. This layer should not be used for one-sided or
+			double sided PCBs</font></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="101" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p align="left">
+			<img src="EasyPcbHelp_html_b30772bbd138773c.gif" name="Image21" align="left" width="40" height="34" border="0"/>
+<br/>
+
+			</p>
+		</td>
+		<td width="561" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p align="left" style="font-weight: normal">
+			<font size="3" style="font-size: 12pt">T his is a mid physical
+			connection layer. This layer should not be used for one-sided or
+			double sided PCBs</font></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="101" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p align="left">
+			<img src="EasyPcbHelp_html_bb6bed04122923a3.gif" name="Image22" align="left" width="38" height="29" border="0"/>
+<br/>
+
+			</p>
+		</td>
+		<td width="561" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p align="left" style="font-weight: normal">
+			<font size="3" style="font-size: 12pt">This is a top physical
+			connections layer i.e on this layer connections may be drawn.</font></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="101" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p align="left">
+			<img src="EasyPcbHelp_html_26282ee41b1f327e.gif" name="Image23" align="left" width="42" height="34" border="0"/>
+<br/>
+
+			</p>
+		</td>
+		<td width="561" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p align="left" style="font-weight: normal">
+			<font size="3" style="font-size: 12pt">T his is a package layer
+			i.e. on this layer the bodies of electric elements are drawn not
+			physical connections.</font></p>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td width="101" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p align="left">
+			<img src="EasyPcbHelp_html_bcc76f0dbb7fcd62.gif" name="Image24" align="left" width="73" height="32" border="0"/>
+<br/>
+
+			</p>
+		</td>
+		<td width="561" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p align="left">
+			<font size="3" style="font-size: 12pt"><span style="font-weight: normal">This
+			is schematic connections layer. See more about this </span></font><span style="font-weight: normal"><a href="#SchemCon">Schematic
+			connection</a> </span>
+			</p>
+		</td>
+	</tr>
+</table>
+<p align="left"><br/>
+<br/>
+<br/>
+<br/>
+
+</p>
+<h2 class="western">1. <b>Main file and edit functions</b></h2>
+<h3 class="western">1 .1. New.</h3>
+<p align="left" style="font-weight: normal"><img src="EasyPcbHelp_html_82e4707c66112bb.png" name="Image1" align="left" width="31" height="31" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Creates
+new empty PCB design document.</i></font></p>
+<h3 class="western">1<img src="../src/images/open.png" name="Image2" align="left" width="32" height="32" border="0"/>
+
+.2 Open.</h3>
+<p align="left" style="font-weight: normal"><font size="3" style="font-size: 12pt"><i>Opens
+saved earlier PCB design document.</i></font></p>
+<h3 class="western">1.3 Save.</h3>
+<p align="left" style="font-weight: normal"><img src="EasyPcbHelp_html_e97437e384a2aad3.png" name="Image3" align="left" width="43" height="43" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Saves
+current PCB design. When current design have not been earlier «save
+as» dialog is shown.</i></font></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">1.4 Save As.</h3>
+<p align="left" style="font-weight: normal"><font size="3" style="font-size: 12pt"><i>Shows
+«save as» dialog and saves current design under a given name.</i></font></p>
+<h3 class="western">1.5 Export to a gerber file.</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><img src="EasyPcbHelp_html_b9ccb759c1853df4.png" name="Image4" align="left" width="34" height="34" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Exports
+current design to a gerber file. Before processing current design a
+dialog of output file main properties is displayed. In this dialog
+the user can select which layer of PCB is needed to be exported and
+whether this layer should be exported mirrowed. In addition the user
+may select output folder and precision of coordinates in this file.
+The name of the output file is created according to the following
+rule &lt;name of design&gt;_&lt;name of layer&gt;_&lt;current time in
+ms&gt;.gbr</i></font></p>
+<p align="left"><img src="EasyPcbHelp_html_9297477fd536aa73.gif" name="Image5" align="left" width="494" height="445" border="0"/>
+<br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">1.4 Export to excellon file.</h3>
+<p align="left" style="font-weight: normal"><img src="EasyPcbHelp_html_9226234e73977af0.png" name="Image6" align="left" width="30" height="30" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Exports
+current design into excellon file. Before export a dialog is
+displayed where the user may select a name for the output file.</i></font></p>
+<h3 class="western">1.5 Print</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><img src="EasyPcbHelp_html_a925728555ef9b39.png" name="Image7" align="left" width="32" height="32" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Prints
+current design.Before printing the following dialog is displayed:</i></font></p>
+<p align="left"><img src="EasyPcbHelp_html_5798deea023340cf.gif" name="Image8" align="left" width="515" height="385" border="0"/>
+<br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left" style="font-variant: normal; font-weight: normal"><font size="3" style="font-size: 12pt"><i>In
+this dialog the user may select which layers should be printed,
+whether the image should be mirrowed or rotated. In addition the user
+may select the number of copies printed on the page of a4.</i></font></p>
+<h3 class="western">1.6 Exit</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><font size="3" style="font-size: 12pt"><i>E<img src="EasyPcbHelp_html_4a9e50479583114c.png" name="Image9" align="left" width="29" height="29" border="0"/>
+
+xits application.</i></font></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">1.7 Cut</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><img src="EasyPcbHelp_html_7ba1f1463f5f8c6.png" name="Image10" align="left" width="32" height="32" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Cuts
+selected items into buffer.</i></font></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">1.8 Copy</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><img src="EasyPcbHelp_html_5e3afee97c232e7e.png" name="Image11" align="left" width="32" height="32" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Copies
+selected items into buffer.</i></font></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">1.9 Paste</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><img src="EasyPcbHelp_html_e8ed632c6061008b.png" name="Image12" align="left" width="32" height="32" border="0"/>
+<font size="3" style="font-size: 12pt"><i>Pastes
+items from buffer into the current design.</i></font></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">1.10 Undo</h3>
+<p align="left"><img src="EasyPcbHelp_html_3082903080fd25c3.png" name="Image13" align="left" width="43" height="43" border="0"/>
+<i>Rollbacks
+the previous operation. Not all operations can be undone. The
+following operations cannot be rollbacked:</i></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">1.11 Redo</h3>
+<p align="left"><img src="EasyPcbHelp_html_5ea57a9d2760b9a1.png" name="Image14" align="left" width="43" height="43" border="0"/>
+<i>Executes
+again operation rollbacked via «Undo» </i>
+</p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h2 class="western">2. Tools functions</h2>
+<h3 class="western">2.1 Select</h3>
+<p align="left"><img src="EasyPcbHelp_html_f84c4705017239db.png" name="Image15" align="left" width="43" height="43" border="0"/>
+<i>In
+this mode a user can select and move items.</i></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western">2.2 Connector</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><img src="EasyPcbHelp_html_2a3717e3c13a2da0.png" name="Image16" align="left" width="44" height="44" border="0"/>
+<font size="3" style="font-size: 12pt"><i>In
+this mode user can drow physical connectors i.e. connectors that will
+be printed on PCB.</i></font></p>
+<p align="left"><br/>
+<br/>
+
+</p>
+<h3 class="western"><a name="SchemCon"></a>2.4 Schematic connection</h3>
+<p align="left" style="font-variant: normal; font-weight: normal"><img src="EasyPcbHelp_html_5f451eee1ec8487b.png" name="Image17" align="left" width="49" height="49" border="0"/>
+<font size="3" style="font-size: 12pt"><i>In
+this mode the user can link different elements of a design with
+schematic connection i.e. the same as in electrical schemes. These
+connections are used in «Auto» mode. To link two objects in this
+mode place the mouse over the one of them ,verify the center of the
+object is painted with VC_CON layer color and click left button. Then
+place the mouse over the second object verify that the center of the
+object is painted with VC_CON color and click left button again. To
+finish click right button of the mouse. At the moment EasyPcb
+supports linking of two objects only ,but the user can paint
+connection with medium points that are not linked to any of the
+object. </i></font>
+</p>
+<p align="left" style="font-variant: normal; font-weight: normal"><font size="3" style="font-size: 12pt"><i>The
+following objects support linking :</i></font></p>
+<h3 class="western">2.5 Zoom In</h3>
+<p><img src="EasyPcbHelp_html_643ced3b25d4be6a.png" name="Image25" align="left" width="24" height="24" border="0"/>
+Increases
+size of the working area and objects in this area. Each click doubles
+the objects and working area. 
+</p>
+<h3 class="western">2.6 Zoom Out</h3>
+<p><img src="EasyPcbHelp_html_6664a39de13fde7c.png" name="Image26" align="left" width="26" height="26" border="0"/>
+Decreases
+twice the size of the working area and objects in this area.</p>
+<h3 class="western">2.7 Ruler</h3>
+<p><img src="EasyPcbHelp_html_a8864dae6aee6c54.png" name="Image27" align="left" width="27" height="27" border="0"/>
+Measures
+distance between two object.To measure distance it is needed to place
+the mouse over the one of the objects, press left button and holding
+it place the mouse over the second object.</p>
+<p><br/>
+<br/>
+
+</p>
+<h3 class="western">2.8 Distance</h3>
+<p><img src="EasyPcbHelp_html_8e27df7309aff1aa.png" name="Image28" align="left" width="28" height="28" border="0"/>
+Measures
+distance between 2 linked objects. The user can link two objects in
+this mode and see distance constantly after linking i. e. the user
+can link objects in this mode and after that to move any of the
+objects and in this case see how the distance between objects is
+changing. To cancel this mode click the toolbar button for the mode
+again. See more how to link two objects in <a href="#SchemCon"><span style="font-weight: normal">Schematic
+connection</span></a></p>
+<h3 class="western">2.9 Load image</h3>
+<p><img src="EasyPcbHelp_html_ceea6a8f85754f3c.png" name="Image29" align="left" width="23" height="23" border="0"/>
+Loads
+background image for the current design. It may be useful when the
+user has a picture of a Pcb design and wants to use this design as a
+template for the new design. In order to be displayed correctly the
+image should comply with the following requirements:</p>
+<h3 class="western">2.10 Unload image</h3>
+<p><img src="EasyPcbHelp_html_d4209a91d7d6e70d.png" name="Image30" align="left" width="28" height="28" border="0"/>
+Cleans
+background image loaded with &lt;Load image&gt; command.</p>
+<h3 class="western">2.11 Construct PCB</h3>
+<p><img src="EasyPcbHelp_html_a42bc42b392713be.png" name="Image31" align="left" width="30" height="30" border="0"/>
+This
+is the most interesting feature of this application. The user can
+place components on the board connect them with <span style="font-weight: normal"><a href="#SchemCon">Schematic
+connection</a> and use this feature to construct physical connectors </span>
+</p>
+<p style="font-weight: normal">berween components.</p>
+<h3 class="western">2.12 General chip wizaed</h3>
+<p> <img src="../src/images/dippack.png" name="Image32" align="left" width="50" height="42" border="0"/>
+This
+wizard creates DIP or SMD chip using geometry data (size of
+package,the number if pins etc.) including pins’ names. Using this
+wizard the user easily create components of the library.</p>
+<p><br/>
+<br/>
+
+</p>
+<h2 class="western">3. Basic objects</h2>
+<p>PCB consistrs of basic objects i.e. connectors , connecting plates
+,packages etc. . Other PCB objects may have these objects as a
+base(for instance chips). EasyPcb may drow the following objects</p>
+<h3 class="western">3.1 Round plate.</h3>
+<p>  <img src="EasyPcbHelp_html_c11ed76aa4c3ac59.gif" name="Image33" align="left" width="75" height="42" border="0"/>
+
+   This object is a simple round shape. It has a hole. User may draw
+such objects using list in the tool bar. After selecting user need to
+click in the drawing area to place as many objects as it is needed.
+To cancel drawing user need to click «Select» button in the
+toolbar. Status bar shows current geometry properties of the objects.
+These properties may be changed.</p>
+<h3 class="western">3.2 Rectangular plate.</h3>
+<p> <img src="EasyPcbHelp_html_8e76a4616f2afe5d.gif" name="Image34" align="left" width="65" height="45" border="0"/>
+
+       This object is a simple recangular shape.  User may draw such
+objects using list in the tool bar. After selecting user need to
+click in the drawing area to place as many objects as it is needed.
+To cancel drawing user need to click «Select» button in the
+toolbar.Status bar shows current geometry properties of the objects.
+These properties may be changed.</p>
+<h3 class="western">3.3 Rectangular.</h3>
+<p> <img src="EasyPcbHelp_html_9acdc0a55938b9c8.gif" name="Image35" align="left" width="163" height="256" border="0"/>
+
+This object is a simple recangular .  User may draw such objects
+using list in the tool bar. After selecting user need to click in the
+drawing area and holding the button draw rectangular.</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<h3 class="western">3.4 Circle.</h3>
+<p> <img src="EasyPcbHelp_html_58f0f8c35c2beb61.gif" name="Image36" align="left" width="68" height="51" border="0"/>
+
+This is identical to the 3.3 with the difference that in this case a
+circle is drawn</p>
+<p><br/>
+<br/>
+
+</p>
+<p><br/>
+<br/>
+
+</p>
+<h3 class="western">3.5 Layers connector.</h3>
+<p> <img src="EasyPcbHelp_html_4dda7bc73061434e.gif" name="Image37" align="left" width="70" height="55" border="0"/>
+Connector
+that connects different layers on PCB. Consists of 2 simple round
+plates and metallized hole. The drawing is identical to 3.1, 3.2.</p>
+<p><br/>
+<br/>
+
+</p>
+<h3 class="western">3.6 Filled recangular.</h3>
+<p> <img src="EasyPcbHelp_html_ae9ae3fdcb9dc706.gif" name="Image38" align="left" width="72" height="45" border="0"/>
+
+This object is a simple recangular .  Drawing is identical to 3.3</p>
+<p><br/>
+<br/>
+
+</p>
+<h3 class="western">3.7 Text object.</h3>
+<p> <img src="EasyPcbHelp_html_882fba05b513a18e.gif" name="Image39" align="left" width="112" height="54" border="0"/>
+This
+object is a simple text. User may select font size of a text. 
+</p>
+</body>
+</html>
