@@ -150,11 +150,16 @@ MainWindow::MainWindow()
    toolsBar->addAction(unloadTemplateAct);
 
 
-//   const QIcon autoIcon = QIcon::fromTheme("document-open", QIcon(":/images/auto.png"));
    autodrawAction = new QAction(QIcon(":/images/auto.png"),tr("Construct PCB"),this);
    autodrawAction->setStatusTip(tr("Replace electrical connector with physical"));
    connect(autodrawAction, SIGNAL(triggered()), m_widget, SLOT(processAutodraw()));
    toolsBar->addAction(autodrawAction);
+
+   newGenPackWizAct = new QAction(QIcon(":/images/dippack.png"),tr("General chip wizard"), this);
+   newGenPackWizAct->setStatusTip(tr(CUT_DEF_TIP_STR));
+   connect(newGenPackWizAct, SIGNAL(triggered()), m_widget, SLOT(processGenWizard()));
+   toolsBar->addAction(newGenPackWizAct);
+
 
    toolsBar->addWidget(createPlateCombo());
    toolsBar->addWidget(createTextCombo());
@@ -199,12 +204,6 @@ MainWindow::MainWindow()
    selAllAct->setStatusTip(tr(SELALL_DEF_TIP_STR));
    connect(selAllAct, SIGNAL(triggered()), m_widget, SLOT(processSelectAll()));
    editBar->addAction(selAllAct);
-
-   newGenPackWizAct = new QAction(QIcon(":/images/dippack.png"),tr("General chip wizard"), this);
-//   newGenPackWizAct->setShortcuts(QKeySequence::Cut);
-   newGenPackWizAct->setStatusTip(tr(CUT_DEF_TIP_STR));
-   connect(newGenPackWizAct, SIGNAL(triggered()), m_widget, SLOT(processGenWizard()));
-   toolsBar->addAction(newGenPackWizAct);
 
    m_pStack = new QUndoStack(this);
 
