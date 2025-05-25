@@ -16,19 +16,37 @@ using ConstructedLayer = multimap<QString,SmartPtr<GraphicalItem>>;
 
 #include "boardlayerswrapper.h"
 
+constexpr int OperationAborted = 20;
+
 class PcbAutoConstructor
 {
     QWidget *m_parent{nullptr};
     const float fConWidth;
+    const int iIterNum;
     const vector<BOARD_LEVEL_ID> layers;
+    std::mutex dataM;
+    bool bDataReady{false};
+    char autoStr[256];
+    short progrValue{0};
+    std::atomic<bool> continueProcess{true};
+    std::atomic<short> progrCounter{0};
 public:
     PcbAutoConstructor(QWidget *p,const float fConWidth,
-                       const vector<BOARD_LEVEL_ID>& l);
+                       const vector<BOARD_LEVEL_ID>& l,
+                       int iNum);
 
     vector<BOARD_LEVEL_ID> prepareLayersForAuto(ConMap& simleVcCons,
                          ConMap& dualVcCons);
 
     void constructPcbLayout(BoardLayersWrapper& boardLayers,                                 //input
+                                                ConMap& simleVcCons,                         //input
+                                                ConMap& dualVcCons,                          //input
+                                                const int w,const int h,                     //input
+                                                ConstructedLayer& result,//output
+                                                map<ITEM_ID,vector<SmartPtr<GraphicalItem>>>& mapOfMultiplates//output
+                                                                                );
+
+    int constructPcbLayoutInternal(BoardLayersWrapper& boardLayers,                                 //input
                                                 ConMap& simleVcCons,                         //input
                                                 ConMap& dualVcCons,                          //input
                                                 const int w,const int h,                     //input
@@ -64,11 +82,12 @@ public:
              vector<UniCoord>& v1,
              set<ITEM_ID> ids //ids of connectors we need to find way from...to
                     );
-    //cycles based version of lee algotithm
+    //cycle based version of lee algotithm
     vector<UniCoord> lee(vector<vector<int> >& grid,
         VecIndex ax, VecIndex ay, // start and
         VecIndex bx, VecIndex by, // end coordinates
         set<ITEM_ID> ids,bool& bReturnPartial);
+    void f(BoardLayersWrapper& boardLayers);
 };
 
 #endif // PCBAUTOCONSTRUCTOR_H

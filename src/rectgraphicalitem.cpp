@@ -179,16 +179,19 @@ void RectGraphicalItem::setGeometry(GeomCommonProps& props)
    setHeight(props.sqw_g.height);
 }
 
-GraphicalItem* RectGraphicalItem::isConnectable(PointF& pt)
+GraphicalItem* RectGraphicalItem::isConnectable(PointF& pt,BOARD_LEVEL_ID layerId)
 {
 //   cout<<"pt x="<<pt.x()<<"y="<<pt.y()<<"m_x="<<m_x<<"m_y="<<m_y<<endl;
-   if (isPointInF(pt.x(),pt.y(),LEVEL_ALL))
+   if(m_level == layerId)
    {
-      float x1,y1;
-      coordRelativeToAbsolute(x1,y1);
-      pt.setX(x1);
-      pt.setY(y1);
-      return this;
+      if (isPointInF(pt.x(),pt.y(),LEVEL_ALL))
+      {
+         float x1,y1;
+         coordRelativeToAbsolute(x1,y1);
+         pt.setX(x1);
+         pt.setY(y1);
+         return this;
+      }
    }
    return nullptr;
 }

@@ -87,7 +87,7 @@ public:
     virtual float abs_y();
     virtual void setX(float x);
     virtual void setY(float y);
-    virtual GraphicalItem* isConnectable(PointF& pPt);
+    virtual GraphicalItem* isConnectable(PointF& pPt,BOARD_LEVEL_ID layerId);
     void setParent(GraphicalItem *p,bool bRecalcCoord = true);
     void unsetParent(bool bRecalcCoord = true);
     void coordRelativeToAbsolute(float& x,float& y);

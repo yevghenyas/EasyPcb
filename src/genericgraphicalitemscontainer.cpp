@@ -289,10 +289,11 @@ void GenericGraphicalItemsContainer::deleteAllChildren()
    m_items.clear();
 }
 
-GraphicalItem* GenericGraphicalItemsContainer::isConnectable(PointF& pt)
+GraphicalItem* GenericGraphicalItemsContainer::isConnectable(PointF& pt,
+                                                             BOARD_LEVEL_ID layerId)
 {
    for(auto& item:m_items)
-      if(GraphicalItem* pItem = item->isConnectable(pt))
+      if(GraphicalItem* pItem = item->isConnectable(pt,layerId))
          return pItem;
    return nullptr;
 }

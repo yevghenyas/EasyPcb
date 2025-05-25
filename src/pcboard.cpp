@@ -122,6 +122,7 @@ PcBoard::PcBoard(SchemData& data,MyWidget *parent) : QWidget(parent),m_currMode(
     m_ConnectedRuler = SmartPtr<ConnectorWrapper>::make_smartptr<ConnectorWrapper>();
     m_SimpleRuler = SmartPtr<ConnectorWrapper>::make_smartptr<ConnectorWrapper>();
     m_packWrapper = SmartPtr<PackageWrapper>::make_smartptr<PackageWrapper>();
+    boardLayers.setActiveLayerId(m_currentLevel);
 }
 
 PcBoard::~PcBoard()
@@ -173,7 +174,7 @@ void PcBoard::paintEvent( QPaintEvent * e)
 /* temporarily
     if(m_RectAndRndCoord[0].x() != -1 && m_RectAndRndCoord[1].x() != -1)
     {
-        QColor c = m_currMode == MODE_CURSOR ?
+        QColor c = m_currMode == MODhttps://search.opensuse.org/E_CURSOR ?
                    selectColor :
                    LevelsWrapper::getColorForLevel(m_currentLevel);
        m_packWrapper->paintPackage(p,c,m_scaleFactor);
@@ -886,6 +887,7 @@ void PcBoard::keyPressEvent(QKeyEvent *e)
 void PcBoard::setBoardCurrentLevel(BOARD_LEVEL_ID level)
 {
    m_currentLevel = level;
+   boardLayers.setActiveLayerId(level);
 }
 
 void PcBoard::contextMenuEvent(QContextMenuEvent *e)
@@ -2001,10 +2003,22 @@ void PcBoard ::constructPcbLayout()
 
       layersSet.insert(conLayersSet.begin(),conLayersSet.end());
 
-      auto id = *conLayersSet.begin();
-      pushIntoMappedVector(levelToSimpleConnectors,
+      if(conLayersSet.size() == 1)
+      {
+         auto id = *conLayersSet.begin();
+         pushIntoMappedVector(levelToSimpleConnectors,
                            id,vcCon.second);
-
+      }
+      else
+      {
+         // needs to be corrected
+         auto iter = conLayersSet.begin();
+         auto id1 = *iter;
+         auto id2 = *(++iter);
+         //
+         pushIntoMappedVector(dualConnectors,id1,vcCon.second);
+         pushIntoMappedVector(dualConnectors,id2,vcCon.second);
+      }
 /*
       auto lAddCon = [&vcCon](ConMap& m,BOARD_LEVEL_ID id)
       {
@@ -2021,7 +2035,9 @@ void PcBoard ::constructPcbLayout()
    }
    //check if essential layers exist
    if(levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_A) == levelToSimpleConnectors.end()
-        && levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_F) == levelToSimpleConnectors.end())
+        && levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_F) == levelToSimpleConnectors.end()
+           && dualConnectors.find(BOARD_LEVEL_ID::LEVEL_A) == levelToSimpleConnectors.end()
+           && dualConnectors.find(BOARD_LEVEL_ID::LEVEL_F) == levelToSimpleConnectors.end())
    {
       QMessageBox msgBox(QMessageBox::Critical,"Error",
                          "Layer A or Layer F should have \n schematic connectors",
@@ -2032,10 +2048,12 @@ void PcBoard ::constructPcbLayout()
 
    //edit properties before construction
    float fConWidth = fSizeOfMatrixCell;
+   int iNumOfIterations = 0;
    vector<BOARD_LEVEL_ID> layerIds;
    AutoConstructProps dlg(std::move(layersSet));
    if(dlg.exec() == QDialog::Accepted)
-      dlg.getResult(fConWidth,layerIds);
+      dlg.getResult(fConWidth,layerIds,
+                    iNumOfIterations);
    else
       return;
 
@@ -2047,7 +2065,8 @@ void PcBoard ::constructPcbLayout()
       }
 
    //construct board
-   PcbAutoConstructor pcbAutoConstrutor(m_myWidget,fConWidth,layerIds);
+   PcbAutoConstructor pcbAutoConstrutor(m_myWidget,fConWidth,
+                                        layerIds,iNumOfIterations - 1);
    //these variables intended to store results
    ConstructedLayer bestProc;
    map<ITEM_ID,vector<SmartPtr<GraphicalItem>>> multiplates;

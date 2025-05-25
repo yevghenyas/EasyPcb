@@ -154,7 +154,7 @@ void GraphicalItem::setParent(GraphicalItem* p,bool bRecalcCoord)
    
 }
 
-GraphicalItem* GraphicalItem::isConnectable(PointF& pt)
+GraphicalItem* GraphicalItem::isConnectable(PointF& pt,BOARD_LEVEL_ID)
 {
    return nullptr;
 }

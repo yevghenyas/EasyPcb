@@ -37,12 +37,24 @@ AutoConstructProps::AutoConstructProps(set<BOARD_LEVEL_ID>&& l):layersSet(l)
     doubleSpinBox->setValue(static_cast<double>(fSizeOfMatrixCell));
     formLayout->setWidget(0, QFormLayout::FieldRole, doubleSpinBox);
 
+    auto label2 = new QLabel(formLayoutWidget);
+    label2->setObjectName(QString::fromUtf8("label1"));
+    label2->setText(QString::fromUtf8("The number of iteraations"));
+    formLayout->setWidget(1, QFormLayout::LabelRole, label2);
+
+    iterNumSpinBox = new QSpinBox(formLayoutWidget);
+    iterNumSpinBox->setObjectName(QString::fromUtf8("iterNumSpinBox"));
+    iterNumSpinBox->setMaximum(10);
+    iterNumSpinBox->setValue(autoConstructIterNum);
+    iterNumSpinBox->setToolTip(QString::fromUtf8("The number of attmpts to construct PCB completely"));
+    formLayout->setWidget(1, QFormLayout::FieldRole, iterNumSpinBox);
+
 
     auto label1 = new QLabel(formLayoutWidget);
     label1->setObjectName(QString::fromUtf8("label1"));
     label1->setText(QString::fromUtf8("Select layers you \nwant to use \nduring processing"));
 
-    formLayout->setWidget(1, QFormLayout::LabelRole, label1);
+    formLayout->setWidget(2, QFormLayout::LabelRole, label1);
 
     auto checkLayout = new QVBoxLayout();
     checkLayout->setObjectName(QStringLiteral("checkLayout"));
@@ -50,7 +62,7 @@ AutoConstructProps::AutoConstructProps(set<BOARD_LEVEL_ID>&& l):layersSet(l)
 
     LevelsWrapper::getActiveLevels(m_activeLayers);
 
-
+    int checkedNum = 0;
     for(size_t index = 0; index < m_activeLayers.size(); ++index)
     {
        auto checkBox = new QCheckBox;
@@ -64,23 +76,49 @@ AutoConstructProps::AutoConstructProps(set<BOARD_LEVEL_ID>&& l):layersSet(l)
        {
           checkBox->setCheckState(Qt::CheckState::Checked);
           checkBox->setEnabled(false);
+          ++checkedNum;
        }
        checkLayout->addWidget(checkBox);
        m_checkedLayers.push_back(checkBox);
+       QObject::connect(checkBox,SIGNAL(stateChanged(int)),this,SLOT(boxChecked(int)));
+    }
+    if(checkedNum < 2)
+    {
+       iterNumSpinBox->setEnabled(false);
+       iterNumSpinBox->setValue(0);
     }
 
-    formLayout->setLayout(1, QFormLayout::FieldRole, checkLayout);
+    formLayout->setLayout(2, QFormLayout::FieldRole, checkLayout);
 
     QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    QObject::connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-
+    QObject::connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject())); 
 }
 
-bool AutoConstructProps::getResult(float& fConWidth,vector<BOARD_LEVEL_ID>& layers)
+bool AutoConstructProps::getResult(float& fConWidth,vector<BOARD_LEVEL_ID>& layers,int& iterNum)
 {
    fConWidth = static_cast<float>(doubleSpinBox->value());
+   iterNum = iterNumSpinBox->value();
    for(size_t index = 0; index < m_checkedLayers.size() ; ++index)
       if(m_checkedLayers[index]->checkState() == Qt::CheckState::Checked)
          layers.push_back(m_activeLayers[index].idLevel);
+   return true;
+}
+
+void AutoConstructProps::boxChecked(int)
+{
+   cout<<"boxChecked"<<endl;
+   auto checkedNum = 0;
+   for(size_t index = 0; index < m_checkedLayers.size() ; ++index)
+      if(m_checkedLayers[index]->checkState() == Qt::CheckState::Checked)
+          ++checkedNum;
+
+   if(checkedNum < 2)
+   {
+      iterNumSpinBox->setEnabled(false);
+      iterNumSpinBox->setValue(0);
+   }
+   else
+   {
+      iterNumSpinBox->setEnabled(true);
+   }
 }

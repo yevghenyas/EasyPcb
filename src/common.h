@@ -20,7 +20,7 @@ using namespace std;
 
 constexpr float PI = 3.14159265358979323846f;
 
-constexpr int autoConstructIterNum = 0;
+constexpr int autoConstructIterNum = 4;
 
 enum MODE_DRAW
 {
@@ -1309,17 +1309,17 @@ constexpr int EMPTY = ID_NONE;
 union UniCoord
 {
    UniCoord(int i):pos(i){}
-   UniCoord(char16_t xx,char16_t yy)
+   UniCoord(int16_t xx,int16_t yy)
    {
        coord.x = xx;
        coord.y = yy;
    }
    struct
    {
-      char16_t x;
-      char16_t y;
+      int16_t x;
+      int16_t y;
    } coord;
-   int pos;
+   int32_t pos;
 };
 
 

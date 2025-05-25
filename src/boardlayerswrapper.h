@@ -17,6 +17,7 @@ class BoardLayersWrapper
    map<BOARD_LEVEL_ID,int> levelIdToInd;
    vector<BoardLayer> boardLayers;
    list<VecLayerInrementer> m_selectionOrder;
+   BOARD_LEVEL_ID activeLayerId{BOARD_LEVEL_ID::LEVEL_NONE};
 public:
    BoardLayersWrapper();
    void initLayers(vector<BoardLevel>& levels);
@@ -37,6 +38,8 @@ public:
    //returns layers with items
    void getNonEmptyLayersIds(set<BOARD_LEVEL_ID>& layersSet,
                              bool bActiveLayersOnly = false);
+   void setActiveLayerId(BOARD_LEVEL_ID layerId) noexcept{activeLayerId = layerId;}
+   BOARD_LEVEL_ID getActiveLayerId() noexcept{return activeLayerId;}
 };
 
 #endif // BOARDLAYERSWRAPPER_H

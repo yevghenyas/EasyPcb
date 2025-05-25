@@ -433,20 +433,24 @@ void ConnectorGraphicalItem::setGeometry(GeomCommonProps& props)
    m_style = props.line_g.style;
 }
 
-GraphicalItem* ConnectorGraphicalItem::isConnectable(PointF& ptf)
+GraphicalItem* ConnectorGraphicalItem::isConnectable(PointF& ptf,BOARD_LEVEL_ID layerId)
 {
-   int index = -1;
-   QPoint pt(static_cast<int>(ptf.x()*PIXELS_PER_MM),
-             static_cast<int>(ptf.y()*PIXELS_PER_MM));
-   if (isAboveNodeInternal(pt,index))
+   if(m_level == layerId)
    {
-       float x = m_points[static_cast<VectorInd>(index)].x();
-       float y = m_points[static_cast<VectorInd>(index)].y();
-       if(m_parent)
-           coordRelativeToAbsolute(x,y);
-       ptf.setX(x);
-       ptf.setY(y);
-       return this;
+      int index = -1;
+      QPoint pt(static_cast<int>(ptf.x()*PIXELS_PER_MM),
+                static_cast<int>(ptf.y()*PIXELS_PER_MM));
+
+      if (isAboveNodeInternal(pt,index))
+      {
+         float x = m_points[static_cast<VectorInd>(index)].x();
+         float y = m_points[static_cast<VectorInd>(index)].y();
+         if(m_parent)
+            coordRelativeToAbsolute(x,y);
+         ptf.setX(x);
+         ptf.setY(y);
+         return this;
+      }
    }
    return nullptr;
 }

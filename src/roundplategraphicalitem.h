@@ -46,7 +46,7 @@ public:
     virtual SmartPtr<GraphicalItem> clone() override;
     virtual void setGeometry(GeomCommonProps& props) override;
     virtual GeomCommonProps getGeometry() override {return GeomCommonProps(m_D,m_d,true);}
-    virtual GraphicalItem* isConnectable(PointF& pt) override;
+    virtual GraphicalItem* isConnectable(PointF& pt,BOARD_LEVEL_ID layerId) override;
     virtual void connect(ITEM_ID connectorID) override;
     virtual void getConnectors(set<ITEM_ID>& connectors) override;
     virtual int getConnectorsNumber() override;
