@@ -13,10 +13,11 @@ class AutoCommandItem : public QUndoCommand
 {
    ConstructedLayer conMap;
    MultiMap multiMap;
-   vector<SmartPtr<GraphicalItem>> vcCons;
+   vector<SmartPtr<GraphicalItem>> itemsToDelete;
    PcBoard *m_pBoard;
 public:
-   AutoCommandItem(ConstructedLayer&& cMap,MultiMap&& mMap,PcBoard *pBoard);
+   AutoCommandItem(ConstructedLayer&& cMap,MultiMap&& mMap,
+                   set<ITEM_ID>&& toDelete,PcBoard *pBoard);
    virtual ~AutoCommandItem() override;
    void undo() override;
    void redo() override;

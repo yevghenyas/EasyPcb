@@ -1465,7 +1465,8 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
       p = ItemsFactory::createStdSO(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
                                     m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
    }
-   else if(type.startsWith(TYPE_S_0805) ||
+   else if(type.startsWith(TYPE_S_0603) ||
+           type.startsWith(TYPE_S_0805) ||
            type.startsWith(TYPE_S_1206) ||
            type.startsWith(TYPE_S_1210) ||
            type.startsWith(TYPE_S_2510) ||
@@ -2068,21 +2069,41 @@ void PcBoard ::constructPcbLayout()
    PcbAutoConstructor pcbAutoConstrutor(m_myWidget,fConWidth,
                                         layerIds,iNumOfIterations - 1);
    //these variables intended to store results
+   //id_vc_connector->list of created physical connectors
    ConstructedLayer bestProc;
+   //plates created to connect connectors in different layers
    map<ITEM_ID,vector<SmartPtr<GraphicalItem>>> multiplates;
+   //set of id_vc_connectors that have completely succesful result
+   //we need these ids to remove these vc_cons from layout
+   set<ITEM_ID> setOfSuccessCons;
+   int numOfConnectors = 0;
+   for(const auto& layer:levelToSimpleConnectors)
+       numOfConnectors += layer.second.size();
+   for(const auto& layer:dualConnectors)
+       numOfConnectors += layer.second.size();
+
    pcbAutoConstrutor.constructPcbLayout(boardLayers,levelToSimpleConnectors,
                                                     dualConnectors,
-                                                    m_schemData.m_width * m_scaleFactor * minGraularity,
-                                                    m_schemData.m_height * m_scaleFactor * minGraularity,
-                                                    bestProc,multiplates);
-
+                                                    m_schemData.m_width * minGraularity,
+                                                    m_schemData.m_height * minGraularity,
+                                                    bestProc,multiplates,
+                                                    setOfSuccessCons);
    if(bestProc.size() > 0)
    {
-      m_myWidget->getUndoStack()->push(new AutoCommandItem(std::move(bestProc), std::move(multiplates),this));
+      m_myWidget->getUndoStack()->push(new AutoCommandItem(std::move(bestProc), std::move(multiplates),
+                                                           std::move(setOfSuccessCons),this));
       repaint();
       m_myWidget->getUndoStack()->clear();
       m_myWidget->saveToFile(fileNewComplete);
    }
+   int numOfRest = boardLayers.getLayer(BOARD_LEVEL_ID::LEVEL_VC)->getConnectItemsInLevel()->size();
+   char msg1[128];
+   sprintf(msg1,"%d of %d connectors were not constructed",numOfRest,numOfConnectors);
+   QMessageBox msgBox1(QMessageBox::Warning,"Warning",
+                      msg1,
+                      QMessageBox::Ok);
+   msgBox1.exec();
+
    return;
 
 }

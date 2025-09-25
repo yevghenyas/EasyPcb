@@ -6,6 +6,7 @@
 #include "common.h"
 #include "smartptr.h"
 #include "boardlayerswrapper.h"
+#include "leeconstrpathstrategy.h"
 
 using VecLayerInrementer = std::vector<BoardLayer>::size_type;
 using PcbLayoutVec = vector<vector<ITEM_ID> >;
@@ -43,21 +44,24 @@ public:
                                                 ConMap& dualVcCons,                          //input
                                                 const int w,const int h,                     //input
                                                 ConstructedLayer& result,//output
-                                                map<ITEM_ID,vector<SmartPtr<GraphicalItem>>>& mapOfMultiplates//output
-                                                                                );
+                                                map<ITEM_ID,vector<SmartPtr<GraphicalItem>>>& mapOfMultiplates,//output
+                                                set<ITEM_ID>& idOfSuccVcCons //output
+                                                 );
 
     int constructPcbLayoutInternal(BoardLayersWrapper& boardLayers,                                 //input
                                                 ConMap& simleVcCons,                         //input
                                                 ConMap& dualVcCons,                          //input
                                                 const int w,const int h,                     //input
                                                 ConstructedLayer& result,//output
-                                                map<ITEM_ID,vector<SmartPtr<GraphicalItem>>>& mapOfMultiplates//output
-                                                                                );
+                                                map<ITEM_ID,vector<SmartPtr<GraphicalItem>>>& mapOfMultiplates,//output
+                                                set<ITEM_ID>& idOfSuccVcCons //output
+                                               );
 
     ConstructedLayer constructOneLayer(BoardLayer& boardLayer,
                                                            vector<SmartPtr<GraphicalItem>>& vcCons,
                                                            ConstructedLayer& createdItems,
-                                                           PcbLayoutVec& m,bool bProducePartial = false);
+                                                           PcbLayoutVec& m,LeeConstrPathStrategy& strategyClass,
+                                       bool bProducePartial = false);
     template <typename Container>
     bool fillPcb(PcbLayoutVec& m,Container* items,set<ITEM_ID>& ids,VecIdsInc ln,VecIdsInc cl,BOARD_LEVEL_ID layer = LEVEL_ALL);
     void createPointsForLineFromLeePath(vector<PointF>& points,
@@ -86,8 +90,12 @@ public:
     vector<UniCoord> lee(vector<vector<int> >& grid,
         VecIndex ax, VecIndex ay, // start and
         VecIndex bx, VecIndex by, // end coordinates
-        set<ITEM_ID> ids,bool& bReturnPartial);
+        set<ITEM_ID> ids,LeeConstrPathStrategy& strategyClass,
+                         bool& bReturnPartial);
     void f(BoardLayersWrapper& boardLayers);
+
+    //calculates copper density per number of cells
+    vector<vector<float> > calculateCopperDensity(int cellNumber,PcbLayoutVec& vec);
 };
 
 #endif // PCBAUTOCONSTRUCTOR_H

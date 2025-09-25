@@ -37,6 +37,19 @@ ConnectorGraphicalItem::ConnectorGraphicalItem(vector<PointF>&& points,float w,B
    resetCenterCoord();
 }
 
+ConnectorGraphicalItem::ConnectorGraphicalItem(const vector<PointF>& points,float w,BOARD_LEVEL_ID level,
+                                               CONNECTOR_TYPE conType,ITEM_ID id):
+                                               GraphicalItem(level,0,0,id)
+                                               ,m_points(points),m_w(w)
+                                               ,m_style(LINE_STYLE::LINE_ROUNDED)
+                                               ,m_connectorType(conType)
+
+{
+   m_bVisible = true;
+   resetCenterCoord();
+}
+
+
 void ConnectorGraphicalItem::paintInternal(float difX,float difY,QPainter& p, QColor& c,int zoom,int zoom_d)
 {
    PointF ptf(0.0f,0.0f);
@@ -48,10 +61,15 @@ void ConnectorGraphicalItem::paintInternal(float difX,float difY,QPainter& p, QC
       {
          float x = item.second->abs_x();
          float y = item.second->abs_y();
+         PointF tmp(m_parent? x - m_parent->x() : x,
+                m_parent? y - m_parent->y() : y);
+         setPointAt(tmp,static_cast<VectorInd>(item.first));
+/*
          m_points[static_cast<VectorInd>(item.first)].setX(
                      m_parent? x - m_parent->x() : x);
          m_points[static_cast<VectorInd>(item.first)].setY(
                      m_parent? y - m_parent->y() : y);
+*/
          if(m_connectorType != CONNECTOR_TYPE::BOARD)
             DrawWrapper::drawConnectorPlate(p,c,x + difX,y + difY,zoom);
       }
@@ -417,13 +435,31 @@ void ConnectorGraphicalItem::setY(float)
 SmartPtr<GraphicalItem> ConnectorGraphicalItem::clone()
 {
    PointF pt(m_x,m_y);
-   vector<PointF> vec(m_points);
+   vector<PointF> vec;
    auto p = SmartPtr<GraphicalItem>::make_smartptr<ConnectorGraphicalItem>(std::move(vec),m_w,m_level,m_connectorType,
                                                 IDsGenerator::instance()->getNewID());
    p->setVisible(m_bVisible);
    p->setSelected(m_selected);
    p->setParent(m_parent,false);
    p->setType(m_type);
+   using Ind = vector<PointF>::size_type;
+   for(Ind i = 0; i < m_points.size(); ++i)
+   {
+      if(!m_vcCons || m_vcCons->find(i) == m_vcCons->end())
+         static_cast<ConnectorGraphicalItem*>(p.get())->addNode(m_points[i]);
+      else if (m_vcCons)
+         static_cast<ConnectorGraphicalItem*>(p.get())->addConnectedNode(m_vcCons->find(i)->second);
+   }
+
+/*
+   if(m_vcCons.get() != nullptr)
+   {
+      for(auto& item:*m_vcCons)
+      {
+         static_cast<ConnectorGraphicalItem*>(p.get())->addConnectedNode(item.second);
+      }
+   }
+*/
    return p;
 }
 
@@ -561,4 +597,17 @@ string ConnectorGraphicalItem::getGerberString(GerberGenerator& gen,
                                                BOARD_LEVEL_ID )
 {
    return gen.getStringForConnector(getID(),width(),m_points);
+}
+
+void ConnectorGraphicalItem::setFirstPoint(const PointF& pt)
+{
+   m_points[0] = pt;
+}
+void ConnectorGraphicalItem::setLastPoint(const PointF& pt)
+{
+   m_points[m_points.size() - 1] = pt;
+}
+void ConnectorGraphicalItem::setPointAt(const PointF& pt,size_t index)
+{
+   m_points[index] = pt;
 }

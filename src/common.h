@@ -48,7 +48,9 @@ enum BOARD_LEVEL_ID {LEVEL_A1 = 0x0001,LEVEL_A = 0x0002,LEVEL_B = 0x0004,LEVEL_C
 
 enum ITEMS_ORIENTATION {O_HORIZONTAL_LEFT,O_VERTICAL_TOP,O_HORIZONTAL_RIGHT,O_VERTICAL_BOTTOM};
 
-enum SMD_PACKAGE_TYPE {TYPE_0805,TYPE_1206,TYPE_1210,TYPE_2510,TYPE_2512};
+//add type here ,add S_xxxx string(#define S_TYPE_0402 "0402") modify PcBoard::processContainer
+//to handle this string
+enum SMD_PACKAGE_TYPE {TYPE_0603,TYPE_0805,TYPE_1206,TYPE_1210,TYPE_2510,TYPE_2512};
 
 enum PRINT_TRANSFORMATIONS {TR_ROTATE = 0,TR_MIRROW = 1};
 
@@ -57,6 +59,8 @@ enum class LINE_STYLE {LINE_ROUNDED,LINE_SQUARED};
 enum class CONNECTOR_TYPE {BOARD,SCHEMATIC,CONNECTED_RULER,SIMPLE_RULER,NONE};
 
 enum AUTO_SORT {TOP_LEFT = 1,BOTTOM_RIGHT,TOP_RIGHT,BOTTOM_LEFT,SORT_NONE};
+//applies to pcb with several layers
+enum class LEE_STRATEGY {SHORTEST_PATH,LOWEST_COPPER_DENSITY};
 
 static AUTO_SORT getNextAutoSort(AUTO_SORT i) noexcept
 {
@@ -317,6 +321,7 @@ static GeomCommonProps* makeTextGeom(int fntSize)
 #define TYPE_S_R_DIP    "r_dip"
 #define TYPE_S_C        "c"
 #define TYPE_S_EL_C     "c_el"
+#define TYPE_S_0603     "0603"
 #define TYPE_S_0805     "0805"
 #define TYPE_S_1206     "1206"
 #define TYPE_S_1210     "1210"
@@ -382,8 +387,8 @@ constexpr int lItemNameLength = 64; // the length with zero at the end
 constexpr int lItemTypeLength = 64; // the length with zero at the end
 constexpr float fMaxBoardWidth = 150.00;
 constexpr float fMaxBoardHeight = 150.00;
-constexpr float fDefVirtConWidth = 0.1f;
-constexpr float fDefVirtConPlateD = 0.99f;
+constexpr float fDefVirtConWidth = 0.2f;
+constexpr float fDefVirtConPlateD = 0.65f;
 
 constexpr int iA4WidthMM = 210;
 constexpr int iA4HeightMM = 297;
@@ -594,7 +599,7 @@ static void rotateRoundShape(PointF& pt,float& x1,float& y1,int angle)
 
 
 //pt - is the center around which (x,y) should be rotated
-static void rotateRoundShape(QPoint& pt,int& x1,int& y1,int angle)
+static void rotateRoundShape(QPoint& pt,int& x1,int& y1,int angle) noexcept
 {
    if (angle != 90 * 16) //at the moment only 90 degrees supported
       return;
@@ -625,7 +630,7 @@ static void rotateRoundShape(QPoint& pt,int& x1,int& y1,int angle)
    }         
 };
 
-static void rotateRectShape(PointF& pt,float& x1,float& y1,int angle,ITEMS_ORIENTATION& t)
+static void rotateRectShape(PointF& pt,float& x1,float& y1,int angle,ITEMS_ORIENTATION& t) noexcept
 {
     rotateRoundShape(pt,x1,y1,angle);
 
@@ -648,7 +653,7 @@ static void rotateRectShape(PointF& pt,float& x1,float& y1,int angle,ITEMS_ORIEN
     }   
 }
 
-static void rotateRectShape(QPoint& pt,int& x1,int& y1,int angle,ITEMS_ORIENTATION& t)
+static void rotateRectShape(QPoint& pt,int& x1,int& y1,int angle,ITEMS_ORIENTATION& t) noexcept
 {
    if (angle % (90 * 16) > 0) //at the moment only 90 * n degrees supported
       return;
@@ -1253,6 +1258,7 @@ static PointF getSizeOfSmfPack(SMD_PACKAGE_TYPE type)
 {
    switch(type)
    {
+      case TYPE_0603:return PointF(1.7f,0.8f);
       case TYPE_0805:return PointF(2.1f,1.25f);
       case TYPE_1206:return PointF(3.2f,1.6f);
       case TYPE_1210:return PointF(3.2f,2.5f);
@@ -1263,7 +1269,9 @@ static PointF getSizeOfSmfPack(SMD_PACKAGE_TYPE type)
 
 static SMD_PACKAGE_TYPE getSmdPackForStr(const QString& str)
 {
-   if(str.compare(TYPE_S_0805) == 0)
+   if(str.compare(TYPE_S_0603) == 0)
+       return TYPE_0603;
+   else if(str.compare(TYPE_S_0805) == 0)
       return TYPE_0805;
    else if(str.compare(TYPE_S_1206) == 0)
       return TYPE_1206;
