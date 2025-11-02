@@ -9,7 +9,6 @@
 class LeeConstrPathStrategy
 {
    LEE_STRATEGY strategy{LEE_STRATEGY::SHORTEST_PATH};
-   int cellNumber{15};
    vector<vector<float>> *pDensity{nullptr};
    vector<UniCoord> constructLeePathShortest(int ax,int ay,int bx,int by,
                                              int x_l,int x_h,
@@ -20,6 +19,9 @@ class LeeConstrPathStrategy
                                                int y_l,int y_h,
                                                vector<vector<ITEM_ID>>& grid);
 public:
+
+   const static int cellNumber{10};
+
    LeeConstrPathStrategy(LEE_STRATEGY s);
    vector<UniCoord> constructLeePath(int ax,int ay,int bx,int by,
                                      int x_l,int x_h,

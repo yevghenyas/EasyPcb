@@ -21,7 +21,6 @@
 #include "connectorgraphicalitem.h"
 
 
-
 FileReader::FileReader()
 {
 
@@ -136,6 +135,7 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
    QXmlStreamReader::TokenType token = t;
    CONNECTOR_TYPE conType = CONNECTOR_TYPE::BOARD;
    cout <<"xmlElemName:"<<xmlElemName.toStdString()<<endl;
+   bool bMulti = false;
    while(true)
    {
       if(token == QXmlStreamReader::StartElement )
@@ -290,6 +290,8 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
             if(attributes.hasAttribute(PARENT_DEF))
                container_is_parent = true;
 
+            bMulti = attributes.value(TYPE_DEF).toString().compare("multi") == 0;
+
 
             //continue accumulating the content of container
             
@@ -351,12 +353,21 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          {
             if(m_items.size() > 0)
             {
-                ITEM_ID id = name.toInt();
-                if(!id)
-                    id = ID_NONE;
-                auto pC =
-                        ItemsFactory::createContainer(x_container,y_container,
-                                                                     level,m_items,id);
+               ITEM_ID id = name.toInt();
+               if(!id)
+                  id = ID_NONE;
+               SmartPtr<GraphicalItem> pC;
+               if(bMulti)
+               {
+                  cout<<"Parsed multiplate"<<endl;
+                  pC = ItemsFactory::createRoundMultiPlate(x_container,y_container,std::vector<SmartPtr<GraphicalItem>>(m_items),id);
+                  bMulti = false;
+               }
+               else
+               {
+                  pC =  ItemsFactory::createContainer(x_container,y_container,
+                                                                    level,m_items,id);
+               }
                static_cast<GenericGraphicalItemsContainer*>(pC.get())->setAsParent(container_is_parent,false);
                return pC;
             }

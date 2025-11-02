@@ -902,7 +902,7 @@ int PcbAutoConstructor::constructPcbLayoutInternal(BoardLayersWrapper& boardLaye
        {
           return ItemsFactory::createRoundMultiPlate(pt.x()
                                                    ,pt.y(),
-                                                   fConWidth,fConWidth/1.5,
+                                                   fConWidth * 1.5,fConWidth/1.5,
                                                    std::move(levels),ID_NONE,1,1);
        };
        auto mpPushL = [&mapOfMultiplates](SmartPtr<GraphicalItem>& mp,
@@ -941,27 +941,11 @@ int PcbAutoConstructor::constructPcbLayoutInternal(BoardLayersWrapper& boardLaye
 
                 auto c = static_cast<ConnectorGraphicalItem*>(vcCon.get());
                 mpPushL(mp,c,id_m,c->pointsNum() - 1);
-/*
-                if(mp.get() != nullptr)//check for empty object
-                {
-                   pushIntoMappedVector(mapOfMultiplates,id_m,mp);
-                   auto c = static_cast<ConnectorGraphicalItem*>(vcCon.get());
-                   c->insertConnectedNode(c->pointsNum() - 1,mp);
-                }
-*/
 
                 auto mp1 = multiplateL(static_cast<ConnectorGraphicalItem*>(vcCon.get())->getFirstPoint(),
                                            std::vector<BOARD_LEVEL_ID>{prevLayerId,oneLayer->first});
 
                 mpPushL(mp1,c,id_m,0);
-/*
-                if(mp1.get() != nullptr)//check for empty object
-                {
-                   pushIntoMappedVector(mapOfMultiplates,id_m,mp1);
-                   auto c = static_cast<ConnectorGraphicalItem*>(vcCon.get());
-                   c->insertConnectedNode(0,mp1);
-                }
-*/
                 oneLayer->second.push_back(vcCon);
              }
           }
@@ -994,7 +978,8 @@ int PcbAutoConstructor::constructPcbLayoutInternal(BoardLayersWrapper& boardLaye
                      i,iIterNum - iterationCounter + 1,oneLayer->first);
              bDataReady = true;
           }
-          layersDensity[oneLayer->first] = calculateCopperDensity(15,m);
+          layersDensity[oneLayer->first] = calculateCopperDensity(
+                                            LeeConstrPathStrategy::cellNumber,m);
           if(allVCons.size() == 1)
           {
              //we have PCB with one layer.
@@ -1053,13 +1038,31 @@ int PcbAutoConstructor::constructPcbLayoutInternal(BoardLayersWrapper& boardLaye
                    auto pMapConItems = pVCon->getConnectedItems();
                    //Compare layers of connected items with the Layer of physical connector
                    //create multiplate in caae they differ.
-                   auto layer0 = BOARD_LEVEL_ID::LEVEL_NONE;
-                   auto layer1 = BOARD_LEVEL_ID::LEVEL_NONE;
+                   //auto layer0 = BOARD_LEVEL_ID::LEVEL_NONE;
+                   //auto layer1 = BOARD_LEVEL_ID::LEVEL_NONE;
                    auto cnt = 0;
-                   for(auto iter = pMapConItems->begin(); iter != pMapConItems->end() && cnt < 2 ; ++iter, ++cnt)
+                   for(auto itConItems = pMapConItems->begin(); itConItems != pMapConItems->end() && cnt < 2 ; ++itConItems, ++cnt)
                    {
                       //check for multiplate.in this case we do not have
                       //to create another multiplate
+                      MultiplateGraphicalItem *pMp = nullptr;
+                      if((pMp = dynamic_cast<MultiplateGraphicalItem*>(itConItems->second.get())) == nullptr
+                              || !pMp->isLayerIn(itConItems->second->getLevel()))
+                      {
+                         if(itConItems == pMapConItems->begin())
+                         {
+                            auto mp1 = multiplateL(pVCon->getFirstPoint(),
+                                 std::vector<BOARD_LEVEL_ID>{itConItems->second->getLevel(),conLayer});
+                            mpPushL(mp1,pVCon,(*iter)->getID(),0);
+                         }
+                         else
+                         {
+                            auto mp1 = multiplateL(pVCon->getLastPoint(),
+                                 std::vector<BOARD_LEVEL_ID>{itConItems->second->getLevel(),conLayer});
+                            mpPushL(mp1,pVCon,(*iter)->getID(),pVCon->pointsNum() - 1);
+                         }
+                      }
+/*
                       auto bMultiPlate = dynamic_cast<MultiplateGraphicalItem*>(iter->second.get()) != 0;
                       if(cnt == 0)
                          layer0 = bMultiPlate ? LEVEL_ALL : iter->second->getLevel();
@@ -1070,8 +1073,9 @@ int PcbAutoConstructor::constructPcbLayoutInternal(BoardLayersWrapper& boardLaye
                          layer0 = iter->second->getLevel();
                       else
                          layer1 = iter->second->getLevel();
-
+*/
                    }
+/*
                    if(layer0 != LEVEL_ALL && layer0 != conLayer)
                    {
                       auto mp1 = multiplateL(pVCon->getFirstPoint(),
@@ -1086,6 +1090,7 @@ int PcbAutoConstructor::constructPcbLayoutInternal(BoardLayersWrapper& boardLaye
                       mpPushL(mp1,pVCon,(*iter)->getID(),pVCon->pointsNum() - 1);
 
                    }
+*/
                    idOfSuccVcCons.insert((*iter)->getID());
                 }
              }

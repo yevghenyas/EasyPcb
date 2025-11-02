@@ -1621,24 +1621,40 @@ void PcBoard::editPropsAction()
       auto item = m_mapOfSelItems.begin();
       SmartPtr<GraphicalItem> p = item->second;
       BOARD_LEVEL_ID iLevel = LEVEL_NONE;
-      GraphicalItemPropsDlg dlg(this,p);
-      if(dlg.exec() == QDialog::Accepted)
+      MultiplateGraphicalItem *pMp;
+      shared_ptr<PointF> pos;
+      shared_ptr<GeomCommonProps> props;
+      if((pMp = dynamic_cast<MultiplateGraphicalItem*>(p.get())) != nullptr)
       {
-         shared_ptr<PointF> pos;
-         shared_ptr<GeomCommonProps> props;
-         ContainerType containerType;
-         ITEMS_ORIENTATION o;
-         if(dlg.getResult(iLevel,pos,props,containerType,o) && pos.get())
-             m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
-         if(p->getLevel() != iLevel)
+         props.reset(makeRoundPlateGeom(static_cast<RoundPlateGraphicalItem*>(pMp->getFirstPlate().get())->d(),
+                            static_cast<RoundPlateGraphicalItem*>(pMp->getFirstPlate().get())->d1()));
+         pos.reset(new PointF(pMp->getFirstPlate()->abs_x(),
+                              pMp->getFirstPlate()->abs_y()));
+         EditMultiPlate dlg(pMp,pos,props);
+         if(dlg.exec() == QDialog::Accepted)
          {
-            //we cannot pass const QString& to moveBetweenLayers
-            QString s = item->first;
-//            moveBetweenLayers(iLevel,s,p);
-            moveItemBetweenLayers(iLevel,s,p,containerType);
+           m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
          }
-         repaint();
       }
+      else
+      {
+         GraphicalItemPropsDlg dlg(this,p);
+         if(dlg.exec() == QDialog::Accepted)
+         {
+            ContainerType containerType;
+            ITEMS_ORIENTATION o;
+            if(dlg.getResult(iLevel,pos,props,containerType,o) && pos.get())
+                m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
+            if(p->getLevel() != iLevel)
+            {
+               //we cannot pass const QString& to moveBetweenLayers
+               QString s = item->first;
+//             moveBetweenLayers(iLevel,s,p);
+               moveItemBetweenLayers(iLevel,s,p,containerType);
+            }
+         }
+      }
+      repaint();
    }
    else if(m_mapOfSelItems.empty())
    {

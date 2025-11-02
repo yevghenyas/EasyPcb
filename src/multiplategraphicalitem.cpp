@@ -11,3 +11,26 @@ MultiplateGraphicalItem::MultiplateGraphicalItem(float x,float y,BOARD_LEVEL_ID 
    if(!dynamic_cast<RoundPlateGraphicalItem*>(getChildren()->at(1).get()))
       throw std::logic_error("Multiplate should have 2 RoundPlates");
 }
+
+bool MultiplateGraphicalItem::isLayerIn(BOARD_LEVEL_ID layer)
+{
+   return layer == getFirstPlate()->getLevel() || layer == getSecondPlate()->getLevel();
+}
+
+void MultiplateGraphicalItem::setX(float x)
+{
+   getFirstPlate()->setX(x);
+   getSecondPlate()->setX(x);
+}
+
+void MultiplateGraphicalItem::setY(float y)
+{
+   getFirstPlate()->setY(y);
+   getSecondPlate()->setY(y);
+}
+
+void MultiplateGraphicalItem::setGeometry(GeomCommonProps &props)
+{
+   getFirstPlate()->setGeometry(props);
+   getSecondPlate()->setGeometry(props);
+}

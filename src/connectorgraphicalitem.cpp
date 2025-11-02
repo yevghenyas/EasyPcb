@@ -471,6 +471,8 @@ void ConnectorGraphicalItem::setGeometry(GeomCommonProps& props)
 
 GraphicalItem* ConnectorGraphicalItem::isConnectable(PointF& ptf,BOARD_LEVEL_ID layerId)
 {
+   //temporaly commented
+/*
    if(m_level == layerId)
    {
       int index = -1;
@@ -488,6 +490,7 @@ GraphicalItem* ConnectorGraphicalItem::isConnectable(PointF& ptf,BOARD_LEVEL_ID 
          return this;
       }
    }
+ */
    return nullptr;
 }
 

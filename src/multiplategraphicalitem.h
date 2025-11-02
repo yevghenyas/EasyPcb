@@ -11,6 +11,11 @@ public:
                             ITEM_ID id);
     SmartPtr<GraphicalItem> getFirstPlate(){return getChildren()->at(0);}
     SmartPtr<GraphicalItem> getSecondPlate(){return getChildren()->at(1);}
+    bool isLayerIn(BOARD_LEVEL_ID layer);
+    virtual void setX(float x) override;
+    virtual void setY(float y) override;
+    virtual void setGeometry(GeomCommonProps& props) override;
+
 };
 
 #endif // MULTIPLATEGRAPHICALITEM_H

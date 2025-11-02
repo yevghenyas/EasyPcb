@@ -97,7 +97,7 @@ int LeeConstrPathStrategy::calculateStepNum(VecIndex ax, VecIndex ay, VecIndex& 
 //               cout<<"grid[indexY][indexX]="<<grid[indexY][indexX]<<endl;
                auto ix = indexX/cellNumber;
                auto iy = indexY/cellNumber;
-               auto copperDens = getDensity(iy,ix);
+               auto copperDens = getDensity(ix,iy);
                auto l_ratio = static_cast<float>(std::hypot(abs(static_cast<int>(bx - indexX)),
                                                             abs(static_cast<int>(by - indexY)))
                                                  )/static_cast<float>(l);
