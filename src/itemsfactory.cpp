@@ -118,7 +118,12 @@ SmartPtr<GraphicalItem>  ItemsFactory::createRoundMultiPlate(float x, float y, f
    return SmartPtr<GraphicalItem>::make_smartptr<MultiplateGraphicalItem>(x,y,levels[0],std::move(items),id);
 }
 
-
+SmartPtr<GraphicalItem> ItemsFactory::createRoundMultiPlate(float x,float y,std::vector<SmartPtr<GraphicalItem> >&& items,
+                                            ITEM_ID id)
+{
+   auto level = items[0]->getLevel();
+   return SmartPtr<GraphicalItem>::make_smartptr<MultiplateGraphicalItem>(x,y,level,std::move(items),id);
+}
 
 SmartPtr<GraphicalItem> ItemsFactory::createConnector(vector< PointF >* points,float w,BOARD_LEVEL_ID level,
                                                       CONNECTOR_TYPE conType,ITEM_ID id,int k_zoom,int zoom_d)

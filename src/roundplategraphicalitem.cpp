@@ -183,15 +183,18 @@ void RoundPlateGraphicalItem::setGeometry(GeomCommonProps& props)
    setd1(props.rpl_g.d_in);
 }
 
-GraphicalItem* RoundPlateGraphicalItem::isConnectable(PointF &pt)
+GraphicalItem* RoundPlateGraphicalItem::isConnectable(PointF &pt,BOARD_LEVEL_ID layerId)
 {
-   if (isPointInF(pt.x(),pt.y(),LEVEL_ALL))
+   if(m_level == layerId)
    {
-      float x1,y1;
-      coordRelativeToAbsolute(x1,y1);
-      pt.setX(x1);
-      pt.setY(y1);
-      return this;
+      if (isPointInF(pt.x(),pt.y(),LEVEL_ALL))
+      {
+         float x1,y1;
+         coordRelativeToAbsolute(x1,y1);
+         pt.setX(x1);
+         pt.setY(y1);
+         return this;
+      }
    }
    return nullptr;
 }

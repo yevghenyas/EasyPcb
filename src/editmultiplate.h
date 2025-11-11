@@ -28,9 +28,17 @@ class EditMultiPlate : public QDialog
     QDoubleSpinBox *doubleSpinBoxY;
     LayersCombo *comboBoxL2;
     float maxX,maxY;
+    bool bLayersEditable{true};
+    shared_ptr<PointF> pPos;
+    shared_ptr<GeomCommonProps> pProps;
+
 public:
     explicit EditMultiPlate(MultiplateGraphicalItem *p,
                             float mX,float my,
+                            QWidget *parent = nullptr);
+    explicit EditMultiPlate(MultiplateGraphicalItem *p,
+                            shared_ptr<PointF>& pos,
+                            shared_ptr<GeomCommonProps>& props,
                             QWidget *parent = nullptr);
     void createContent();
     virtual void accept();

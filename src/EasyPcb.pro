@@ -31,6 +31,7 @@ SOURCES += \
     genpackwizpinsdescpage.cpp \
     genpackwizstartpage.cpp \
     genwizdipgeompage.cpp \
+    leeconstrpathstrategy.cpp \
         main.cpp \
         mainwindow.cpp \
     addneweltolibdlg.cpp \
@@ -96,6 +97,7 @@ HEADERS += \
     genpackwizpinsdescpage.h \
     genpackwizstartpage.h \
     genwizdipgeompage.h \
+    leeconstrpathstrategy.h \
         mainwindow.h \
     addneweltolibdlg.h \
     capgraphicalitem.h \

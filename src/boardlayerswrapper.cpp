@@ -45,7 +45,10 @@ void BoardLayersWrapper::checkIfHoveringAndPaint(QPainter& p,MODE_DRAW mode,Poin
 {
    for(VecLevelsInrementer i = 0; i < boardLayers.size() ; ++i)
    {
-      boardLayers[i].checkPropertiesAndPaint(p,mode,pt,ptr,zoom_plus);
+      if(boardLayers[i].getLevel() == activeLayerId)
+         boardLayers[i].checkPropertiesAndPaint(p,mode,pt,ptr,zoom_plus);
+      else
+         boardLayers[i].paintItems(p,mode,zoom_plus);
    }
 }
 
@@ -112,7 +115,7 @@ bool BoardLayersWrapper::addGraphicalItemToLayers(SmartPtr<GraphicalItem>& p)
          if(layer == BOARD_LEVEL_ID::LEVEL_VC)
          {
             ConnectorGraphicalItem* ptr = dynamic_cast<ConnectorGraphicalItem*>(p.get());
-            if(ptr != nullptr)
+            if(ptr != nullptr && ptr->getConnectedItems() != nullptr)
             {
                for(auto& item:*ptr->getConnectedItems())
                   item.second->connect(ptr->getID());

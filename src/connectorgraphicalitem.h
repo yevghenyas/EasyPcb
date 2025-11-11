@@ -28,6 +28,10 @@ public:
    //this constructor creates only PCB connectors
    ConnectorGraphicalItem(vector<PointF>&& points,float w,BOARD_LEVEL_ID level,
                                                   CONNECTOR_TYPE conType,ITEM_ID id);
+   //this constructor creates only PCB connectors
+   ConnectorGraphicalItem(const vector<PointF>& points,float w,BOARD_LEVEL_ID level,
+                                                  CONNECTOR_TYPE conType,ITEM_ID id);
+
    //basic constructor
    ConnectorGraphicalItem(vector<MouseTrace>& points,float w,BOARD_LEVEL_ID level,
                           CONNECTOR_TYPE type,ITEM_ID id);
@@ -61,7 +65,7 @@ public:
    virtual SmartPtr<GraphicalItem> clone() override;
    virtual void setGeometry(GeomCommonProps& props) override;
    virtual GeomCommonProps getGeometry() override {return GeomCommonProps(m_w,true);}
-   virtual GraphicalItem* isConnectable(PointF& pt) override;
+   virtual GraphicalItem* isConnectable(PointF& pt,BOARD_LEVEL_ID layerId) override;
    //connect connectable item(i.e. creates schematic connection)
    void addConnectedNode(SmartPtr<GraphicalItem>& item);
    void insertConnectedNode(int index,SmartPtr<GraphicalItem>& item);
@@ -82,11 +86,11 @@ public:
    virtual string getGerberString(GerberGenerator& gen,
                                   BOARD_LEVEL_ID idLevel) override;
    PointF getFirstPoint(){return m_points[0];}
-   void setFirstPoint(const PointF& pt){m_points[0] = pt;}
+   void setFirstPoint(const PointF& pt);//{m_points[0] = pt;}
    PointF getLastPoint(){return m_points[m_points.size() - 1];}
-   void setLastPoint(const PointF& pt){m_points[m_points.size() - 1] = pt;}
+   void setLastPoint(const PointF& pt);//{m_points[m_points.size() - 1] = pt;}
    PointF getPointAt(size_t index){return m_points[index];}
-   void setPointAt(const PointF& pt,size_t index){m_points[index] = pt;}
+   void setPointAt(const PointF& pt,size_t index);//{m_points[index] = pt;}
    int pointsNum(){return m_points.size();}
 };
 

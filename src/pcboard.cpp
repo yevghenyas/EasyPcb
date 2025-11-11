@@ -122,6 +122,7 @@ PcBoard::PcBoard(SchemData& data,MyWidget *parent) : QWidget(parent),m_currMode(
     m_ConnectedRuler = SmartPtr<ConnectorWrapper>::make_smartptr<ConnectorWrapper>();
     m_SimpleRuler = SmartPtr<ConnectorWrapper>::make_smartptr<ConnectorWrapper>();
     m_packWrapper = SmartPtr<PackageWrapper>::make_smartptr<PackageWrapper>();
+    boardLayers.setActiveLayerId(m_currentLevel);
 }
 
 PcBoard::~PcBoard()
@@ -173,7 +174,7 @@ void PcBoard::paintEvent( QPaintEvent * e)
 /* temporarily
     if(m_RectAndRndCoord[0].x() != -1 && m_RectAndRndCoord[1].x() != -1)
     {
-        QColor c = m_currMode == MODE_CURSOR ?
+        QColor c = m_currMode == MODhttps://search.opensuse.org/E_CURSOR ?
                    selectColor :
                    LevelsWrapper::getColorForLevel(m_currentLevel);
        m_packWrapper->paintPackage(p,c,m_scaleFactor);
@@ -886,6 +887,7 @@ void PcBoard::keyPressEvent(QKeyEvent *e)
 void PcBoard::setBoardCurrentLevel(BOARD_LEVEL_ID level)
 {
    m_currentLevel = level;
+   boardLayers.setActiveLayerId(level);
 }
 
 void PcBoard::contextMenuEvent(QContextMenuEvent *e)
@@ -1463,7 +1465,8 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
       p = ItemsFactory::createStdSO(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
                                     m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
    }
-   else if(type.startsWith(TYPE_S_0805) ||
+   else if(type.startsWith(TYPE_S_0603) ||
+           type.startsWith(TYPE_S_0805) ||
            type.startsWith(TYPE_S_1206) ||
            type.startsWith(TYPE_S_1210) ||
            type.startsWith(TYPE_S_2510) ||
@@ -1618,24 +1621,40 @@ void PcBoard::editPropsAction()
       auto item = m_mapOfSelItems.begin();
       SmartPtr<GraphicalItem> p = item->second;
       BOARD_LEVEL_ID iLevel = LEVEL_NONE;
-      GraphicalItemPropsDlg dlg(this,p);
-      if(dlg.exec() == QDialog::Accepted)
+      MultiplateGraphicalItem *pMp;
+      shared_ptr<PointF> pos;
+      shared_ptr<GeomCommonProps> props;
+      if((pMp = dynamic_cast<MultiplateGraphicalItem*>(p.get())) != nullptr)
       {
-         shared_ptr<PointF> pos;
-         shared_ptr<GeomCommonProps> props;
-         ContainerType containerType;
-         ITEMS_ORIENTATION o;
-         if(dlg.getResult(iLevel,pos,props,containerType,o) && pos.get())
-             m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
-         if(p->getLevel() != iLevel)
+         props.reset(makeRoundPlateGeom(static_cast<RoundPlateGraphicalItem*>(pMp->getFirstPlate().get())->d(),
+                            static_cast<RoundPlateGraphicalItem*>(pMp->getFirstPlate().get())->d1()));
+         pos.reset(new PointF(pMp->getFirstPlate()->abs_x(),
+                              pMp->getFirstPlate()->abs_y()));
+         EditMultiPlate dlg(pMp,pos,props);
+         if(dlg.exec() == QDialog::Accepted)
          {
-            //we cannot pass const QString& to moveBetweenLayers
-            QString s = item->first;
-//            moveBetweenLayers(iLevel,s,p);
-            moveItemBetweenLayers(iLevel,s,p,containerType);
+           m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
          }
-         repaint();
       }
+      else
+      {
+         GraphicalItemPropsDlg dlg(this,p);
+         if(dlg.exec() == QDialog::Accepted)
+         {
+            ContainerType containerType;
+            ITEMS_ORIENTATION o;
+            if(dlg.getResult(iLevel,pos,props,containerType,o) && pos.get())
+                m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
+            if(p->getLevel() != iLevel)
+            {
+               //we cannot pass const QString& to moveBetweenLayers
+               QString s = item->first;
+//             moveBetweenLayers(iLevel,s,p);
+               moveItemBetweenLayers(iLevel,s,p,containerType);
+            }
+         }
+      }
+      repaint();
    }
    else if(m_mapOfSelItems.empty())
    {
@@ -2001,10 +2020,22 @@ void PcBoard ::constructPcbLayout()
 
       layersSet.insert(conLayersSet.begin(),conLayersSet.end());
 
-      auto id = *conLayersSet.begin();
-      pushIntoMappedVector(levelToSimpleConnectors,
+      if(conLayersSet.size() == 1)
+      {
+         auto id = *conLayersSet.begin();
+         pushIntoMappedVector(levelToSimpleConnectors,
                            id,vcCon.second);
-
+      }
+      else
+      {
+         // needs to be corrected
+         auto iter = conLayersSet.begin();
+         auto id1 = *iter;
+         auto id2 = *(++iter);
+         //
+         pushIntoMappedVector(dualConnectors,id1,vcCon.second);
+         pushIntoMappedVector(dualConnectors,id2,vcCon.second);
+      }
 /*
       auto lAddCon = [&vcCon](ConMap& m,BOARD_LEVEL_ID id)
       {
@@ -2021,7 +2052,9 @@ void PcBoard ::constructPcbLayout()
    }
    //check if essential layers exist
    if(levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_A) == levelToSimpleConnectors.end()
-        && levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_F) == levelToSimpleConnectors.end())
+        && levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_F) == levelToSimpleConnectors.end()
+           && dualConnectors.find(BOARD_LEVEL_ID::LEVEL_A) == levelToSimpleConnectors.end()
+           && dualConnectors.find(BOARD_LEVEL_ID::LEVEL_F) == levelToSimpleConnectors.end())
    {
       QMessageBox msgBox(QMessageBox::Critical,"Error",
                          "Layer A or Layer F should have \n schematic connectors",
@@ -2032,10 +2065,12 @@ void PcBoard ::constructPcbLayout()
 
    //edit properties before construction
    float fConWidth = fSizeOfMatrixCell;
+   int iNumOfIterations = 0;
    vector<BOARD_LEVEL_ID> layerIds;
    AutoConstructProps dlg(std::move(layersSet));
    if(dlg.exec() == QDialog::Accepted)
-      dlg.getResult(fConWidth,layerIds);
+      dlg.getResult(fConWidth,layerIds,
+                    iNumOfIterations);
    else
       return;
 
@@ -2047,23 +2082,44 @@ void PcBoard ::constructPcbLayout()
       }
 
    //construct board
-   PcbAutoConstructor pcbAutoConstrutor(m_myWidget,fConWidth,layerIds);
+   PcbAutoConstructor pcbAutoConstrutor(m_myWidget,fConWidth,
+                                        layerIds,iNumOfIterations - 1);
    //these variables intended to store results
+   //id_vc_connector->list of created physical connectors
    ConstructedLayer bestProc;
+   //plates created to connect connectors in different layers
    map<ITEM_ID,vector<SmartPtr<GraphicalItem>>> multiplates;
+   //set of id_vc_connectors that have completely succesful result
+   //we need these ids to remove these vc_cons from layout
+   set<ITEM_ID> setOfSuccessCons;
+   int numOfConnectors = 0;
+   for(const auto& layer:levelToSimpleConnectors)
+       numOfConnectors += layer.second.size();
+   for(const auto& layer:dualConnectors)
+       numOfConnectors += layer.second.size();
+
    pcbAutoConstrutor.constructPcbLayout(boardLayers,levelToSimpleConnectors,
                                                     dualConnectors,
-                                                    m_schemData.m_width * m_scaleFactor * minGraularity,
-                                                    m_schemData.m_height * m_scaleFactor * minGraularity,
-                                                    bestProc,multiplates);
-
+                                                    m_schemData.m_width * minGraularity,
+                                                    m_schemData.m_height * minGraularity,
+                                                    bestProc,multiplates,
+                                                    setOfSuccessCons);
    if(bestProc.size() > 0)
    {
-      m_myWidget->getUndoStack()->push(new AutoCommandItem(std::move(bestProc), std::move(multiplates),this));
+      m_myWidget->getUndoStack()->push(new AutoCommandItem(std::move(bestProc), std::move(multiplates),
+                                                           std::move(setOfSuccessCons),this));
       repaint();
       m_myWidget->getUndoStack()->clear();
       m_myWidget->saveToFile(fileNewComplete);
    }
+   int numOfRest = boardLayers.getLayer(BOARD_LEVEL_ID::LEVEL_VC)->getConnectItemsInLevel()->size();
+   char msg1[128];
+   sprintf(msg1,"%d of %d connectors were not constructed",numOfRest,numOfConnectors);
+   QMessageBox msgBox1(QMessageBox::Warning,"Warning",
+                      msg1,
+                      QMessageBox::Ok);
+   msgBox1.exec();
+
    return;
 
 }

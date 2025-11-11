@@ -28,6 +28,7 @@
 #include "rectgraphicalitem.h"
 #include "capgraphicalitem.h"
 #include "textgraphicalitem.h"
+#include "multiplategraphicalitem.h"
 #include <QFile>
 #include <iostream>
 
@@ -71,6 +72,7 @@ void FileWriter::writeItems(std::map<QString,SmartPtr<GraphicalItem> >& items)
 
 void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
 {
+   bool bMulti = dynamic_cast<MultiplateGraphicalItem*> (p) != nullptr;
    GenericGraphicalItemsContainer *pC;
    if((pC = dynamic_cast<GenericGraphicalItemsContainer*> (p)))
    {
@@ -81,7 +83,10 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
          return;
       m_xmlWriter.writeStartElement(CONTAINER_DEF);
       m_xmlWriter.writeAttribute(NAME_DEF,name);
-      m_xmlWriter.writeAttribute(TYPE_DEF,GENERIC_TYPE_DEF);
+      if(bMulti)
+         m_xmlWriter.writeAttribute(TYPE_DEF,"multi");
+      else
+         m_xmlWriter.writeAttribute(TYPE_DEF,GENERIC_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pC->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pC->y()));
       m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pC->getLevel()));

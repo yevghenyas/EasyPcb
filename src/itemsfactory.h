@@ -33,6 +33,9 @@ public:
     static SmartPtr<GraphicalItem> createRoundPlate(float x,float y,float d_ex,float d_in,BOARD_LEVEL_ID level,ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createRoundMultiPlate(float x,float y,float d_ex,float d_in,vector<BOARD_LEVEL_ID> levels,
                                                 ITEM_ID id,int k_zoom,int zoom_d);
+    static SmartPtr<GraphicalItem> createRoundMultiPlate(float x,float y,vector<SmartPtr<GraphicalItem> >&& items,
+                                                ITEM_ID id);
+
     static SmartPtr<GraphicalItem> createItem(QXmlStreamAttributes& attributes,QString& name);
     static SmartPtr<GraphicalItem> createConnector(vector<PointF>* points,float w,BOARD_LEVEL_ID level,CONNECTOR_TYPE conType,
                                                    ITEM_ID id,int k_zoom,int zoom_d);

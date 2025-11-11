@@ -102,7 +102,7 @@ bool BoardLayer::checkPropertiesAndPaint(QPainter& p,int mode,PointF& pt,SmartPt
    QColor c1(LevelsWrapper::getColorForSelection());
    QColor c2(LevelsWrapper::getColorForLevel(idLevel));
    QColor c3(Qt::black);
-   auto chkPrp = [](int mode,
+   auto chkPrp = [idLevel = idLevel](int mode,
                     GraphicalItem *item,
                     PointF& pt)
    {
@@ -110,7 +110,7 @@ bool BoardLayer::checkPropertiesAndPaint(QPainter& p,int mode,PointF& pt,SmartPt
       {
         case MODE_VC_CON:
         {
-           if(item->isConnectable(pt))
+           if(item->isConnectable(pt,idLevel))
               return true;
            else
               return false;

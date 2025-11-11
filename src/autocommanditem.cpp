@@ -1,18 +1,18 @@
 #include "autocommanditem.h"
 
-AutoCommandItem::AutoCommandItem(ConstructedLayer&& cMap,MultiMap&& mMap,PcBoard *p)
-                                 :conMap(cMap),multiMap(mMap),m_pBoard(p)
+AutoCommandItem::AutoCommandItem(ConstructedLayer&& cMap,MultiMap&& mMap,
+                                 set<ITEM_ID>&& toDelete,PcBoard *p)
+                                 :conMap(std::move(cMap)),multiMap(std::move(mMap)),
+
+                                  m_pBoard(p)
 {
-   for(auto& vcToPoints:conMap)
-   {
-      if(conMap.count(vcToPoints.first) == 1)
-      {
-         SmartPtr<GraphicalItem> vcCon = m_pBoard->getBoardLayers()->findItem(vcToPoints.first,
-                                                                           BOARD_LEVEL_ID::LEVEL_VC);
-         if(vcCon.get() != nullptr)
-            vcCons.push_back(vcCon);
-      }
-   }
+    for(auto vcConID:toDelete)
+    {
+       auto delItem = m_pBoard->getBoardLayers()->findItem(QString::number(vcConID),LEVEL_VC);
+       if(delItem.get() != nullptr)
+          itemsToDelete.push_back(delItem);
+    }
+
 }
 
 AutoCommandItem::~AutoCommandItem()=default;
@@ -34,7 +34,7 @@ void AutoCommandItem::redo()
       vcToPoints.second->setVisible(true);
       m_pBoard->addGraphicalItemToLevels(vcToPoints.second);
    }
-   for(auto& vcCon:vcCons)
+   for(auto vcCon:itemsToDelete)
       m_pBoard->deleteGraphicalItem(vcCon);
    m_pBoard->repaint();
 }
@@ -48,7 +48,8 @@ void AutoCommandItem::undo()
    }
    for(auto& vcToPoints:conMap)
       m_pBoard->deleteGraphicalItem(vcToPoints.second);
-   for(auto& vcCon:vcCons)
+
+   for(auto vcCon:itemsToDelete)
       m_pBoard->addGraphicalItemToLevels(vcCon);
 
    m_pBoard->repaint();
