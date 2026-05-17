@@ -52,15 +52,31 @@ void PackageGraphicalItem::paintItemIntoBuffer(float difX,float difY,QPainter& p
    DrawWrapper::drawPackageF(p,c,m_type,x1 + difX,
                                         y1 + difY,
                                  m_width,m_height,zoom,zoom_d);
+   if(strlen(name) > 0)
+   {
+      QString str(name);
+      QColor c_text(Qt::GlobalColor::lightGray);
+      DrawWrapper::drawText(p,c_text,str,fontSizes[0],x1,y1,0,0,m_type,zoom,zoom_d);
+   }
+
 }
 
 void PackageGraphicalItem::paintItem(QPainter& p, QColor& c,int zoom,int zoom_d,BOARD_LEVEL_ID idLevel)
 {
    if(idLevel == m_level)
    {
+      paintItemIntoBuffer(0,0,p,c,zoom,zoom_d);
+/*
       float x1,y1;
       coordRelativeToAbsolute(x1,y1);         
       DrawWrapper::drawPackageF(p,c,m_type,x1,y1,m_width,m_height,zoom,zoom_d);
+      if(strlen(name) > 0)
+      {
+         QString str(name);
+         QColor c_text(Qt::GlobalColor::lightGray);
+         DrawWrapper::drawText(p,c_text,str,6,m_x,m_y,0,0,m_type,zoom,zoom_d);
+      }
+*/
    }
 }
 
@@ -140,6 +156,7 @@ SmartPtr<GraphicalItem> PackageGraphicalItem::clone()
    p->setSelected(m_selected);
    p->setParent(m_parent,false);
    p->setType(m_type);
+   p->setName(name);
    return p;   
 }
 

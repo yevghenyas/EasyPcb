@@ -27,30 +27,31 @@ class ItemsFactory
 {
     static bool resolveCoordinates(QXmlStreamAttributes& attributes,float& x,float& y);
     static void resolveZoom(QXmlStreamAttributes& attributes,int& zoom,int& zoom_d);
+    static void resolveIdAndName(QXmlStreamAttributes& attributes,int& zoom,QString& name);
 public:
     ItemsFactory();
-    static SmartPtr<GraphicalItem> createRoundPlate(QXmlStreamAttributes& attributes,QString& name);
-    static SmartPtr<GraphicalItem> createRoundPlate(float x,float y,float d_ex,float d_in,BOARD_LEVEL_ID level,ITEM_ID id,int k_zoom,int zoom_d);
+    static SmartPtr<GraphicalItem> createRoundPlate(QXmlStreamAttributes& attributes);
+    static SmartPtr<GraphicalItem> createRoundPlate(float x,float y,float d_ex,float d_in,BOARD_LEVEL_ID level,ITEM_ID id,int k_zoom,int zoom_d,const char *n = nullptr);
     static SmartPtr<GraphicalItem> createRoundMultiPlate(float x,float y,float d_ex,float d_in,vector<BOARD_LEVEL_ID> levels,
                                                 ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createRoundMultiPlate(float x,float y,vector<SmartPtr<GraphicalItem> >&& items,
                                                 ITEM_ID id);
 
-    static SmartPtr<GraphicalItem> createItem(QXmlStreamAttributes& attributes,QString& name);
+    static SmartPtr<GraphicalItem> createItem(QXmlStreamAttributes& attributes);
     static SmartPtr<GraphicalItem> createConnector(vector<PointF>* points,float w,BOARD_LEVEL_ID level,CONNECTOR_TYPE conType,
                                                    ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createContainer(float x,float y,BOARD_LEVEL_ID level, std::vector<SmartPtr<GraphicalItem> >& items,ITEM_ID id);
     static SmartPtr<GraphicalItem> createPackage(float x,float y,float w,float h,BOARD_LEVEL_ID level,ITEMS_ORIENTATION o,ITEM_ID id,int k_zoom,int zoom_d);
-    static SmartPtr<GraphicalItem> createPackage(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createPackage(QXmlStreamAttributes attributes);
     static SmartPtr<GraphicalItem> createStdDip(QXmlStreamAttributes attributes,QString& name);
     static SmartPtr<GraphicalItem> createStdDip(float x,float y,ITEMS_ORIENTATION type,int n,BOARD_LEVEL_ID level,ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createStdTSOP(float x,float y,ITEMS_ORIENTATION type,int n,BOARD_LEVEL_ID level,ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createStdTSOP(QXmlStreamAttributes attributes,QString& name);
     static SmartPtr<GraphicalItem> createRoundPackage(float x,float y,float d,float d1,BOARD_LEVEL_ID level,ITEMS_ORIENTATION o,ITEM_ID id,int k_zoom,int zoom_d);
-    static SmartPtr<GraphicalItem> createRoundPackage(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createRoundPackage(QXmlStreamAttributes attributes);
     static SmartPtr<GraphicalItem> createRectPackage(float x,float y,float w,float h,BOARD_LEVEL_ID level,
                                                      ITEMS_ORIENTATION o,ITEM_ID id,int k_zoom,int zoom_d,bool filled = false);
-    static SmartPtr<GraphicalItem> createRectPackage(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createRectPackage(QXmlStreamAttributes attributes);
     static SmartPtr<GraphicalItem> createElCapacitor(float x, float y, ITEMS_ORIENTATION type, float d, BOARD_LEVEL_ID level,ITEM_ID id,
                                             int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createElCapacitor(QXmlStreamAttributes attributes, QString& name);
@@ -59,18 +60,18 @@ public:
     static SmartPtr<GraphicalItem> createSmdType(float x, float y, ITEMS_ORIENTATION type,SMD_PACKAGE_TYPE pack_type, BOARD_LEVEL_ID level,
                                         ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createSmdType(QXmlStreamAttributes attributes,QString& name);
-    static SmartPtr<GraphicalItem> createCapSchematic(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createCapSchematic(QXmlStreamAttributes attributes);
     static SmartPtr<GraphicalItem> createCapSchematic(float x, float y, ITEMS_ORIENTATION type, float f, BOARD_LEVEL_ID level,
                                              ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createCap(float x, float y, ITEMS_ORIENTATION type, float f, BOARD_LEVEL_ID level,ITEM_ID id, int k_zoom,int zoom_d);
-    static SmartPtr<GraphicalItem> createCap(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createCap(QXmlStreamAttributes attributes);
     static SmartPtr<GraphicalItem> createStdSO(float x,float y,ITEMS_ORIENTATION type,int n,BOARD_LEVEL_ID level,ITEM_ID id,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createStdSO(QXmlStreamAttributes attributes,QString& name);
     static SmartPtr<GraphicalItem> createRect(float x, float y, float w, float h, BOARD_LEVEL_ID level,ITEMS_ORIENTATION o,ITEM_ID id,int k_zoom,int zoom_d);
-    static SmartPtr<GraphicalItem> createRect(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createRect(QXmlStreamAttributes attributes);
     static SmartPtr<GraphicalItem> duplicateItem(GraphicalItem *p,float x,float y,bool bIgnoreCoord);
     static SmartPtr<GraphicalItem> createText(float x, float y, QString& text, int fntSize,ITEMS_ORIENTATION o, BOARD_LEVEL_ID level, ITEM_ID id,int k_zoom,int zoom_d);
-    static SmartPtr<GraphicalItem> createText(QXmlStreamAttributes attributes,QString& name);
+    static SmartPtr<GraphicalItem> createText(QXmlStreamAttributes attributes);
     static SmartPtr<GraphicalItem> createQfp(float x, float y,int n,BOARD_LEVEL_ID level,int k_zoom,int zoom_d);
     static SmartPtr<GraphicalItem> createQfp(QXmlStreamAttributes attributes,QString& name);
     static SmartPtr<GraphicalItem> createGenericChip(bool dip,          //is the dip type?
@@ -85,6 +86,8 @@ public:
                                                      ITEMS_ORIENTATION o, //orientation
                                                      array<int,4>& n //pins number for each side
                                                      );
+    static bool isPackageGraphicalItem(SmartPtr<GraphicalItem>& p);
+    static void setItemName(SmartPtr<GraphicalItem>& p,const char *pName);
     ~ItemsFactory();
 };
 

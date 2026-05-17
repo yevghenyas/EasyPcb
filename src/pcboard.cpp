@@ -60,7 +60,9 @@
 #include "editexporttogerberprops.h"
 #include "excellongenerator.h"
 #include <QDateTime>
-
+#include <QInputDialog>
+#include "resultsautodlg.h"
+#include "myinputdialog.h"
 using namespace std;
 
 
@@ -174,7 +176,7 @@ void PcBoard::paintEvent( QPaintEvent * e)
 /* temporarily
     if(m_RectAndRndCoord[0].x() != -1 && m_RectAndRndCoord[1].x() != -1)
     {
-        QColor c = m_currMode == MODhttps://search.opensuse.org/E_CURSOR ?
+        QColor c = m_currMode == MODE_CURSOR ?
                    selectColor :
                    LevelsWrapper::getColorForLevel(m_currentLevel);
        m_packWrapper->paintPackage(p,c,m_scaleFactor);
@@ -457,16 +459,36 @@ void PcBoard::handleConnectorCreation(QMouseEvent* ,bool bMsLeftButton)
       SmartPtr<GraphicalItem> p = m_tempConnector->commit();
       if(p.get() != nullptr)
       {
-//         if(type == CONNECTOR_TYPE::BOARD)
-            addItemToSchematic(p);
-//         else
-//            addGraphicalItemToLevels(p);
+         auto pCon = static_cast<ConnectorGraphicalItem*>(p.get());
+         auto pConsMap = pCon->getConnectedItems();
+         QString n;
+         if(pConsMap != nullptr)
+         {
+            for(auto& item:*pConsMap)
+            {
+               n.append(item.second->getName());
+            }
+         }
+         auto text = MyInputDialog::getText(this,tr("Item name"),tr("Name"));
+
+
+         if(text != nullptr && !text.isEmpty())
+            p->setName(text.toStdString().c_str());
+
+
+         if(p.get() != nullptr)
+         {
+//          if(type == CONNECTOR_TYPE::BOARD)
+               addItemToSchematic(p);
+//          else
+//             addGraphicalItemToLevels(p);
+         }
       }
-      //reset properties after commit
+         //reset properties after commit
       if(m_currMode == MODE_DRAW::MODE_LINE || m_currMode == MODE_DRAW::MODE_VC_CON)
           m_tempConnector->setProperties(type,m_wLine,
-                                         m_currMode == MODE_DRAW::MODE_VC_CON ?
-                                             BOARD_LEVEL_ID::LEVEL_VC : m_currentLevel);
+                                      m_currMode == MODE_DRAW::MODE_VC_CON ?
+                                          BOARD_LEVEL_ID::LEVEL_VC : m_currentLevel);
    }
 }
 
@@ -483,7 +505,11 @@ void PcBoard::mouseReleaseEvent(QMouseEvent *e )
    }   
    else if(m_currMode == MODE_PACK_RECT || m_currMode == MODE_PACK_ROUND)
    {
+      auto text = MyInputDialog::getText(this,tr("Item name"),tr("Name"));
+
       SmartPtr<GraphicalItem> p = m_packWrapper->commit(m_currentLevel,filledPack);
+      if(text != nullptr && !text.isEmpty())
+          p->setName(text.toStdString().c_str());
       /*temporarily
       float x =  static_cast<float>((m_RectAndRndCoord[0].x() +  m_RectAndRndCoord[1].x()))/2/m_scaleFactor/PIXELS_PER_MM;
       float y =  static_cast<float>((m_RectAndRndCoord[0].y() +  m_RectAndRndCoord[1].y()))/2/m_scaleFactor/PIXELS_PER_MM;
@@ -701,16 +727,24 @@ void PcBoard::zoomItems(int )
 
 void PcBoard::processSimpleGraphicalItems(QMouseEvent* e)
 {
+
    if(e->button() == Qt::LeftButton)
    {
       switch(m_currMode)
       {
          case MODE_PLATE:
-            processPlate(e->x(),e->y());
+         {
+            auto text = MyInputDialog::getText(this,tr("Item name"),tr("Name"));
+
+            processPlate(e->x(),e->y(),text == nullptr ? nullptr : &text);
             break;
+         }
          case MODE_PLATE_RECT:
-            processPlateRect(e->x(),e->y());
+         {
+            auto text = MyInputDialog::getText(this,tr("Item name"),tr("Name"));
+            processPlateRect(e->x(),e->y(),text);
             break;
+         }
          case MODE_MULTIPLATE:
             processMultiPlate(e->x(),e->y());
             break;
@@ -744,7 +778,7 @@ void PcBoard::preProcessPlate(float dOut, float dInt)
    m_currMode = MODE_PLATE;
 }
 
-void PcBoard::processPlate(int x,int y){
+void PcBoard::processPlate(int x,int y,const QString *name){
    auto i1 = m_mapOfDragData.find(D_EX_DEF);
    auto i2 = m_mapOfDragData.find(D_IN_DEF);
    if(i1 != m_mapOfDragData.end() && i2 != m_mapOfDragData.end())
@@ -758,7 +792,8 @@ void PcBoard::processPlate(int x,int y){
                                                      static_cast<float>(y)/m_scaleFactor/PIXELS_PER_MM,
                                                      w1,w2,
                                                      m_currentLevel,ID_NONE,m_scaleFactor,
-                                                        iNoZoom);
+                                                        iNoZoom,
+                                                    name == nullptr ? nullptr : name->toStdString().c_str());
 //      addGraphicalItemToLevel(m_currentLevel,p);
       addItemToSchematic(p);
       repaint();
@@ -775,6 +810,8 @@ void PcBoard::processMultiPlate(int x, int y)
       float w2 = i2->second;
       vector<BOARD_LEVEL_ID> levels;
       levels.push_back(m_currentLevel);
+      char name[itemNameSize];
+      name[0] = 0;
       if(m_currentLevel == LEVEL_A)
          levels.push_back(LEVEL_F);
       else if(m_currentLevel == LEVEL_F)
@@ -789,9 +826,11 @@ void PcBoard::processMultiPlate(int x, int y)
                                                      iNoZoom);
       EditMultiPlate dlg(static_cast<MultiplateGraphicalItem*>(p.get()),
                          m_schemData.m_width/PIXELS_PER_MM,
-                         m_schemData.m_height/PIXELS_PER_MM);
-      if(dlg.exec() == QDialog::Accepted)
+                         m_schemData.m_height/PIXELS_PER_MM,name);
+      auto res = dlg.exec();
+      if(res == QDialog::Accepted)
       {
+         p->setName(name);
          addItemToSchematic(p);
          repaint();
       }
@@ -1447,6 +1486,8 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
                                  const QString& name,int n,SmartPtr<GraphicalItem>& pItem)
 {
 //   char buf[64];
+
+   bool bCanBeGivenName = false;
    SmartPtr<GraphicalItem> p;
    BOARD_LEVEL_ID descLevel = LEVEL_NONE;
 //   cout<<type.toStdString()<<" OK"<<endl;
@@ -1457,6 +1498,7 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
       int n = type.mid(3).toInt();
       p = ItemsFactory::createStdDip(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
                                      m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+      bCanBeGivenName = true;
    }
    else if(type.startsWith(TYPE_S_CHIP_SO))
    {
@@ -1464,6 +1506,7 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
       int n = type.mid(2).toInt();
       p = ItemsFactory::createStdSO(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
                                     m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+      bCanBeGivenName = true;
    }
    else if(type.startsWith(TYPE_S_0603) ||
            type.startsWith(TYPE_S_0805) ||
@@ -1475,12 +1518,14 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
       descLevel = LevelsWrapper::geLevelForSO(m_currentLevel);
       p = ItemsFactory::createSmdType(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
                                       getSmdPackForStr(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+      bCanBeGivenName = true;
    }
    else if(type.startsWith(TYPE_S_R_DIP))
    {
       descLevel = LevelsWrapper::geLevelForDip(m_currentLevel);
       p = ItemsFactory::createResistor(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
                                       getLResistorFromStrType(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+      bCanBeGivenName = true;
    }
    else if(type.startsWith(TYPE_S_CHIP_MSOP) ||
            type.startsWith(TYPE_S_CHIP_TSOP))
@@ -1489,18 +1534,21 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
        int n = type.mid(strlen(TYPE_S_CHIP_TSOP)).toInt();
        p = ItemsFactory::createStdTSOP(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_VERTICAL_TOP,n,
                                        m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+      bCanBeGivenName = true;
    }
    else if(type.startsWith(TYPE_S_EL_C))
    {
       descLevel = LevelsWrapper::geLevelForDip(m_currentLevel);
       p = ItemsFactory::createElCapacitor(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
                                       getLForELCapFromStrType(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+      bCanBeGivenName = true;
    }
    else if(type.startsWith(TYPE_S_C))
    {
       descLevel = LevelsWrapper::geLevelForDip(m_currentLevel);
       p = ItemsFactory::createCap(pos.x()/m_scaleFactor,pos.y()/m_scaleFactor,ITEMS_ORIENTATION::O_HORIZONTAL_LEFT,
                                       getLForCapFromStrType(type),m_currentLevel,ID_NONE,m_scaleFactor,iNoZoom);
+      bCanBeGivenName = true;
    }
    else if(type.startsWith(GENERIC_TYPE_DEF) && pItem.get())
    {
@@ -1511,6 +1559,25 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
    }
    if(p.get())
    {
+       if(bCanBeGivenName)
+       {
+          auto text = MyInputDialog::getText(this,tr("Item name"),tr("Name"));
+
+          if(text != nullptr && !text.isEmpty())
+          {
+             GenericGraphicalItemsContainer *pCont = static_cast<GenericGraphicalItemsContainer*>(p.get());
+             auto pChildren = pCont->getChildren();
+             for(auto& child:*pChildren)
+             {
+                if(ItemsFactory::isPackageGraphicalItem(child))
+                {
+                   child->setName(text.toStdString().c_str());
+                   break;
+                }
+             }
+          }
+       }
+
 /*
       QString name;
       addGraphicalItemToLevels(name,p);
@@ -1518,6 +1585,7 @@ void PcBoard::processContainer(const QPoint& position,const QString& type,
       addItemToSchematic(p);
       repaint();
    }
+
 
 }
 
@@ -1556,7 +1624,7 @@ void PcBoard::print()
    m_currMode = MODE_CURSOR;
 }
 
-void PcBoard::processPlateRect(int x,int y)
+void PcBoard::processPlateRect(int x,int y,const QString& name)
 {
    auto i1 = m_mapOfDragData.find(WIDTH_DEF);
    auto i2 = m_mapOfDragData.find(HEIGHT_DEF);
@@ -1573,6 +1641,7 @@ void PcBoard::processPlateRect(int x,int y)
 /*
       addGraphicalItemToLevel(m_currentLevel,p);
 */
+
       addItemToSchematic(p);
       repaint();
    }
@@ -1624,27 +1693,30 @@ void PcBoard::editPropsAction()
       MultiplateGraphicalItem *pMp;
       shared_ptr<PointF> pos;
       shared_ptr<GeomCommonProps> props;
+      char name[itemNameSize];
+      name[0] = 0;
       if((pMp = dynamic_cast<MultiplateGraphicalItem*>(p.get())) != nullptr)
       {
+
          props.reset(makeRoundPlateGeom(static_cast<RoundPlateGraphicalItem*>(pMp->getFirstPlate().get())->d(),
                             static_cast<RoundPlateGraphicalItem*>(pMp->getFirstPlate().get())->d1()));
          pos.reset(new PointF(pMp->getFirstPlate()->abs_x(),
                               pMp->getFirstPlate()->abs_y()));
-         EditMultiPlate dlg(pMp,pos,props);
+         EditMultiPlate dlg(pMp,pos,props,name);
          if(dlg.exec() == QDialog::Accepted)
          {
-           m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
+           m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this,name));
          }
       }
       else
       {
-         GraphicalItemPropsDlg dlg(this,p);
+         GraphicalItemPropsDlg dlg(this,p,name);
          if(dlg.exec() == QDialog::Accepted)
          {
             ContainerType containerType;
             ITEMS_ORIENTATION o;
             if(dlg.getResult(iLevel,pos,props,containerType,o) && pos.get())
-                m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this));
+                m_myWidget->getUndoStack()->push(new SetPropsCommand(p,pos,props,this,name));
             if(p->getLevel() != iLevel)
             {
                //we cannot pass const QString& to moveBetweenLayers
@@ -2012,7 +2084,7 @@ void PcBoard ::constructPcbLayout()
    //check all layers used in this pcb and put them into map
    for(auto& vcCon:*vcCons)
    {
-
+      cout<<"VC con name="<<vcCon.second->getName()<<endl;
       auto conItems = static_cast<ConnectorGraphicalItem*>(vcCon.second.get())->getConnectedItems();
       set<BOARD_LEVEL_ID> conLayersSet;
       for(auto& conItem:*conItems)
@@ -2049,6 +2121,10 @@ void PcBoard ::constructPcbLayout()
 
       lAddCon(levelToSimpleConnectors,*conLayersSet.begin());
 */
+   }
+   for(auto& vcCon:*vcCons)
+   {
+      cout<<"P2 VC con name="<<vcCon.second->getName()<<endl;
    }
    //check if essential layers exist
    if(levelToSimpleConnectors.find(BOARD_LEVEL_ID::LEVEL_A) == levelToSimpleConnectors.end()
@@ -2098,6 +2174,14 @@ void PcBoard ::constructPcbLayout()
    for(const auto& layer:dualConnectors)
        numOfConnectors += layer.second.size();
 
+   for(auto level:levelToSimpleConnectors)
+   {
+      for(auto& item:levelToSimpleConnectors.find(level.first)->second)
+      {
+         cout<<"Vc conitem name="<<item->getName()<<endl;
+      }
+   }
+
    pcbAutoConstrutor.constructPcbLayout(boardLayers,levelToSimpleConnectors,
                                                     dualConnectors,
                                                     m_schemData.m_width * minGraularity,
@@ -2106,11 +2190,16 @@ void PcBoard ::constructPcbLayout()
                                                     setOfSuccessCons);
    if(bestProc.size() > 0)
    {
+
+      ResultsAutoDlg dlgRes(this,bestProc,vcCons);
+
       m_myWidget->getUndoStack()->push(new AutoCommandItem(std::move(bestProc), std::move(multiplates),
                                                            std::move(setOfSuccessCons),this));
       repaint();
       m_myWidget->getUndoStack()->clear();
       m_myWidget->saveToFile(fileNewComplete);
+      dlgRes.exec();
+
    }
    int numOfRest = boardLayers.getLayer(BOARD_LEVEL_ID::LEVEL_VC)->getConnectItemsInLevel()->size();
    char msg1[128];

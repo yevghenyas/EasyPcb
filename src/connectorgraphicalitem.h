@@ -73,7 +73,7 @@ public:
    virtual void disconnect(ITEM_ID connectorID) override;
    void getConnectors(set<ITEM_ID>& connectors) override;
    int getConnectorsNumber() override {return 0;}
-   map<int,SmartPtr<GraphicalItem>>* getConnectedItems(){return m_vcCons == nullptr ? nullptr : m_vcCons.get();}
+   map<int,SmartPtr<GraphicalItem>>* getConnectedItems(){m_vcCons.get();}
    virtual ITEM_ID isRectOccupied(PointF& ,PointF& ) override;
    LINE_STYLE getStyle(){return m_style;}
    bool isAboveTheCenter(PointF&) override {return false;}

@@ -23,7 +23,7 @@ GraphicalItem::GraphicalItem(BOARD_LEVEL_ID level,float x,float y,ITEM_ID id):
 m_id(id),m_parent(nullptr),m_bVisible(false),m_level(level),m_selected(false),m_x(x),m_y(y)
                                               //static_cast<ITEM_ID>(-1))
 {
-
+   name[0] = 0;
 }
 void GraphicalItem::moveDown(BOARD_LEVEL_ID )
 {
@@ -192,4 +192,11 @@ void GraphicalItem::setDragCoord(PointF& pt)
       m_dragCoord->setX(pt.x());
       m_dragCoord->setY(pt.y());
    }
+}
+
+void GraphicalItem::setName(const char* n)
+{
+   strncpy(name,n,sizeof (name) - 1);
+   if(strlen(n) > sizeof (name) - 1)
+      name[sizeof (name) - 1] = 0;
 }

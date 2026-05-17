@@ -15,7 +15,8 @@ public:
     virtual void setX(float x) override;
     virtual void setY(float y) override;
     virtual void setGeometry(GeomCommonProps& props) override;
-
+    virtual void setName(const char *pName) override;
+    virtual const char* getName() override;
 };
 
 #endif // MULTIPLATEGRAPHICALITEM_H

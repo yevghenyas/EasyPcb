@@ -35,6 +35,7 @@ class GraphicalItem : public QObject
     Q_OBJECT
 protected:
     ITEM_ID m_id;
+    char name[itemNameSize];
     //the item may be a child of an other item
     // for example a plate may be a child of chip
     //in this case the item has a parent;
@@ -45,8 +46,8 @@ protected:
     bool m_selected;
     ITEMS_ORIENTATION m_type;
     float m_x,m_y; //coordinates of this item
-    unique_ptr<PointF> m_dragCoord;
     // when == 0, it may be deleted
+    unique_ptr<PointF> m_dragCoord;
 public:
     GraphicalItem(BOARD_LEVEL_ID level,float x,float y,ITEM_ID id=-1);
     virtual ~GraphicalItem(){}
@@ -99,6 +100,8 @@ public:
     virtual GeomCommonProps getGeometry() = 0;
     virtual void setID(ITEM_ID id){m_id = id;}
     ITEM_ID getID(){return m_id;}
+    virtual const char* getName(){return name;}
+    virtual void setName(const char *n);
     virtual void connect(ITEM_ID connectorID) = 0;
     virtual void disconnect(ITEM_ID id) = 0;
     //returns connected items

@@ -25,6 +25,7 @@ public:
     void setPt2(const QPoint& pt,int zoom);
     bool getArea(QRect& rect,int zoom);
     void clear() noexcept;
+    static bool isPackageItem(SmartPtr<GraphicalItem>& ptr);
 };
 
 #endif // PACKAGEWRAPPER_H

@@ -55,12 +55,20 @@ void RoundPackageGraphicalItem::paintItemIntoBuffer(float difX,float difY,QPaint
   else
      DrawWrapper::drawRoundPackageF(p,c,x1 + difX/zoom * zoom_d,
                                  y1 + difY,m_D/2,m_d/2,zoom,zoom_d);
+  if(strlen(name) > 0)
+  {
+     QString str(name);
+     QColor c_text(Qt::GlobalColor::lightGray);
+     DrawWrapper::drawText(p,c_text,str,fontSizes[0],x1,y1 ,0,0,m_type,zoom,zoom_d);
+  }
+
 }
 
 void RoundPackageGraphicalItem::paintItem(QPainter& p, QColor& c,int zoom,int zoom_d,BOARD_LEVEL_ID idLevel)
 {
   if(m_level == idLevel)  
      paintItemIntoBuffer(0,0,p,c,zoom,zoom_d); //in this case the buffer will be screen
+
 }
 
 bool RoundPackageGraphicalItem::isPointIn(int x, int y, BOARD_LEVEL_ID )

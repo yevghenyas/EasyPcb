@@ -70,6 +70,13 @@ void RectPackageGraphicalItem::paintItem(QPainter& p, QColor& c,int zoom,int zoo
          DrawWrapper::drawFilledRectPackageF(p,c,m_type,x1,y1,m_width,m_height,zoom,zoom_d);
       else
          DrawWrapper::drawRectPackageF(p,c,m_type,x1,y1,m_width,m_height,zoom,zoom_d);
+      if(strlen(name) > 0)
+      {
+         QString str(name);
+         QColor c_text(Qt::GlobalColor::lightGray);
+         DrawWrapper::drawText(p,c_text,str,fontSizes[0],x1,y1,0,0,m_type,zoom,zoom_d);
+      }
+
    }
 }
 

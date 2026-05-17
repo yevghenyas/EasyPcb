@@ -34,9 +34,10 @@
 #include <QRadioButton>
 #include "graphicalitem.h"
 #include "layerscombo.h"
+#include <QLineEdit>
 #include <QPlainTextEdit>
 
-enum class ContainerType {NonContainer,NonRelocatableCont,Multiplate,RelocatableDipType,RelocatableSoType};
+enum class ContainerType {NonContainer,NonRelocatableCont,Multiplate,RelocatableDipType,RelocatableSoType,NameEditableType,VcConnectorType};
 
 class GraphicalItemPropsDlg : public QDialog
 {
@@ -44,6 +45,8 @@ class GraphicalItemPropsDlg : public QDialog
     QDialogButtonBox *buttonBox;
     QWidget *gridLayoutWidget;
     QGridLayout *gridLayout;
+    //item name
+    QLineEdit *m_itemName{nullptr};
     // item position
     QDoubleSpinBox *posXSpinBox{nullptr};
     QDoubleSpinBox *posYSpinBox{nullptr};
@@ -79,6 +82,8 @@ class GraphicalItemPropsDlg : public QDialog
     QDoubleSpinBox *geomSpAngSpin;
     //Chord or arc
     QCheckBox *chkChord;
+    //name of item
+    char *pName;
     //returns one of the ContainerType values
     ContainerType checkContainerType(GraphicalItem *p,set<BOARD_LEVEL_ID>& levelIds);
     void setFieldsForRects(float width,float height,int& rowCounter);
@@ -103,9 +108,8 @@ class GraphicalItemPropsDlg : public QDialog
     void createOrientationCombo(int rowCounter,ITEMS_ORIENTATION initOrient);
 
     //creates label -> spinBox
-    void createOneRow(const char *szLabelName,
-                                 const char *szSpinName,
-                                 QDoubleSpinBox **spinBox,
+    QWidget* createOneRow(const char *szLabelName,
+                                 const char *szWidgetName,
                                  double value,
                                  int row,
                                  int minValue = 0,
@@ -114,7 +118,7 @@ class GraphicalItemPropsDlg : public QDialog
     void drawLineForRadio(QPixmap *buf,LINE_STYLE st);
 
 public:   
-    GraphicalItemPropsDlg(QWidget *parent,SmartPtr<GraphicalItem>& item);
+    GraphicalItemPropsDlg(QWidget *parent,SmartPtr<GraphicalItem>& item,char *pN);
     virtual ~GraphicalItemPropsDlg() override;
     //returns result of dialog
     //true - item geometry was updated

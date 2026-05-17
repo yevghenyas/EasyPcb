@@ -31,7 +31,7 @@ void FileReader::setDevice(QIODevice *pDevice)
    m_reader.setDevice(pDevice);
 }
 
-SchemData FileReader::parseItems(vector< SmartPtr<GraphicalItem> >& items, vector< QString >& names)
+SchemData FileReader::parseItems(vector< SmartPtr<GraphicalItem> >& items, vector< QString >& ids)
 {
    SchemData data;
    //set default board width and height
@@ -60,16 +60,16 @@ SchemData FileReader::parseItems(vector< SmartPtr<GraphicalItem> >& items, vecto
                }
                continue;
             }
-            QString name;
+            QString id;
             QString type;
 //            GraphicalItem* p = readElement(attributes,name,type);
             ElementInfo info;
             QString elemName;
-            auto p = parseOneElem(name,type,elemName,info,token,false,&idToPtrMap);
+            auto p = parseOneElem(id,type,elemName,info,token,false,&idToPtrMap);
             if(p.get())
             {
                items.push_back(p);
-               names.push_back(name);
+               ids.push_back(id);
                GenericGraphicalItemsContainer *pCon = nullptr;
                if((pCon = dynamic_cast<GenericGraphicalItemsContainer*>(p.get())) != nullptr)
                {
@@ -106,7 +106,7 @@ void FileReader::findConnectedItem(map<ITEM_ID,SmartPtr<GraphicalItem>>* idToPtr
 //The name of the item in the file of schematics is always digital(which is id of the item in the chematic)
 //Before creating the item we need to check if the name can be converted into digital.
 //This is needed when creating container
-SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
+SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& id,QString& type,
                                                  QString& xmlElemName,ElementInfo& info,
                                         QXmlStreamReader::TokenType& t,bool stdLib,map<ITEM_ID,SmartPtr<GraphicalItem>> *idToPtr)
 {
@@ -124,11 +124,11 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
    SmartPtr<GraphicalItem> p;
    PointF pt;
    QXmlStreamAttributes attributes = m_reader.attributes();
-   if(!attributes.hasAttribute(NAME_DEF) ||
+   if((!attributes.hasAttribute(NAME_DEF) && !attributes.hasAttribute(ID_DEF)) ||
       !attributes.hasAttribute(TYPE_DEF) ||
       !attributes.hasAttribute(LEVEL_DEF))
       return p;
-   name = attributes.value(NAME_DEF).toString();
+   id = attributes.hasAttribute(ID_DEF) ? attributes.value(ID_DEF).toString() : attributes.value(NAME_DEF).toString();
    type = attributes.value(TYPE_DEF).toString();
    BOARD_LEVEL_ID level = static_cast<BOARD_LEVEL_ID>(attributes.value(LEVEL_DEF).toString().toInt());
    xmlElemName = m_reader.name().toString();
@@ -136,6 +136,8 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
    CONNECTOR_TYPE conType = CONNECTOR_TYPE::BOARD;
    cout <<"xmlElemName:"<<xmlElemName.toStdString()<<endl;
    bool bMulti = false;
+   if(attributes.hasAttribute(NAME_DEF))
+      itemName = attributes.value(NAME_DEF).toString();
    while(true)
    {
       if(token == QXmlStreamReader::StartElement )
@@ -144,52 +146,53 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          cout <<"Start element:"<<str.toStdString()<<endl;         
          if(str.compare(PLATE_RND_DEF) == 0)
          {
-            p = ItemsFactory::createRoundPlate(attributes,itemName);
+            p = ItemsFactory::createRoundPlate(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;
          }
          else if(str.compare(PLATE_RECT_DEF) == 0)
          {
-            p = ItemsFactory::createRect(attributes,itemName);
+            p = ItemsFactory::createRect(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;            
          }
          else if(str.compare(PLATE_CNT) == 0)
          {
-            if(!attributes.hasAttribute(NAME_DEF))
+            if(!attributes.hasAttribute(NAME_DEF) && !attributes.hasAttribute(ID_DEF))
             {
                p.reset(nullptr);
                return p;
             }
-            conn_id = attributes.value(NAME_DEF).toInt();
+            conn_id = attributes.hasAttribute(ID_DEF) ? attributes.value(ID_DEF).toInt() :
+                                                         attributes.value(NAME_DEF).toInt();
             conn_ind = attributes.value("Ind").toInt();
          }
          else if(str.compare(PACKAGE_DEF) == 0)
          {            
-            p = ItemsFactory::createPackage(attributes,itemName);
+            p = ItemsFactory::createPackage(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;
          }
          else if(str.compare(PACKAGE_RECT_DEF) == 0)
          {
-            p = ItemsFactory::createRectPackage(attributes,itemName);
+            p = ItemsFactory::createRectPackage(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;            
          }
          else if(str.compare(PACKAGE_RND_DEF) == 0)
          {
-            p = ItemsFactory::createRoundPackage(attributes,itemName);
+            p = ItemsFactory::createRoundPackage(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;            
          }
          else if(str.compare(TEXT_DEF) == 0)
          {
-            p = ItemsFactory::createText(attributes,itemName);
+            p = ItemsFactory::createText(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;
@@ -197,7 +200,7 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
 
          else if(str.compare(CAPACITOR_DEF) == 0)
          {
-            p = ItemsFactory::createCap(attributes,itemName);
+            p = ItemsFactory::createCap(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;
@@ -205,7 +208,7 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          }
          else if(str.compare(CAP_SCEMATIC_DEF) == 0)
          {
-            p = ItemsFactory::createCapSchematic(attributes,itemName);
+            p = ItemsFactory::createCapSchematic(attributes);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;
@@ -213,6 +216,7 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          }
          else if(str.compare(RESISTOR_DEF) == 0)
          {
+            QString itemName;
             p = ItemsFactory::createResistor(attributes,itemName);
             info.setGraphicalItem(p);
             if(!p.get())
@@ -221,14 +225,14 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          }
          else if(str.compare(EL_CAPACITOR_DEF) == 0)
          {
-            p = ItemsFactory::createElCapacitor(attributes,name);
+            p = ItemsFactory::createElCapacitor(attributes,id);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;            
          }
          else if(str.compare(SMD_PASSIVE_DEF) == 0)
          {
-            p = ItemsFactory::createSmdType(attributes,name);
+            p = ItemsFactory::createSmdType(attributes,id);
             info.setGraphicalItem(p);
             if(!p.get())
                return p;            
@@ -237,18 +241,18 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          {
             info.setGraphicalItem(p);
             if(stdLib)
-               p = ItemsFactory::createStdDip(attributes,name);//iPreviewSizeX/2,iPreviewSizeY/2);
+               p = ItemsFactory::createStdDip(attributes,id);//iPreviewSizeX/2,iPreviewSizeY/2);
             else
-               p = ItemsFactory::createStdDip(attributes,name);
+               p = ItemsFactory::createStdDip(attributes,id);
             
             info.setGraphicalItem(p);
          }
          else if(str.compare(SO_CHIP_DEF) == 0)
          {
             if(stdLib)          
-               p = ItemsFactory::createStdSO(attributes,name);//iPreviewSizeX/2,iPreviewSizeY/2);
+               p = ItemsFactory::createStdSO(attributes,id);//iPreviewSizeX/2,iPreviewSizeY/2);
             else
-               p = ItemsFactory::createStdSO(attributes,name);
+               p = ItemsFactory::createStdSO(attributes,id);
             
             info.setGraphicalItem(p);
          }         
@@ -256,9 +260,9 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
                  str.compare(TSSOP_CHIP_DEF) == 0)
          {
             if(stdLib)
-               p = ItemsFactory::createStdTSOP(attributes,name);//iPreviewSizeX/2,iPreviewSizeY/2);
+               p = ItemsFactory::createStdTSOP(attributes,id);//iPreviewSizeX/2,iPreviewSizeY/2);
             else
-               p = ItemsFactory::createStdTSOP(attributes,name);
+               p = ItemsFactory::createStdTSOP(attributes,id);
 
             info.setGraphicalItem(p);
          }
@@ -303,6 +307,8 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
                p.reset(nullptr);
                return p;
             }
+            if(attributes.hasAttribute(ID_DEF) && attributes.hasAttribute(NAME_DEF))
+               itemName = attributes.value(NAME_DEF).toString();
             conn_w = attributes.value(WIDTH_DEF).toString().toFloat();
             if(attributes.hasAttribute(STYLE_DEF))
                 conn_st = static_cast<LINE_STYLE>(attributes.value(STYLE_DEF).toInt());
@@ -317,13 +323,13 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          cout <<"End element:"<<str.toStdString()<<endl;
          if(m_reader.name().compare(QString(CONNECTOR_DEF)) == 0)
          {
-            ITEM_ID id = name.toInt();
-            if(!id)
+            ITEM_ID itemId = id.toInt();
+            if(!itemId)
                 id = ID_NONE;
             if(m_points.size() > 0)
             {
                auto pCon = ItemsFactory::createConnector(&m_points,conn_w,(BOARD_LEVEL_ID)level,conType,
-                                                         id,iNoZoom,iNoZoom);
+                                                         itemId,iNoZoom,iNoZoom);
                ConnectorGraphicalItem *pConnector = static_cast<ConnectorGraphicalItem*>(pCon.get());
                //connected items
                if(idToPtr != nullptr)
@@ -341,6 +347,11 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
                   }
 */
                }
+               if(!itemName.isEmpty())
+               {
+                  pCon->setName(itemName.toStdString().c_str());
+                  itemName.clear();
+               }
                return pCon;
             }
             else
@@ -353,22 +364,24 @@ SmartPtr<GraphicalItem> FileReader::parseOneElem(QString& name,QString& type,
          {
             if(m_items.size() > 0)
             {
-               ITEM_ID id = name.toInt();
-               if(!id)
+               ITEM_ID itemId = id.toInt();
+               if(!itemId)
                   id = ID_NONE;
                SmartPtr<GraphicalItem> pC;
                if(bMulti)
                {
                   cout<<"Parsed multiplate"<<endl;
-                  pC = ItemsFactory::createRoundMultiPlate(x_container,y_container,std::vector<SmartPtr<GraphicalItem>>(m_items),id);
+                  pC = ItemsFactory::createRoundMultiPlate(x_container,y_container,std::vector<SmartPtr<GraphicalItem>>(m_items),itemId);
                   bMulti = false;
                }
                else
                {
                   pC =  ItemsFactory::createContainer(x_container,y_container,
-                                                                    level,m_items,id);
+                                                                    level,m_items,itemId);
                }
                static_cast<GenericGraphicalItemsContainer*>(pC.get())->setAsParent(container_is_parent,false);
+//               if()
+//               pC->setNa
                return pC;
             }
             else
@@ -623,7 +636,8 @@ void FileReader::readLibraryFile(QStandardItemModel& model,map<QString,tree_data
        }
        else if(token == QXmlStreamReader::EndElement)
        {
-          curItem = curItem->parent();
+          if(curItem)
+             curItem = curItem->parent();
           if(curItem)
              cout<<curItem->text().toStdString()<<endl;
        }

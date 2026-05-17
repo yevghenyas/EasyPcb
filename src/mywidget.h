@@ -186,7 +186,7 @@ class MyWidget : public QWidget
   vector<BoardLevel> m_AvailLevels;
   FileReader m_reader;
   FileWriter m_writer;
-  QTreeView *m_plibView;
+  QTreeView *m_plibView{nullptr};
   PreviewLabel    *m_plibElementPrwview;
   TreeData m_TreeData;
   map <QString,SchemData> m_schematics;

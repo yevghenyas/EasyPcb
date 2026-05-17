@@ -123,7 +123,6 @@ public:
 
 
 
-
 using VecLayerInrementer = std::vector<BoardLayer>::size_type;
 using VecIdsInc = std::vector<int>::size_type;
 using PcbLayoutVec = vector<vector<ITEM_ID> >;
@@ -207,11 +206,11 @@ public:
     void processSimpleGraphicalItems(QMouseEvent* e);
     void processGerber(QString& name);
     void processExcellon(QString& name);
-    void processPlate(int x,int y);
+    void processPlate(int x,int,const QString *name);
     void preProcessMultiPlate(float dOut,float dIn);
     void processMultiPlate(int x,int y);
     void preProcessPlateRect(float w, float h);
-    void processPlateRect(int x,int y);
+    void processPlateRect(int x,int y,const QString& name);
     void processLine(float w);
     void processVcCon();
     void processPackRect(float wl,bool filled = false);

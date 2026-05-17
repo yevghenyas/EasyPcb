@@ -1,13 +1,16 @@
 #include "setpropscommand.h"
+#include "itemsfactory.h"
 
 
 
 SetPropsCommand::SetPropsCommand(SmartPtr<GraphicalItem>& p,shared_ptr<PointF>& pos,
-                                 shared_ptr<GeomCommonProps>& props,PcBoard *pBoard):m_pItem(p),
+                                 shared_ptr<GeomCommonProps>& props,PcBoard *pBoard,const char *pName):m_pItem(p),
                                  m_pos(pos),m_geom(props),
                                  m_prevPos(m_pItem->x(),m_pItem->y()),
                                  m_prevProps(m_pItem->getGeometry()),m_board(pBoard)
 {
+   strcpy(namePrev,m_pItem->getName());
+   strcpy(nameCur,pName);
 }
 
 SetPropsCommand::~SetPropsCommand()
@@ -30,6 +33,7 @@ void SetPropsCommand::redo()
          m_pItem->setGeometry(*m_geom);
       }
    }
+   ItemsFactory::setItemName(m_pItem,nameCur);
 }
 
 void SetPropsCommand::undo()
@@ -48,4 +52,5 @@ void SetPropsCommand::undo()
          m_pItem->setGeometry(m_prevProps);
       }
    }
+   ItemsFactory::setItemName(m_pItem,namePrev);
 }

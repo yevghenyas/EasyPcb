@@ -1,6 +1,7 @@
 #include "packagewrapper.h"
 #include "drawwrapper.h"
 #include "itemsfactory.h"
+#include "packagegraphicalitem.h"
 
 PackageWrapper::PackageWrapper()
 {
@@ -59,6 +60,7 @@ void PackageWrapper::paintPackage(QPainter& p,BOARD_LEVEL_ID level,
 
 SmartPtr<GraphicalItem> PackageWrapper::commit(BOARD_LEVEL_ID level,bool filled)
 {
+
    //create package
    if(type == PackageType::PackageRect)
    {
@@ -143,3 +145,6 @@ bool PackageWrapper::getArea(QRect& rect,int zoom)
    return true;
 }
 
+bool PackageWrapper::isPackageItem(SmartPtr<GraphicalItem>& ptr)
+{
+}

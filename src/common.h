@@ -421,6 +421,7 @@ constexpr int decMinNumForGerber = 3;
 
 constexpr int orientation_angles[] = {0,90,180,270};
 constexpr int fontSizes[] = {4,5,6,8,10,12,14,16,18,20,22,24,26};
+constexpr int itemNameSize = 16;
 
 enum class ZoomValue {NO_ZOOM = 1,ZOOM_2 = 2,ZOOM_4 = 4,ZOOM_8 = 8,ZOOM_16=16};
 
@@ -1599,5 +1600,11 @@ static void calculatePointsForPins(list<PointF>& pinsCoord,
    }
 }
 
+using GridIndex = std::vector<ITEM_ID> ::size_type;
+
+constexpr GridIndex toGridIndex(int i) noexcept
+{
+   return static_cast<GridIndex>(i);
+}
 
 #endif // COMMONN_H

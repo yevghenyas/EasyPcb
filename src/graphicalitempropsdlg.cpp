@@ -19,6 +19,7 @@
 #include "common.h"
 #include "rectgraphicalitem.h"
 #include "rectpackagegraphicalitem.h"
+#include "packagegraphicalitem.h"
 #include "roundpackagegraphicalitem.h"
 #include "roundplategraphicalitem.h"
 #include "connectorgraphicalitem.h"
@@ -27,13 +28,14 @@
 #include <QMessageBox>
 #include "textgraphicalitem.h"
 #include <QGroupBox>
+#include "itemsfactory.h"
 
-GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<GraphicalItem>& item): QDialog(parent),
-                layersCombo(nullptr),m_pItem(item)
+GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<GraphicalItem>& item,char *pN): QDialog(parent),
+                layersCombo(nullptr),m_pItem(item),pName(pN)
 {
    if (objectName().isEmpty())
       setObjectName(QString::fromUtf8("Dialog"));
-   resize(620, 294);
+   resize(620, 374);
    buttonBox = new QDialogButtonBox(this);
    buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
    buttonBox->setGeometry(QRect(520, 20, 81, 241));
@@ -41,16 +43,22 @@ GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<Graphical
    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
    gridLayoutWidget = new QWidget(this);
    gridLayoutWidget->setObjectName(QString::fromUtf8("gridLayoutWidget"));
-   gridLayoutWidget->setGeometry(QRect(9, 10, 470, 280));
+   gridLayoutWidget->setGeometry(QRect(9, 10, 470, 340));
    gridLayout = new QGridLayout(gridLayoutWidget);
 
    int rowCounter = 0;
 
-   createOneRow(X_DEF,"posXSpinBox",&posXSpinBox,
-                static_cast<double>(m_pItem->x()),rowCounter++);
+   bool bVcCon = false;
 
-   createOneRow(Y_DEF,"posYSpinBox",&posYSpinBox,
-                static_cast<double>(m_pItem->y()),rowCounter++);
+   m_itemName = static_cast<QLineEdit*>(createOneRow(NAME_DEF,"Name",-1,rowCounter++));
+   m_itemName->setMaxLength(itemNameSize - 1);
+   m_itemName->setText(item->getName());
+
+   posXSpinBox = static_cast<QDoubleSpinBox*>(createOneRow(X_DEF,"posXSpinBox",
+                static_cast<double>(m_pItem->x()),rowCounter++));
+
+   posYSpinBox = static_cast<QDoubleSpinBox*>(createOneRow(Y_DEF,"posYSpinBox",
+                static_cast<double>(m_pItem->y()),rowCounter++));
 
    //check type of grapfical item
    ContainerType type = ContainerType::NonContainer;
@@ -75,6 +83,8 @@ GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<Graphical
    else if(ConnectorGraphicalItem *pln = dynamic_cast<ConnectorGraphicalItem*>(m_pItem.get()))
    {
       setFieldsForLine(pln->width(),rowCounter);
+      bVcCon = pln->getConnectorType() == CONNECTOR_TYPE::SCHEMATIC;
+
    }
    else if(CapGraphicalItem *pc = dynamic_cast<CapGraphicalItem*>(m_pItem.get()))
    {
@@ -106,13 +116,13 @@ GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<Graphical
             else
                p->setCheckState(Qt::Unchecked);
             multiplateChks.push_back(p);
-            gridLayout->addWidget(p, 2 + static_cast<int>(i), 1, 1, 1);
+            gridLayout->addWidget(p, rowCounter + static_cast<int>(i), 1, 1, 1);
          }
       }
    }
-   if(type == ContainerType::RelocatableDipType ||
+   if(!bVcCon && (type == ContainerType::RelocatableDipType ||
       type == ContainerType::RelocatableSoType ||
-      type == ContainerType::NonContainer )
+      type == ContainerType::NonContainer ))
    {
       bool bEnableCombo = true;
       vector<BoardLevel> v;
@@ -139,11 +149,27 @@ GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<Graphical
       if(!bEnableCombo)
          layersCombo->setEnabled(false);
    }
+   if(type != ContainerType::NonContainer && !bVcCon)
+   {
+      auto cont = dynamic_cast<GenericGraphicalItemsContainer*>(m_pItem.get());
+      if(cont != nullptr)
+      {
+         for(auto& child:*cont->getChildren())
+         {
+            if(ItemsFactory::isPackageGraphicalItem(child))
+            {
+               m_itemName->setText(child->getName());
+               break;
+            }
+         }
+      }
+   }
 
    updPropsChk = new QCheckBox(gridLayoutWidget);
    updPropsChk->setObjectName(QString::fromUtf8("checkBox"));
    updPropsChk->setText(tr(UPDATE_GEOM_PRP_STR));
    gridLayout->addWidget(updPropsChk); //, 3, 0, 1, 1);
+
 
    connect(posXSpinBox,SIGNAL(valueChanged(double)),this,SLOT(changedProperties(double)));
    connect(posYSpinBox,SIGNAL(valueChanged(double)),this,SLOT(changedProperties(double)));
@@ -157,31 +183,51 @@ GraphicalItemPropsDlg::GraphicalItemPropsDlg(QWidget* parent, SmartPtr<Graphical
    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
+   //for Schematic connectors only name is allowed to edit
+   if(bVcCon)
+   {
+       posXSpinBox->setEnabled(false);
+       posYSpinBox->setEnabled(false);
+       updPropsChk->setEnabled(false);
+       geomASpinBox->setEnabled(false);
+       radioRound->setEnabled(false);
+       radioSquared->setEnabled(false);
+   }
+
+
    QMetaObject::connectSlotsByName(this);   
 
 }
 
-void GraphicalItemPropsDlg::createOneRow(const char *szLabelName,
+QWidget* GraphicalItemPropsDlg::createOneRow(const char *szLabelName,
                                          const char *szSpinName,
-                                         QDoubleSpinBox **spinBox,
                                          double value,
                                          int row,
                                          int minValue,
                                          int maxValue)
 {
-    QLabel *label = new QLabel(gridLayoutWidget);
-    label->setObjectName(QString::fromUtf8(szLabelName));
-    label->setText(QString::fromUtf8(szLabelName));
+   QWidget *pWidget = nullptr;
+   QLabel *label = new QLabel(gridLayoutWidget);
+   label->setObjectName(QString::fromUtf8(szLabelName));
+   label->setText(QString::fromUtf8(szLabelName));
 
-    gridLayout->addWidget(label, row, 0, 1, 1);
-
-    *spinBox = new QDoubleSpinBox(gridLayoutWidget);
-    (*spinBox)->setObjectName(QString::fromUtf8(szSpinName));
-    (*spinBox)->setMinimum(minValue);
-    (*spinBox)->setMaximum(maxValue);
-    (*spinBox)->setValue(value);
-    gridLayout->addWidget(*spinBox, row, 1, 1, 1);
-
+   gridLayout->addWidget(label, row, 0, 1, 1);
+   if(strcmp(szLabelName,NAME_DEF) == 0)
+   {
+      pWidget = new QLineEdit(gridLayoutWidget);
+      gridLayout->addWidget(pWidget, row, 1, 1, 1);
+   }
+   else
+   {
+      pWidget = new QDoubleSpinBox(gridLayoutWidget);
+      QDoubleSpinBox *pSpin = static_cast<QDoubleSpinBox*>(pWidget);
+      pSpin->setObjectName(QString::fromUtf8(szSpinName));
+      pSpin->setMinimum(minValue);
+      pSpin->setMaximum(maxValue);
+      pSpin->setValue(value);
+      gridLayout->addWidget(pSpin, row, 1, 1, 1);
+   }
+   return pWidget;
 }
 
 void GraphicalItemPropsDlg::createLayersCombo(ContainerType type,set<BOARD_LEVEL_ID> &ids,
@@ -203,7 +249,6 @@ void GraphicalItemPropsDlg::createLayersCombo(ContainerType type,set<BOARD_LEVEL
          if(LevelsWrapper::isActiveLevelExternal(id))
             return id;
       };
-
 
    layersCombo = new LayersCombo(type == ContainerType::NonContainer ?
                                      LayersCombo::ComboType::Drawable :
@@ -263,6 +308,7 @@ bool GraphicalItemPropsDlg::getResult(BOARD_LEVEL_ID &iLevel,
    //check type of grapfical item
    //and set geometry values
    containerType = ContainerType::NonContainer;
+   ConnectorGraphicalItem *pCon = nullptr;
    if(dynamic_cast<RectGraphicalItem*>(m_pItem.get()))
    {
       props.reset(makeRectGeom(static_cast<float>(geomASpinBox->value()),
@@ -285,10 +331,20 @@ bool GraphicalItemPropsDlg::getResult(BOARD_LEVEL_ID &iLevel,
       props.reset(makeRoundPlateGeom(static_cast<float>(geomASpinBox->value()),
                                       static_cast<float>(geomBSpinBox->value())));
    }
-   else if(dynamic_cast<ConnectorGraphicalItem*>(m_pItem.get()))
+   else if((pCon =  dynamic_cast<ConnectorGraphicalItem*>(m_pItem.get())) != nullptr)
    {
-      LINE_STYLE st = radioSquared->isChecked() ? LINE_STYLE::LINE_SQUARED : LINE_STYLE::LINE_ROUNDED;
-      props.reset(makeLineGeom(static_cast<float>(geomASpinBox->value()),st));
+      if(pCon->getConnectorType() != CONNECTOR_TYPE::SCHEMATIC)
+      {
+         LINE_STYLE st = radioSquared->isChecked() ? LINE_STYLE::LINE_SQUARED : LINE_STYLE::LINE_ROUNDED;
+         props.reset(makeLineGeom(static_cast<float>(geomASpinBox->value()),st));
+      }
+      else
+      {
+         //all properties are the same, name is set in accept
+         props.reset(makeLineGeom(pCon->width() ,pCon->getStyle()));
+         iLevel = BOARD_LEVEL_ID::LEVEL_VC;
+         return true;
+      }
    }
    else if(dynamic_cast<CapGraphicalItem*>(m_pItem.get()))
    {
@@ -399,22 +455,22 @@ void GraphicalItemPropsDlg::setFieldsForText(int fntSize,
 void GraphicalItemPropsDlg::setFieldsForRects(float width, float height,
                                               int& rowCounter)
 {
-    createOneRow(WIDTH_DEF,"geomASpinBox",&geomASpinBox,
-                 static_cast<double>(width),rowCounter++);
+    geomASpinBox = static_cast<QDoubleSpinBox*>(createOneRow(WIDTH_DEF,"geomASpinBox",
+                 static_cast<double>(width),rowCounter++));
 
-    createOneRow(HEIGHT_DEF,"geomBSpinBox",&geomBSpinBox,
-                 static_cast<double>(height),rowCounter++);
+    geomBSpinBox = static_cast<QDoubleSpinBox*>(createOneRow(HEIGHT_DEF,"geomBSpinBox",
+                 static_cast<double>(height),rowCounter++));
 }
 
 void GraphicalItemPropsDlg::setFieldsForRounds(float d_ex,float ,
                                                float d_in,int& rowCounter)
 {
-    createOneRow(D_EX_DEF,"geomASpinBox",&geomASpinBox,
-                 static_cast<double>(d_ex),rowCounter++);
+    geomASpinBox = static_cast<QDoubleSpinBox*>(createOneRow(D_EX_DEF,"geomASpinBox",
+                 static_cast<double>(d_ex),rowCounter++));
 
     if(d_in > 0)
-       createOneRow(D_IN_DEF,"geomBSpinBox",&geomBSpinBox,
-                 static_cast<double>(d_in),rowCounter++);
+       geomBSpinBox = static_cast<QDoubleSpinBox*>(createOneRow(D_IN_DEF,"geomBSpinBox",
+                 static_cast<double>(d_in),rowCounter++));
 
 }
 
@@ -425,18 +481,18 @@ void GraphicalItemPropsDlg::setFieldsForRoundShape(float d_ex,float ,
                                                bool closed,
                                                int& rowCounter)
 {
-    createOneRow(D_EX_DEF,"geomASpinBox",&geomASpinBox,
-                 static_cast<double>(d_ex),rowCounter++);
+    geomASpinBox = static_cast<QDoubleSpinBox*>(createOneRow(D_EX_DEF,"geomASpinBox",
+                 static_cast<double>(d_ex),rowCounter++));
 
     if(d_in > 0)
-       createOneRow(D_IN_DEF,"geomBSpinBox",&geomBSpinBox,
-                 static_cast<double>(d_in),rowCounter++);
+       geomBSpinBox = static_cast<QDoubleSpinBox*>(createOneRow(D_IN_DEF,"geomBSpinBox",
+                 static_cast<double>(d_in),rowCounter++));
 
-    createOneRow(ANGLE_ST_DEF,"geomASpinBox",&geomStAngSpin,
-                 a_start,rowCounter++,-180,180);
+    geomStAngSpin = static_cast<QDoubleSpinBox*>(createOneRow(ANGLE_ST_DEF,"geomStSpinBox",
+                 a_start,rowCounter++,-180,180));
 
-    createOneRow(ANGLE_SP_DEF,"geomASpinBox",&geomSpAngSpin,
-                 a_span,rowCounter++,-180,270);
+    geomSpAngSpin = static_cast<QDoubleSpinBox*>(createOneRow(ANGLE_SP_DEF,"geomApSpinBox",
+                 a_span,rowCounter++,-180,270));
 
     chkChord = new QCheckBox(gridLayoutWidget);
     chkChord->setObjectName(QString::fromUtf8("checkBoxChord"));
@@ -480,8 +536,8 @@ void GraphicalItemPropsDlg::drawLineForRadio(QPixmap *pBuf,LINE_STYLE st)
 
 void GraphicalItemPropsDlg::setFieldsForLine(float w,int& rowCounter)
 {
-    createOneRow(WIDTH_DEF,"geomASpinBox",&geomASpinBox,
-                 static_cast<double>(w),rowCounter++);
+   geomASpinBox = static_cast<QDoubleSpinBox*>(createOneRow(WIDTH_DEF,"geomASpinBox",
+                 static_cast<double>(w),rowCounter++));
 
    posYSpinBox->setEnabled(false);
    posXSpinBox->setEnabled(false);
@@ -510,10 +566,45 @@ void GraphicalItemPropsDlg::setFieldsForLine(float w,int& rowCounter)
    checkSqStyle->setChecked(pLine->getStyle() == LINE_STYLE::LINE_SQUARED);
    gridLayout->addWidget(checkSqStyle, rowCounter++, 0, 1, 1);
 */
+
 }
 
 void GraphicalItemPropsDlg::accept()
 {
+   if(m_itemName->isEnabled())
+      strcpy(pName,m_itemName->text().toStdString().c_str());
+/*
+   if(!m_itemName->text().isEmpty())
+   {
+
+       auto p = m_pItem.get();
+       auto bEnable = dynamic_cast<RoundPlateGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<RectGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<PackageGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<RoundPackageGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<RectPackageGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<ConnectorGraphicalItem*>(p) != nullptr;
+       if(!bEnable)
+       {
+          GenericGraphicalItemsContainer *pCont = nullptr;
+          if((pCont = dynamic_cast<GenericGraphicalItemsContainer*>(p)) != nullptr)
+          {
+             for(auto& item:*pCont->getChildren())
+             {
+                if(ItemsFactory::isPackageGraphicalItem(item))
+                {
+                   item->setName(m_itemName->text().toStdString().c_str());
+                   break;
+                }
+             }
+          }
+       }
+       else
+       {
+          m_pItem->setName(m_itemName->text().toStdString().c_str());
+       }
+   }
+*/
    QDialog::accept();
 }
 
@@ -564,6 +655,18 @@ ContainerType GraphicalItemPropsDlg::checkContainerType(GraphicalItem *p,set<BOA
             levelIds.insert((*pV)[i]->getLevel());
          }
       }
+   }
+   else
+   {
+       auto bEnable = dynamic_cast<RoundPlateGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<RectGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<PackageGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<RoundPackageGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<RectPackageGraphicalItem*>(p) != nullptr ||
+           dynamic_cast<ConnectorGraphicalItem*>(p) != nullptr;
+      m_itemName->setEnabled(bEnable);
+      if(bEnable)
+         m_itemName->setText(p->getName());
    }
    return type;
 }

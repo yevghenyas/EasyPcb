@@ -1,5 +1,4 @@
 #include <QApplication>
-#include "easypcb.h"
 #include "mywidget.h"
 #include <QMainWindow>
 #include "mainwindow.h"

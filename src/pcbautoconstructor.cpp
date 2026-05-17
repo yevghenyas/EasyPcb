@@ -4,7 +4,7 @@
 #include "multiplategraphicalitem.h"
 #include "itemsfactory.h"
 #include <future>
-
+using namespace std::chrono;
 
 
 PcbAutoConstructor::PcbAutoConstructor(QWidget *p,const float fWidth,
@@ -753,6 +753,7 @@ ConstructedLayer PcbAutoConstructor::constructOneLayer(BoardLayer& boardLayer,
                                                 IDsGenerator::instance()->getNewID());
               QString str_id = QString::number(connector->getID());
               vcIdToConPoints.insert(multimap<QString,SmartPtr<GraphicalItem>>::value_type(str_id,p));
+//              cout<<"Inserted for connector ID="<<str_id.toStdString()<<" address="<<p.get()<<endl;
               if(bReturnPartial) //partial part was returned
               {
                  //we have first part of partial path from ax,ay
@@ -868,7 +869,7 @@ int PcbAutoConstructor::constructPcbLayoutInternal(BoardLayersWrapper& boardLaye
   vector<UniCoord> py((sizeX + sizeY) * 2,ID_NONE);
   map<QString,vector<PointF> > mapOfLinesData;
   int ret = 0; //0 - means success
-  LeeConstrPathStrategy leeStrategy(LEE_STRATEGY::SHORTEST_PATH);
+  LeeConstrPathStrategy leeStrategy(LEE_STRATEGY::LOWEST_COPPER_DENSITY);
   map<BOARD_LEVEL_ID, vector<vector<float> > > layersDensity;
   vector<SmartPtr<GraphicalItem>> vcConsCopy;
   try
@@ -1181,7 +1182,7 @@ void PcbAutoConstructor::constructPcbLayout(BoardLayersWrapper& boardLayers,    
    progress.resize(640,480);
    progress.setWindowModality(Qt::WindowModal);
 
-   while(res.wait_for(500ms) != std::future_status::ready)
+   while(res.wait_for(std::chrono::milliseconds(500)) != std::future_status::ready)
    {
       progress.setValue(progrCounter);
       progress.repaint();

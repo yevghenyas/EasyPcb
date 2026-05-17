@@ -4,9 +4,11 @@
 #include <QWizardPage>
 #include <QListWidget>
 #include <QPushButton>
+#include <QLineEdit>
 #include "common.h"
 #include "genericgraphicalitemscontainer.h"
 #include "pagedata.h"
+
 
 class GenPackWizPinsDescPage : public QWizardPage
 {
@@ -16,6 +18,7 @@ class GenPackWizPinsDescPage : public QWizardPage
    QPushButton *but1{nullptr};
    QPushButton *but2{nullptr};
    PageData    *pData{nullptr};
+   QLineEdit   *pNameText{nullptr};
 public:
    GenPackWizPinsDescPage(PageData *p);
    void initializePage() override;

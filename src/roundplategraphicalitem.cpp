@@ -31,6 +31,7 @@ RoundPlateGraphicalItem::RoundPlateGraphicalItem(float x,float y,float d1,float 
 {
    //add code here
    m_bVisible = true;
+   name[0] = 0;
 }
 
 
@@ -108,6 +109,13 @@ void RoundPlateGraphicalItem::setY(float y)
 void RoundPlateGraphicalItem::paintInternal(QPainter& painter, QColor& c,PointF& point,int zoom,int zoom_d)
 {
    DrawWrapper::drawPlateF(painter,c,point.x(),point.y(),m_D,m_d,zoom,zoom_d);
+   if(strlen(name) > 0)
+   {
+      QString str(name);
+      QColor c_text(Qt::GlobalColor::lightGray);
+      DrawWrapper::drawText(painter,c_text,str,fontSizes[0],point.x(),point.y(),0,0,m_type,zoom,zoom_d);
+   }
+
    if(m_vcCons)
    {
       //using virtual connector color to draw connector plates
@@ -174,6 +182,7 @@ SmartPtr<GraphicalItem> RoundPlateGraphicalItem::clone()
    p->setSelected(m_selected);
    p->setParent(m_parent,false);
    p->setType(m_type);
+   p->setName(name);
    return p;   
 }
 

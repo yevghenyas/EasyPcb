@@ -450,7 +450,7 @@ SmartPtr<GraphicalItem> ConnectorGraphicalItem::clone()
       else if (m_vcCons)
          static_cast<ConnectorGraphicalItem*>(p.get())->addConnectedNode(m_vcCons->find(i)->second);
    }
-
+   p->setName(name);
 /*
    if(m_vcCons.get() != nullptr)
    {

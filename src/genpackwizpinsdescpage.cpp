@@ -8,9 +8,17 @@
 #include "itemsfactory.h"
 #include <QGuiApplication>
 #include <QScreen>
+#include <QLabel>
 
 GenPackWizPinsDescPage::GenPackWizPinsDescPage(PageData *p) : pData(p)
 {
+   QVBoxLayout *vBoxParent = new QVBoxLayout;
+   QHBoxLayout *hBoxText = new QHBoxLayout;
+   QLabel *pLabel = new QLabel(tr("Package name"));
+   pNameText = new QLineEdit();
+   pNameText->setMaxLength(15);
+   hBoxText->addWidget(pLabel);
+   hBoxText->addWidget(pNameText);
    QHBoxLayout *hBox = new QHBoxLayout;
    QVBoxLayout *vBox = new QVBoxLayout;
    lWidget1 = new QListWidget();
@@ -24,7 +32,9 @@ GenPackWizPinsDescPage::GenPackWizPinsDescPage(PageData *p) : pData(p)
    lWidget2 = new QListWidget();
    hBox->addLayout(vBox);
    hBox->addWidget(lWidget2);
-   setLayout(hBox);
+   vBoxParent->addLayout(hBoxText);
+   vBoxParent->addLayout(hBox);
+   setLayout(vBoxParent);
 }
 
 void GenPackWizPinsDescPage::initializePage()
@@ -95,12 +105,15 @@ bool GenPackWizPinsDescPage::validatePage()
    bool bDip = field("dipType").toBool();
    vector<SmartPtr<GraphicalItem>> textVector;
    // children[0] - PackageGraphicalItem we dont take it into account
+   if(!pNameText->text().isEmpty())
+      children->at(0)->setName(pNameText->text().toStdString().c_str());
    for(size_t i = 1 ; i < children->size(); ++i)
    {
       auto pair = pinToTextMap.find(i - 1);
       if(pair != pinToTextMap.end())
       {
          auto& child = children->at(i);
+         child->setName(pair->second.toStdString().c_str());
          auto orientation = child->getType();
          QScreen* pScreen = QGuiApplication::primaryScreen();
          auto ratioY = pScreen->physicalDotsPerInchY()/72;
@@ -156,4 +169,10 @@ bool GenPackWizPinsDescPage::validatePage()
    pContaniner->unGroupItems();
    children->insert(children->end(),textVector.begin(),textVector.end());
    pContaniner->groupItems();
+   for(auto& ch:*pContaniner->getChildren())
+   {
+      cout<<"name="<<ch->getName()<<endl;
+   }
+   pData->bValidated = true;
+   return true;
 }

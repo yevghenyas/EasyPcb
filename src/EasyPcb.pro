@@ -70,7 +70,6 @@ SOURCES += \
     setboardprops.cpp \
     addvirtconitem.cpp \
     boardlayer.cpp \
-    easypcb.cpp \
     pcboard.cpp \
     pcboardpropsdlg.cpp \
     textgraphicalitem.cpp \
@@ -90,8 +89,9 @@ SOURCES += \
     packagewrapper.cpp \
     gerbergenerator.cpp \
     editexporttogerberprops.cpp \
-    excellongenerator.cpp
-
+    excellongenerator.cpp \
+    resultsautodlg.cpp \
+    myinputdialog.cpp
 HEADERS += \
     genpackwizard.h \
     genpackwizpinsdescpage.h \
@@ -138,7 +138,6 @@ HEADERS += \
     addvirtconitem.h \
     smartptr.h \
     boardlayer.h \
-    easypcb.h \
     pcboard.h \
     pcboardpropsdlg.h \
     textgraphicalitem.h \
@@ -159,7 +158,9 @@ HEADERS += \
     packagewrapper.h \
     gerbergenerator.h \
     editexporttogerberprops.h \
-    excellongenerator.h
+    excellongenerator.h \
+    resultsautodlg.h \
+    myinputdialog.h
 
 RESOURCES += \
     easypcb.qrc

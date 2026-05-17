@@ -35,7 +35,6 @@ bool BoardLayer::getItem(const QString& name,SmartPtr<GraphicalItem>& ptr)
 }
 void BoardLayer::addGraphicalItemToLevel(const QString& name,SmartPtr<GraphicalItem> item)
 {
-   cout<<"adding to level="<<idLevel<<" name="<<name.toStdString()<<endl;
    if(dynamic_cast<ConnectorGraphicalItem*>(item.get()))
       m_connectorsInLevel[name] = item;
    else
@@ -45,7 +44,6 @@ void BoardLayer::addGraphicalItemToLevel(SmartPtr<GraphicalItem> item)
 {
    char buf[64];
    sprintf(buf,"%d",item->getID());
-//   cout<<"adding to level="<<idLevel<<" name="<<buf<<"refs "<<p->getRefs()<<endl;
    if(dynamic_cast<ConnectorGraphicalItem*>(item.get()))
    {
       if(m_connectorsInLevel.find(buf) == m_connectorsInLevel.end())
@@ -193,6 +191,7 @@ void BoardLayer::paintItems(QPainter& p,int mode,int zoom)
       {
          item.second->paintItem(p,c2,zoom,1,idLevel);
       }
+//      cout<<" paint ID="<<item.second->getID()<<" name="<<item.second->getName()<<endl;
    }
 
    for(auto& item:m_itemsInLevel)
@@ -210,6 +209,7 @@ void BoardLayer::paintItems(QPainter& p,int mode,int zoom)
       {
          item.second->paintItem(p,c2,zoom,1,idLevel);
       }
+ //     cout<<" paint ID="<<item.second->getID()<<" name="<<item.second->getName()<<endl;
    }
 }
 GraphicalItemsMap* BoardLayer::getItemsInLevel()

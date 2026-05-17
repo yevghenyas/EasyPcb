@@ -34,3 +34,13 @@ void MultiplateGraphicalItem::setGeometry(GeomCommonProps &props)
    getFirstPlate()->setGeometry(props);
    getSecondPlate()->setGeometry(props);
 }
+
+void MultiplateGraphicalItem::setName(const char *pName)
+{
+   getFirstPlate()->setName(pName);
+}
+
+const char* MultiplateGraphicalItem::getName()
+{
+   return getFirstPlate()->getName();
+}

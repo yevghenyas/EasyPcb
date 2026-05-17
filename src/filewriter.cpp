@@ -70,19 +70,20 @@ void FileWriter::writeItems(std::map<QString,SmartPtr<GraphicalItem> >& items)
    }
 }
 
-void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
+void FileWriter::parseAndWriteItem(const QString& id,GraphicalItem* p)
 {
+   cout<<"Write ID="<<" itemID="<<p->getID() << " name="<<p->getName()<<endl;
    bool bMulti = dynamic_cast<MultiplateGraphicalItem*> (p) != nullptr;
    GenericGraphicalItemsContainer *pC;
    if((pC = dynamic_cast<GenericGraphicalItemsContainer*> (p)))
    {
       //check if we already processed this container for another layer
-      if(m_containers.find(name) == m_containers.end())
-         m_containers.insert(name);
+      if(m_containers.find(id) == m_containers.end())
+         m_containers.insert(id);
       else
          return;
       m_xmlWriter.writeStartElement(CONTAINER_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      m_xmlWriter.writeAttribute(ID_DEF,id);
       if(bMulti)
          m_xmlWriter.writeAttribute(TYPE_DEF,"multi");
       else
@@ -105,7 +106,9 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    if((pL = dynamic_cast<ConnectorGraphicalItem*> (p)))
    {
       m_xmlWriter.writeStartElement(CONNECTOR_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      m_xmlWriter.writeAttribute(ID_DEF,id);
+      if(strlen(pL->getName()) > 0)
+         m_xmlWriter.writeAttribute(NAME_DEF,pL->getName());
       m_xmlWriter.writeAttribute(TYPE_DEF,CONNECTOR_TYPE_DEF);
       m_xmlWriter.writeAttribute(WIDTH_DEF,QString::number(pL->width()));
       m_xmlWriter.writeAttribute(LEVEL_DEF,QString::number(pL->getLevel()));
@@ -125,7 +128,7 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
          for(auto& item:*connItems)
          {
             m_xmlWriter.writeStartElement(PLATE_CNT);
-            m_xmlWriter.writeAttribute(NAME_DEF,QString::number(item.second->getID()));
+            m_xmlWriter.writeAttribute(ID_DEF,QString::number(item.second->getID()));
             m_xmlWriter.writeAttribute("Ind",QString::number(item.first));
 //         m_xmlWriter.writeAttribute(X_DEF,std::to_string(item.second->x()).c_str());
 //         m_xmlWriter.writeAttribute(Y_DEF,std::to_string(item.second->y()).c_str());
@@ -138,9 +141,11 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    RoundPlateGraphicalItem* pRp;
    if((pRp = dynamic_cast<RoundPlateGraphicalItem*> (p)) )
    {
-      auto xx = QString::number(pRp->x());
+//      auto xx = QString::number(pRp->x());
       m_xmlWriter.writeStartElement(PLATE_RND_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      if(strlen(pRp->getName()) > 0)
+         m_xmlWriter.writeAttribute(NAME_DEF,pRp->getName());
+      m_xmlWriter.writeAttribute(ID_DEF,id);
       m_xmlWriter.writeAttribute(TYPE_DEF,PLATE_ROUNd_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pRp->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRp->y()));
@@ -154,7 +159,10 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    if((pRpkg = dynamic_cast<RectPackageGraphicalItem*> (p)))
    {
       m_xmlWriter.writeStartElement(PACKAGE_RECT_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      if(strlen(pRpkg->getName()) > 0)
+         m_xmlWriter.writeAttribute(NAME_DEF,pRpkg->getName());
+
+      m_xmlWriter.writeAttribute(ID_DEF,id);
       m_xmlWriter.writeAttribute(TYPE_DEF,RECT_PKG_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pRpkg->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRpkg->y()));
@@ -170,7 +178,9 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    if((pPkg = dynamic_cast<PackageGraphicalItem*> (p)))
    {
       m_xmlWriter.writeStartElement(PACKAGE_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      if(strlen(pPkg->getName()) > 0)
+         m_xmlWriter.writeAttribute(NAME_DEF,pPkg->getName());
+      m_xmlWriter.writeAttribute(ID_DEF,id);
       m_xmlWriter.writeAttribute(TYPE_DEF,PKG_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pPkg->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pPkg->y()));
@@ -185,7 +195,9 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    if((pRndPkg = dynamic_cast<RoundPackageGraphicalItem*> (p)))
    {
       m_xmlWriter.writeStartElement(PACKAGE_RND_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      m_xmlWriter.writeAttribute(ID_DEF,id);
+      if(strlen(pRndPkg->getName()) > 0)
+         m_xmlWriter.writeAttribute(NAME_DEF,pRndPkg->getName());
       m_xmlWriter.writeAttribute(TYPE_DEF,RND_PKG_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pRndPkg->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRndPkg->y()));
@@ -202,7 +214,10 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    if((pRect = dynamic_cast<RectGraphicalItem*> (p)))
    {
       m_xmlWriter.writeStartElement(PLATE_RECT_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      if(strlen(pRect->getName()) > 0)
+         m_xmlWriter.writeAttribute(NAME_DEF,pRect->getName());
+
+      m_xmlWriter.writeAttribute(ID_DEF,id);
       m_xmlWriter.writeAttribute(TYPE_DEF,RECT_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pRect->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pRect->y()));
@@ -217,7 +232,7 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    if((pCap = dynamic_cast<CapGraphicalItem*> (p)))
    {
       m_xmlWriter.writeStartElement(CAP_SCEMATIC_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      m_xmlWriter.writeAttribute(ID_DEF,id);
       m_xmlWriter.writeAttribute(TYPE_DEF,CAP_SCHEM_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pCap->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pCap->y()));
@@ -231,7 +246,7 @@ void FileWriter::parseAndWriteItem(const QString& name,GraphicalItem* p)
    {
 
       m_xmlWriter.writeStartElement(TEXT_DEF);
-      m_xmlWriter.writeAttribute(NAME_DEF,name);
+      m_xmlWriter.writeAttribute(ID_DEF,id);
       m_xmlWriter.writeAttribute(TYPE_DEF,TEXT_TYPE_DEF);
       m_xmlWriter.writeAttribute(X_DEF,QString::number(pText->x()));
       m_xmlWriter.writeAttribute(Y_DEF,QString::number(pText->y()));

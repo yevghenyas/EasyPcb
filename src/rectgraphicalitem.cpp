@@ -49,6 +49,13 @@ void RectGraphicalItem::paintItemIntoBuffer(float difX,float difY,QPainter& p, Q
    DrawWrapper::drawRectPlateF(p,c,m_type,x1 + difX,
                                           y1 + difY,
                                            m_w,m_h,zoom,zoom_d);
+   if(strlen(name) > 0)
+   {
+      QString str(name);
+      QColor c_text(Qt::GlobalColor::lightGray);
+      DrawWrapper::drawText(p,c_text,str,fontSizes[0],x1,y1,0,0,m_type,zoom,zoom_d);
+   }
+
 /*   if(m_vcCons && m_vcCons->size() > 0)
    {
       //using virtual connector color to draw connector plates
@@ -66,6 +73,12 @@ void RectGraphicalItem::paintItem(QPainter& p, QColor& c,int zoom,int zoom_d, BO
       float x1,y1;
       coordRelativeToAbsolute(x1,y1);   
       DrawWrapper::drawRectPlateF(p,c,m_type,x1,y1,m_w,m_h,zoom,zoom_d);
+      if(strlen(name) > 0)
+      {
+         QString str(name);
+         QColor c_text(Qt::GlobalColor::lightGray);
+         DrawWrapper::drawText(p,c_text,str,fontSizes[0],x1,y1,0,0,m_type,zoom,zoom_d);
+      }
 /*      if(m_vcCons && m_vcCons->size() > 0)
       {
          //using virtual connector color to draw connector plates
@@ -170,6 +183,7 @@ SmartPtr<GraphicalItem> RectGraphicalItem::clone()
    p->setSelected(m_selected);
    p->setParent(m_parent,false);
    p->setType(m_type);
+   p->setName(name);
    return p;   
 }
 
@@ -184,6 +198,7 @@ GraphicalItem* RectGraphicalItem::isConnectable(PointF& pt,BOARD_LEVEL_ID layerI
 //   cout<<"pt x="<<pt.x()<<"y="<<pt.y()<<"m_x="<<m_x<<"m_y="<<m_y<<endl;
    if(m_level == layerId)
    {
+      cout<<"level="<<m_level<<" ====="<<name<<endl;
       if (isPointInF(pt.x(),pt.y(),LEVEL_ALL))
       {
          float x1,y1;

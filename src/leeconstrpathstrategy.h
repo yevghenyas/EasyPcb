@@ -5,7 +5,6 @@
 
 
 
-
 class LeeConstrPathStrategy
 {
    LEE_STRATEGY strategy{LEE_STRATEGY::SHORTEST_PATH};
